@@ -6,19 +6,27 @@ use Illuminate\Database\Eloquent\Model;
 
 class Member extends Model
 {
-    public function user(){
+
+    protected $fillable = [
+        'user_id',
+    ];
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function subscriptions(){
+    public function subscription()
+    {
         return $this->hasMany(Subscription::class);
     }
 
-    public function bookings(){
+    public function bookings()
+    {
         return $this->hasMany(Booking::class);
     }
 
-    public function reviews(){
+    public function reviews()
+    {
         return $this->hasMany(TrainerReview::class);
     }
 }

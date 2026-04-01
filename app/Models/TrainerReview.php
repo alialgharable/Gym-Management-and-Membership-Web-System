@@ -6,6 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class TrainerReview extends Model
 {
+
+    protected $fillable = [
+        'member_id',
+        'trainer_id',
+        'rating',
+        'comment',
+    ];
+
+
     public function member()
     {
         return $this->belongsTo(Member::class);
