@@ -20,7 +20,7 @@ class Trainer extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function classes()
+    public function gymClasses()
     {
         return $this->hasMany(GymClass::class);
     }

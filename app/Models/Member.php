@@ -17,7 +17,7 @@ class Member extends Model
 
     public function subscription()
     {
-        return $this->hasMany(Subscription::class);
+        return $this->hasOne(Subscription::class);
     }
 
     public function bookings()

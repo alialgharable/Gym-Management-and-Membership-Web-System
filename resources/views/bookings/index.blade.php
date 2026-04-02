@@ -5,25 +5,56 @@
 @section('content')
     <div class="page-header">
         <div>
-            <h1 class="section-title">All Bookings</h1>
-            <p class="section-subtitle">Review your upcoming classes and booking status in a clean dashboard layout.</p>
+            <h1 class="section-title">Class Bookings</h1>
+            <p class="section-subtitle">Manage member bookings for gym classes</p>
         </div>
-        <a href="{{ route('bookings.create') }}" class="field-button">Create Booking</a>
+        <a href="{{ route('bookings.create') }}" class="btn btn-primary">+ New Booking</a>
     </div>
 
-    @if($bookings->isEmpty())
-        <div class="alert">
-            No bookings found yet. Create a new booking to get started.
+    @if ($bookings->count())
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Member</th>
+                        <th>Class</th>
+                        <th>Status</th>
+                        <th>Booked On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($bookings as $booking)
+                        <tr>
+                            <td>#{{ $booking->id }}</td>
+                            <td>{{ $booking->member->user->name ?? 'N/A' }}</td>
+                            <td>{{ $booking->gymClass->name ?? 'N/A' }}</td>
+                            <td>
+                                <span style="color: {{ $booking->status === 'confirmed' ? '#5fd68f' : '#ffd700' }};">
+                                    {{ ucfirst($booking->status) }}
+                                </span>
+                            </td>
+                            <td>{{ $booking->created_at->format('M d, Y') }}</td>
+                            <td>
+                                <div class="actions">
+                                    <a href="{{ route('bookings.show', $booking) }}" class="btn btn-secondary">View</a>
+                                    <a href="{{ route('bookings.edit', $booking) }}" class="btn btn-secondary">Edit</a>
+                                    <form action="{{ route('bookings.destroy', $booking) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     @else
-        <div class="card-grid">
-            @foreach($bookings as $booking)
-                <article class="card">
-                    <h2>{{ $booking->gymClass->name ?? 'Unassigned Class' }}</h2>
-                    <p><strong>Status:</strong> {{ ucfirst($booking->status) }}</p>
-                    <p><strong>Date:</strong> {{ optional($booking->scheduled_at)->format('F j, Y g:i A') ?? 'Not scheduled' }}</p>
-                </article>
-            @endforeach
+        <div class="alert alert-warning">
+            No bookings found. <a href="{{ route('bookings.create') }}" style="color: #ffd700; font-weight: bold;">Create one now</a>
         </div>
     @endif
 @endsection

@@ -12,7 +12,7 @@ class MemberController extends Controller
      */
     public function index()
     {
-        $members = Member::with(['user', 'subscription']);
+        $members = Member::with(['user', 'subscription'])->get();
 
         return view('admin.members.index', compact('members'));
     }
@@ -46,7 +46,7 @@ class MemberController extends Controller
      */
     public function edit(Member $member)
     {
-
+        return view('admin.members.edit', compact('member'));
     }
 
     /**
@@ -54,7 +54,14 @@ class MemberController extends Controller
      */
     public function update(Request $request, Member $member)
     {
+        $request->validate([
+            'user_id' => 'sometimes|exists:users,id',
+        ]);
 
+        $member->update($request->only(['user_id']));
+
+        return redirect()->route('members.show', $member)
+            ->with('success', 'Member updated successfully!');
     }
 
     /**

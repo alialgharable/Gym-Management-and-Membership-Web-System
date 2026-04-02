@@ -1,0 +1,69 @@
+@extends('layouts.app')
+
+@section('title', 'Trainer Details')
+
+@section('content')
+    <div class="page-header">
+        <div>
+            <h1 class="section-title">{{ $trainer->user->name ?? 'Trainer' }}</h1>
+            <p class="section-subtitle">Trainer Profile</p>
+        </div>
+        <div class="actions">
+            <a href="{{ route('trainers.index') }}" class="btn btn-secondary">← Back</a>
+            <a href="{{ route('trainers.edit', $trainer) }}" class="btn btn-primary">Edit</a>
+        </div>
+    </div>
+
+    <div class="card-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="card">
+            <h3>Personal Information</h3>
+            <p><strong>Name:</strong> {{ $trainer->user->name ?? 'N/A' }}</p>
+            <p><strong>Email:</strong> {{ $trainer->user->email ?? 'N/A' }}</p>
+            <p><strong>Specialization:</strong> {{ $trainer->specialty ?? 'N/A' }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Statistics</h3>
+            <p><strong>Classes:</strong> {{ $trainer->gymClasses->count() }}</p>
+            <p><strong>Reviews:</strong> {{ $trainer->reviews->count() }}</p>
+            <p><strong>Avg Rating:</strong> {{ $trainer->reviews->count() > 0 ? number_format($trainer->reviews->avg('rating'), 1) : 'N/A' }}/5</p>
+        </div>
+    </div>
+
+    @if ($trainer->gymClasses->count())
+        <div class="card" style="margin-top: 1.5rem;">
+            <h3>Classes ({{ $trainer->gymClasses->count() }})</h3>
+            <ul style="list-style: none; padding: 0;">
+                @foreach ($trainer->gymClasses as $class)
+                    <li style="padding: 10px 0; border-bottom: 1px solid #2b2b2b;">
+                        <a href="{{ route('classes.show', $class) }}" style="color: #f7d34a; font-weight: 600;">{{ $class->name }}</a>
+                        <span style="color: #a9a89d;">{{ $class->schedule ?? 'N/A' }}</span>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    @if ($trainer->reviews->count())
+        <div class="card" style="margin-top: 1.5rem;">
+            <h3>Recent Reviews</h3>
+            <ul style="list-style: none; padding: 0;">
+                @foreach ($trainer->reviews->take(5) as $review)
+                    <li style="padding: 10px 0; border-bottom: 1px solid #2b2b2b;">
+                        <strong>{{ $review->member->user->name ?? 'Anonymous' }}</strong>
+                        <span style="color: #ffd700;">★ {{ $review->rating }}/5</span>
+                        <p style="margin: 5px 0;">{{ $review->comment ?? 'No comment' }}</p>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div style="margin-top: 1.5rem;">
+        <form action="{{ route('trainers.destroy', $trainer) }}" method="POST">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger" onclick="return confirm('This will permanently delete this trainer. Are you sure?')">Delete Trainer</button>
+        </form>
+    </div>
+@endsection
