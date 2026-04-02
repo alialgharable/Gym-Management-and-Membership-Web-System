@@ -83,12 +83,30 @@
             </div>
         </a>
 
+        <a href="{{ route('member.dashboard') }}" style="text-decoration: none;">
+            <div class="card" style="cursor: pointer; transition: transform 0.2s ease; height: 100%;">
+                <div style="font-size: 2.5rem; margin-bottom: 1rem;">🙋</div>
+                <h3>Member Dashboard</h3>
+                <p style="color: #a9a89d;">Track subscription, bookings, and member activity</p>
+                <p style="font-size: 0.9rem; color: #ffd54f; font-weight: 600;">Open Member Dashboard →</p>
+            </div>
+        </a>
+
+        <a href="{{ route('trainer.dashboard') }}" style="text-decoration: none;">
+            <div class="card" style="cursor: pointer; transition: transform 0.2s ease; height: 100%;">
+                <div style="font-size: 2.5rem; margin-bottom: 1rem;">🧑‍🏫</div>
+                <h3>Trainer Dashboard</h3>
+                <p style="color: #a9a89d;">See assigned classes, ratings, and trainer workload</p>
+                <p style="font-size: 0.9rem; color: #ffd54f; font-weight: 600;">Open Trainer Dashboard →</p>
+            </div>
+        </a>
+
         <a href="{{ route('admin.dashboard') }}" style="text-decoration: none;">
             <div class="card" style="cursor: pointer; transition: transform 0.2s ease; height: 100%;">
                 <div style="font-size: 2.5rem; margin-bottom: 1rem;">📊</div>
-                <h3>Dashboard</h3>
-                <p style="color: #a9a89d;">View system statistics and overview</p>
-                <p style="font-size: 0.9rem; color: #ffd54f; font-weight: 600;">View All →</p>
+                <h3>Admin Dashboard</h3>
+                <p style="color: #a9a89d;">Monitor system-wide statistics and operations</p>
+                <p style="font-size: 0.9rem; color: #ffd54f; font-weight: 600;">Open Admin Dashboard →</p>
             </div>
         </a>
     </div>

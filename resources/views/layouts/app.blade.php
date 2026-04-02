@@ -65,10 +65,25 @@
 
         .site-nav {
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
+            flex-wrap: nowrap;
+            gap: 1.2rem;
             align-items: center;
             justify-content: flex-end;
+        }
+
+        .nav-group {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-group-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #d7d2ad;
+            font-weight: 700;
         }
 
         .nav-link {
@@ -86,6 +101,24 @@
             transform: translateY(-1px);
             background: rgba(255, 209, 37, 0.2);
             border-color: rgba(255, 209, 37, 0.5);
+        }
+
+        @media (max-width: 1100px) {
+            .site-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .site-nav {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+            }
+
+            .nav-group {
+                width: 100%;
+            }
         }
 
         .page-content {
@@ -376,13 +409,22 @@
                 <a href="/">💪 Gym Management</a>
             </div>
             <nav class="site-nav" aria-label="Primary navigation">
-                <a class="nav-link" href="/">Home</a>
-                <a class="nav-link" href="/member/dashboard">Dashboard</a>
-                <a class="nav-link" href="/bookings">Bookings</a>
-                <a class="nav-link" href="/members">Members</a>
-                <a class="nav-link" href="/classes">Classes</a>
-                <a class="nav-link" href="/trainers">Trainers</a>
-                <a class="nav-link" href="/admin/dashboard">Admin</a>
+                <div class="nav-group">
+                    <a class="nav-link" href="{{ url('/') }}">Home</a>
+                </div>
+                <div class="nav-group">
+                    <span class="nav-group-label">Dashboards</span>
+                    <a class="nav-link" href="{{ route('member.dashboard') }}">Member</a>
+                    <a class="nav-link" href="{{ route('trainer.dashboard') }}">Trainer</a>
+                    <a class="nav-link" href="{{ route('admin.dashboard') }}">Admin</a>
+                </div>
+                <div class="nav-group">
+                    <span class="nav-group-label">Management</span>
+                    <a class="nav-link" href="{{ route('bookings.index') }}">Bookings</a>
+                    <a class="nav-link" href="{{ route('members.index') }}">Members</a>
+                    <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
+                    <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
+                </div>
             </nav>
         </header>
 

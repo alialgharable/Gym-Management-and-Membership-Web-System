@@ -8,6 +8,7 @@ use App\Http\Controllers\GymClassController;
 use App\Http\Controllers\MembershipPlanController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\TrainerController;
+use App\Http\Controllers\TrainerDashboardController;
 use App\Http\Controllers\TrainerApplicationController;
 use App\Http\Controllers\TrainerReviewController;
 use App\Http\Controllers\AdminController;
@@ -30,6 +31,9 @@ Route::resource('admins', AdminController::class);
 // Custom routes
 Route::get('/member/dashboard', [MemberDashboardController::class, 'index'])
     ->name('member.dashboard');
+
+Route::get('/trainer/dashboard', [TrainerDashboardController::class, 'index'])
+    ->name('trainer.dashboard');
 
 Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])
     ->name('admin.dashboard');
