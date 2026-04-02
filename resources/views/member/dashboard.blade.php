@@ -3,38 +3,34 @@
 @section('title', 'Member Dashboard')
 
 @section('content')
-<div class="container">
-
     @if($member)
-        <h1 class="mb-4">Welcome, {{ $member->user->name ?? 'User' }}</h1>
+        <div class="page-header">
+            <div>
+                <h1 class="section-title">Welcome, {{ $member->user->name ?? 'Member' }}</h1>
+                <p class="section-subtitle">View your active membership details, account information, and your joined date.</p>
+            </div>
+        </div>
 
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5>Membership Plan</h5>
+        <div class="grid-stack">
+            <section class="card">
+                <h2>Membership Plan</h2>
                 <p>{{ $member->subscription()->where('status', 'active')->first()?->plan?->name ?? 'No active subscription' }}</p>
-            </div>
-        </div>
+            </section>
 
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5>Email</h5>
+            <section class="card">
+                <h2>Contact</h2>
                 <p>{{ $member->user->email ?? 'No email available' }}</p>
-            </div>
-        </div>
+            </section>
 
-        <div class="card">
-            <div class="card-body">
-                <h5>Member Since</h5>
-                <p>{{ $member->created_at ? $member->created_at->format('Y-m-d') : 'N/A' }}</p>
-            </div>
+            <section class="card">
+                <h2>Member Since</h2>
+                <p>{{ $member->created_at ? $member->created_at->format('F j, Y') : 'N/A' }}</p>
+            </section>
         </div>
-
     @else
-        <div class="alert alert-warning">
-            <h4>No Member Found</h4>
-            <p>You are not subscribed to any membership plan yet.</p>
+        <div class="alert">
+            <strong>No Member Record</strong>
+            <p>You are not subscribed to any membership plan yet. Please contact support or register a membership.</p>
         </div>
     @endif
-
-</div>
 @endsection
