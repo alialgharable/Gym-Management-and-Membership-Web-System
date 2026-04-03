@@ -57,16 +57,21 @@
                     </thead>
                     <tbody>
                         @foreach ($recentMembers as $member)
+                            @php
+                                $memberName = optional($member->user)->name ?? 'N/A';
+                                $memberEmail = optional($member->user)->email ?? 'N/A';
+                            @endphp
                             <tr>
-                                <td>{{ $member->user->name ?? 'N/A' }}</td>
-                                <td>{{ $member->user->email ?? 'N/A' }}</td>
+                                <td>{{ $memberName }}</td>
+                                <td>{{ $memberEmail }}</td>
                                 <td>{{ $member->created_at->format('M d, Y') }}</td>
                                 <td>
                                     @php
                                         $activeSub = $member->subscription()->where('status', 'active')->first();
+                                        $activePlanName = $activeSub && $activeSub->plan ? $activeSub->plan->name : null;
                                     @endphp
-                                    <span style="color: {{ $activeSub ? '#5fd68f' : '#ff5555' }};">
-                                        {{ $activeSub ? $activeSub->plan->name : 'Inactive' }}
+                                    <span style="color: {{ $activePlanName ? '#5fd68f' : '#ff5555' }};">
+                                        {{ $activePlanName ?? 'Inactive' }}
                                     </span>
                                 </td>
                             </tr>
@@ -92,9 +97,13 @@
                     </thead>
                     <tbody>
                         @foreach ($recentBookings as $booking)
+                            @php
+                                $bookingMemberName = optional($booking->member)->user->name ?? 'N/A';
+                                $bookingClassName = optional($booking->gymClass)->name ?? 'N/A';
+                            @endphp
                             <tr>
-                                <td>{{ $booking->member->user->name ?? 'N/A' }}</td>
-                                <td>{{ $booking->gymClass->name ?? 'N/A' }}</td>
+                                <td>{{ $bookingMemberName }}</td>
+                                <td>{{ $bookingClassName }}</td>
                                 <td>
                                     <span style="color: {{ $booking->status === 'confirmed' ? '#5fd68f' : '#ffd700' }};">
                                         {{ ucfirst($booking->status) }}

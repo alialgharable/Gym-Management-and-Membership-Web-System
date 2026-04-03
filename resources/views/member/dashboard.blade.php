@@ -16,9 +16,10 @@
                 <h3 style="color: #ffffff; margin-top: 0;">My Subscription</h3>
                 @php
                     $activeSub = $member->subscription()->where('status', 'active')->first();
+                    $planName = $activeSub && $activeSub->plan ? $activeSub->plan->name : null;
                 @endphp
-                @if ($activeSub)
-                    <p style="color: #a8d5a8; margin: 0.5rem 0;"><strong>{{ $activeSub->plan->name }}</strong></p>
+                @if ($activeSub && $planName)
+                    <p style="color: #a8d5a8; margin: 0.5rem 0;"><strong>{{ $planName }}</strong></p>
                     <p style="color: #a8d5a8; font-size: 0.9rem;">Valid until: {{ $activeSub->end_date->format('M d, Y') }}</p>
                 @else
                     <p style="color: #ff5555;">No active subscription</p>
@@ -64,10 +65,15 @@
                         </thead>
                         <tbody>
                             @foreach ($member->bookings as $booking)
+                                @php
+                                    $className = optional($booking->gymClass)->name ?? 'N/A';
+                                    $trainerName = optional(optional($booking->gymClass)->trainer)->user->name ?? 'N/A';
+                                    $schedule = optional($booking->gymClass)->schedule ?? 'N/A';
+                                @endphp
                                 <tr>
-                                    <td>{{ $booking->gymClass->name ?? 'N/A' }}</td>
-                                    <td>{{ $booking->gymClass->trainer->user->name ?? 'N/A' }}</td>
-                                    <td>{{ $booking->gymClass->schedule ?? 'N/A' }}</td>
+                                    <td>{{ $className }}</td>
+                                    <td>{{ $trainerName }}</td>
+                                    <td>{{ $schedule }}</td>
                                     <td>
                                         <span style="color: {{ $booking->status === 'confirmed' ? '#5fd68f' : '#ffd700' }};">
                                             {{ ucfirst($booking->status) }}
