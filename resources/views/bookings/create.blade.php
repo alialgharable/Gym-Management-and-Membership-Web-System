@@ -15,20 +15,29 @@
         <form action="{{ route('bookings.store') }}" method="POST">
             @csrf
 
-            <div class="field-group">
-                <label class="field-label">Member <span style="color: #ff5555;">*</span></label>
-                <select name="member_id" class="field-select" required>
-                    <option value="">Select a member...</option>
-                    @foreach ($members as $member)
-                        <option value="{{ $member->id }}" @selected(old('member_id') == $member->id)>
-                            {{ $member->user->name ?? 'N/A' }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('member_id')
-                    <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
-                @enderror
-            </div>
+            @if ($isMember)
+                <div class="field-group">
+                    <label class="field-label">Member</label>
+                    <div class="field-input" style="padding: 0.75rem; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; color: #333;">
+                        {{ auth()->user()->name }}
+                    </div>
+                </div>
+            @else
+                <div class="field-group">
+                    <label class="field-label">Member <span style="color: #ff5555;">*</span></label>
+                    <select name="member_id" class="field-select" required>
+                        <option value="">Select a member...</option>
+                        @foreach ($members as $member)
+                            <option value="{{ $member->id }}" @selected(old('member_id') == $member->id)>
+                                {{ $member->user->name ?? 'N/A' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('member_id')
+                        <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
+                    @enderror
+                </div>
+            @endif
 
             <div class="field-group">
                 <label class="field-label">Class <span style="color: #ff5555;">*</span></label>

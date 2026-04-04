@@ -3,6 +3,24 @@
 @section('title', 'Home - Gym Management System')
 
 @section('content')
+    <div style="
+        margin-bottom: 1.75rem;
+        padding: 2.25rem;
+        border-radius: 20px;
+        background: linear-gradient(135deg, rgba(35, 44, 82, 0.94), rgba(14, 23, 45, 0.92));
+        border: 1px solid #2a3166;
+    ">
+        <h1 style="font-size: clamp(2rem, 5vw, 2.8rem); margin: 0 0 0.8rem;">Level up your gym business</h1>
+        <p style="color: #bebcbc; font-size: 1.05rem; margin-bottom: 1.25rem; max-width: 760px;">
+            Track memberships, classes, bookings, trainers and subscriptions from a single dashboard.
+            Subscribe as member, manage also as trainer or administrator.
+        </p>
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+            <a href="{{ route('login') }}" class="btn btn-primary" style="text-decoration:none;">Login</a>
+            <a href="{{ route('register') }}" class="btn btn-secondary" style="text-decoration:none;">Subscribe Now</a>
+        </div>
+    </div>
+
     <div class="page-header">
         <div>
             <h1 class="section-title">Welcome to Gym Management System</h1>

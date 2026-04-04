@@ -8,7 +8,9 @@
             <h1 class="section-title">Class Bookings</h1>
             <p class="section-subtitle">Manage member bookings for gym classes</p>
         </div>
-        <a href="{{ route('bookings.create') }}" class="btn btn-primary">+ New Booking</a>
+        @if(auth()->check() && (auth()->user()->isMember() || auth()->user()->isTrainer() || auth()->user()->isAdmin()))
+            <a href="{{ route('bookings.create') }}" class="btn btn-primary">+ New Booking</a>
+        @endif
     </div>
 
     @if ($bookings->count())

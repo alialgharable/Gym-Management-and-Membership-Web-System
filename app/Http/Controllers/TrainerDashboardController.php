@@ -8,11 +8,15 @@ class TrainerDashboardController extends Controller
 {
     public function index()
     {
-        $trainer = Trainer::with(['user', 'gymClasses.bookings', 'reviews'])->first();
+        $user = auth()->user();
 
-        if (!$trainer) {
-            return view('trainer.dashboard', ['trainer' => null]);
+        if (!$user || !$user->isTrainer()) {
+            abort(403);
         }
+
+        $trainer = Trainer::with(['user', 'gymClasses.bookings', 'reviews'])
+            ->where('user_id', $user->id)
+            ->first();
 
         return view('trainer.dashboard', compact('trainer'));
     }

@@ -14,7 +14,23 @@ class BookingController extends Controller
      */
     public function index()
     {
-        $bookings = Booking::with('gymclass')->get();
+        $user = auth()->user();
+
+        if ($user && $user->isMember()) {
+            $member = Member::where('user_id', $user->id)->first();
+            $bookings = Booking::with(['gymClass.trainer.user', 'member.user'])
+                ->where('member_id', $member->id)
+                ->get();
+        } elseif ($user && $user->isTrainer()) {
+            $trainer = $user->trainer;
+            $bookings = Booking::with(['gymClass.trainer.user', 'member.user'])
+                ->whereHas('gymClass', function ($q) use ($trainer) {
+                    $q->where('trainer_id', $trainer->id);
+                })
+                ->get();
+        } else {
+            $bookings = Booking::with(['gymClass.trainer.user', 'member.user'])->get();
+        }
 
         return view('bookings.index', compact('bookings'));
     }
@@ -24,10 +40,20 @@ class BookingController extends Controller
      */
     public function create()
     {
-        $members = Member::all();
-        $classes = GymClass::all();
+        $user = auth()->user();
 
-        return view('bookings.create', compact('members', 'classes'));
+        $isMember = $user && $user->isMember();
+        $isTrainer = $user && $user->isTrainer();
+        $isAdmin = $user && $user->isAdmin();
+
+        if (!$isMember && !$isTrainer && !$isAdmin) {
+            abort(403);
+        }
+
+        $classes = GymClass::with('trainer.user')->get();
+        $members = $isMember ? Member::where('user_id', $user->id)->get() : Member::all();
+
+        return view('bookings.create', compact('members', 'classes', 'isMember'));
     }
 
     /**
@@ -35,6 +61,25 @@ class BookingController extends Controller
      */
     public function store(Request $request)
     {
+        $user = auth()->user();
+
+        if ($user && $user->isMember()) {
+            $member = Member::where('user_id', $user->id)->firstOrFail();
+
+            $request->validate([
+                'class_id' => 'required|exists:classes,id',
+            ]);
+
+            Booking::create([
+                'member_id' => $member->id,
+                'class_id' => $request->class_id,
+                'status' => 'confirmed',
+            ]);
+
+            return redirect()->route('member.dashboard')
+                ->with('success', 'Booking created successfully!');
+        }
+
         $request->validate([
             'member_id' => 'required|exists:members,id',
             'class_id' => 'required|exists:classes,id',
@@ -59,10 +104,44 @@ class BookingController extends Controller
     }
 
     /**
+     * Ensure current user can manipulate the booking.
+     */
+    private function authorizeBooking(Booking $booking)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            abort(403);
+        }
+
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        if ($user->isMember()) {
+            if ($booking->member_id !== $user->member->id) {
+                abort(403);
+            }
+            return;
+        }
+
+        if ($user->isTrainer()) {
+            if ($booking->gymClass->trainer_id !== $user->trainer->id) {
+                abort(403);
+            }
+            return;
+        }
+
+        abort(403);
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit(Booking $booking)
     {
+        $this->authorizeBooking($booking);
+
         $members = Member::all();
         $classes = GymClass::all();
         return view('bookings.edit', compact('booking', 'members', 'classes'));
@@ -73,6 +152,8 @@ class BookingController extends Controller
      */
     public function update(Request $request, Booking $booking)
     {
+        $this->authorizeBooking($booking);
+
         $request->validate([
             'member_id' => 'required|exists:members,id',
             'class_id' => 'required|exists:classes,id',
@@ -90,6 +171,8 @@ class BookingController extends Controller
      */
     public function destroy(Booking $booking)
     {
+        $this->authorizeBooking($booking);
+
         $booking->delete();
         return redirect()->route('bookings.index')
             ->with('success', 'Booking deleted successfully!');

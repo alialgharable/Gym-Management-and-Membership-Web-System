@@ -8,7 +8,11 @@
             <h1 class="section-title">Edit Trainer</h1>
             <p class="section-subtitle">Update trainer information</p>
         </div>
-        <a href="{{ route('trainers.show', $trainer) }}" class="btn btn-secondary">← Back</a>
+        @if(auth()->check() && auth()->user()->trainer && auth()->user()->trainer->id === $trainer->id)
+            <a href="{{ route('trainer.dashboard') }}" class="btn btn-secondary">← Back to Dashboard</a>
+        @else
+            <a href="{{ route('trainers.show', $trainer) }}" class="btn btn-secondary">← Back</a>
+        @endif
     </div>
 
     <div class="card" style="max-width: 600px;">
@@ -40,7 +44,11 @@
 
             <div style="display: flex; gap: 1rem; margin-top: 2rem;">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="{{ route('trainers.show', $trainer) }}" class="btn btn-secondary">Cancel</a>
+                @if(auth()->check() && auth()->user()->trainer && auth()->user()->trainer->id === $trainer->id)
+                    <a href="{{ route('trainer.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                @else
+                    <a href="{{ route('trainers.show', $trainer) }}" class="btn btn-secondary">Cancel</a>
+                @endif
             </div>
         </form>
     </div>

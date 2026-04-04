@@ -46,6 +46,12 @@ class MemberController extends Controller
      */
     public function edit(Member $member)
     {
+        $user = auth()->user();
+
+        if (!$user || (!$user->isAdmin() && $member->user_id !== $user->id)) {
+            abort(403);
+        }
+
         return view('admin.members.edit', compact('member'));
     }
 
@@ -54,11 +60,36 @@ class MemberController extends Controller
      */
     public function update(Request $request, Member $member)
     {
+        $user = auth()->user();
+
+        if (!$user || (!$user->isAdmin() && $member->user_id !== $user->id)) {
+            abort(403);
+        }
+
         $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,'.$member->user->id,
             'user_id' => 'sometimes|exists:users,id',
         ]);
 
-        $member->update($request->only(['user_id']));
+        if ($request->filled('name')) {
+            $member->user->name = $request->name;
+        }
+
+        if ($request->filled('email')) {
+            $member->user->email = $request->email;
+        }
+
+        if ($request->filled('user_id') && $user->isAdmin()) {
+            $member->user_id = $request->user_id;
+        }
+
+        $member->push();
+
+        if ($member->isDirty() || $member->user->isDirty()) {
+            $member->save();
+            $member->user->save();
+        }
 
         return redirect()->route('members.show', $member)
             ->with('success', 'Member updated successfully!');

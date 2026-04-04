@@ -8,6 +8,7 @@
             <h1 class="section-title">My Dashboard</h1>
             <p class="section-subtitle">Welcome to your personal gym dashboard</p>
         </div>
+        <a href="{{ route('members.edit', $member) }}" class="btn btn-secondary">Edit Profile</a>
     </div>
 
     @if ($member)

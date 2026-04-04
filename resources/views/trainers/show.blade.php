@@ -9,7 +9,11 @@
             <p class="section-subtitle">Trainer Profile</p>
         </div>
         <div class="actions">
-            <a href="{{ route('trainers.index') }}" class="btn btn-secondary">← Back</a>
+            @if(auth()->check() && auth()->user()->trainer && auth()->user()->trainer->id === $trainer->id)
+                <a href="{{ route('trainer.dashboard') }}" class="btn btn-secondary">← Back to Dashboard</a>
+            @else
+                <a href="{{ route('trainers.index') }}" class="btn btn-secondary">← Back</a>
+            @endif
             <a href="{{ route('trainers.edit', $trainer) }}" class="btn btn-primary">Edit</a>
         </div>
     </div>

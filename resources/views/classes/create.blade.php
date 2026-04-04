@@ -8,7 +8,7 @@
             <h1 class="section-title">Create New Class</h1>
             <p class="section-subtitle">Add a new gym class</p>
         </div>
-        <a href="{{ route('classes.index') }}" class="btn btn-secondary">← Back</a>
+        <a href="{{ auth()->user()->isTrainer() ? route('trainer.dashboard') : route('classes.index') }}" class="btn btn-secondary">← Back</a>
     </div>
 
     <div class="card" style="max-width: 600px;">
@@ -23,20 +23,30 @@
                 @enderror
             </div>
 
-            <div class="field-group">
-                <label class="field-label">Trainer <span style="color: #ff5555;">*</span></label>
-                <select name="trainer_id" class="field-select" required>
-                    <option value="">Select a trainer...</option>
-                    @foreach ($trainers as $trainer)
-                        <option value="{{ $trainer->id }}" @selected(old('trainer_id') == $trainer->id)>
-                            {{ $trainer->user->name ?? 'N/A' }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('trainer_id')
-                    <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
-                @enderror
-            </div>
+            @if ($isTrainer)
+                <div class="field-group">
+                    <label class="field-label">Trainer</label>
+                    <div class="field-input" style="padding: 0.75rem; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; color: #333;">
+                        {{ auth()->user()->trainer->user->name ?? 'Your Profile' }}
+                    </div>
+                    <small style="color: #888; margin-top: 0.25rem; display: block;">This class will be assigned to you</small>
+                </div>
+            @else
+                <div class="field-group">
+                    <label class="field-label">Trainer <span style="color: #ff5555;">*</span></label>
+                    <select name="trainer_id" class="field-select" required>
+                        <option value="">Select a trainer...</option>
+                        @foreach ($trainers as $trainer)
+                            <option value="{{ $trainer->id }}" @selected(old('trainer_id') == $trainer->id)>
+                                {{ $trainer->user->name ?? 'N/A' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('trainer_id')
+                        <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
+                    @enderror
+                </div>
+            @endif
 
             <div class="field-group">
                 <label class="field-label">Schedule</label>

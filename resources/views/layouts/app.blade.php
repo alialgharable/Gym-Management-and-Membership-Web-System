@@ -412,18 +412,30 @@
                 <div class="nav-group">
                     <a class="nav-link" href="{{ url('/') }}">Home</a>
                 </div>
+
+                @auth
+                    @if(auth()->user()->isAdmin())
+                        <div class="nav-group">
+                            <span class="nav-group-label">Management</span>
+                            <a class="nav-link" href="{{ route('bookings.index') }}">Bookings</a>
+                            <a class="nav-link" href="{{ route('members.index') }}">Members</a>
+                            <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
+                            <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
+                            <a class="nav-link" href="{{ route('admins.index') }}">Admins</a>
+                        </div>
+                    @endif
+                @endauth
+
                 <div class="nav-group">
-                    <span class="nav-group-label">Dashboards</span>
-                    <a class="nav-link" href="{{ route('member.dashboard') }}">Member</a>
-                    <a class="nav-link" href="{{ route('trainer.dashboard') }}">Trainer</a>
-                    <a class="nav-link" href="{{ route('admin.dashboard') }}">Admin</a>
-                </div>
-                <div class="nav-group">
-                    <span class="nav-group-label">Management</span>
-                    <a class="nav-link" href="{{ route('bookings.index') }}">Bookings</a>
-                    <a class="nav-link" href="{{ route('members.index') }}">Members</a>
-                    <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
-                    <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
+                    @guest
+                        <a class="nav-link" href="{{ route('login') }}">Login</a>
+                        <a class="nav-link" href="{{ route('register') }}">Signup</a>
+                    @else
+                        <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" style="background: #d32f2f; border-color: #d32f2f;">Logout</a>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            @csrf
+                        </form>
+                    @endguest
                 </div>
             </nav>
         </header>

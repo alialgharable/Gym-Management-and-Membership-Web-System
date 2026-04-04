@@ -17,6 +17,12 @@ class AdminController extends Controller
      */
     public function dashboard()
     {
+        $user = auth()->user();
+
+        if (!$user || !$user->isAdmin()) {
+            abort(403);
+        }
+
         $stats = [
             'total_members' => Member::count(),
             'total_bookings' => Booking::count(),

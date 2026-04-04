@@ -13,7 +13,16 @@ class GymClassController extends Controller
      */
     public function index()
     {
-        $classes = GymClass::with(['trainer.user', 'bookings'])->latest()->get();
+        $user = auth()->user();
+
+        if ($user && $user->isTrainer()) {
+            $classes = GymClass::with(['trainer.user', 'bookings'])
+                ->where('trainer_id', $user->trainer->id)
+                ->latest()
+                ->get();
+        } else {
+            $classes = GymClass::with(['trainer.user', 'bookings'])->latest()->get();
+        }
 
         return view('classes.index', compact('classes'));
     }
@@ -23,9 +32,16 @@ class GymClassController extends Controller
      */
     public function create()
     {
-        $trainers = Trainer::with('user')->get();
+        $user = auth()->user();
 
-        return view('classes.create', compact('trainers'));
+        if (!$user || (!$user->isTrainer() && !$user->isAdmin())) {
+            abort(403);
+        }
+
+        $trainers = Trainer::with('user')->get();
+        $isTrainer = $user->isTrainer();
+
+        return view('classes.create', compact('trainers', 'isTrainer'));
     }
 
     /**
@@ -33,17 +49,30 @@ class GymClassController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'trainer_id' => 'required|exists:trainers,id',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'schedule' => 'nullable|string',
-            'capacity' => 'nullable|integer',
-        ]);
+        $user = auth()->user();
+        
+        // If trainer is creating, automatically set their trainer_id
+        if ($user && $user->isTrainer()) {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'schedule' => 'nullable|string',
+                'capacity' => 'nullable|integer',
+            ]);
+            $validated['trainer_id'] = $user->trainer->id;
+        } else {
+            $validated = $request->validate([
+                'trainer_id' => 'required|exists:trainers,id',
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'schedule' => 'nullable|string',
+                'capacity' => 'nullable|integer',
+            ]);
+        }
 
         GymClass::create($validated);
 
-        return redirect()->route('classes.index')
+        return redirect()->route('trainer.dashboard')
             ->with('success', 'Class created successfully!');
     }
 
@@ -62,6 +91,12 @@ class GymClassController extends Controller
      */
     public function edit(GymClass $gymClass)
     {
+        $user = auth()->user();
+
+        if (!$user || (!$user->isAdmin() && (!$user->isTrainer() || $gymClass->trainer_id !== $user->trainer->id))) {
+            abort(403);
+        }
+
         $trainers = Trainer::with('user')->get();
 
         return view('classes.edit', compact('gymClass', 'trainers'));
@@ -72,6 +107,12 @@ class GymClassController extends Controller
      */
     public function update(Request $request, GymClass $gymClass)
     {
+        $user = auth()->user();
+
+        if (!$user || (!$user->isAdmin() && (!$user->isTrainer() || $gymClass->trainer_id !== $user->trainer->id))) {
+            abort(403);
+        }
+
         $validated = $request->validate([
             'trainer_id' => 'sometimes|exists:trainers,id',
             'name' => 'sometimes|string|max:255',
@@ -79,6 +120,11 @@ class GymClassController extends Controller
             'schedule' => 'nullable|string',
             'capacity' => 'nullable|integer',
         ]);
+
+        // Trainers should not reassign class to another trainer
+        if ($user->isTrainer()) {
+            unset($validated['trainer_id']);
+        }
 
         $gymClass->update($validated);
 
@@ -91,6 +137,12 @@ class GymClassController extends Controller
      */
     public function destroy(GymClass $gymClass)
     {
+        $user = auth()->user();
+
+        if (!$user || (!$user->isAdmin() && (!$user->isTrainer() || $gymClass->trainer_id !== $user->trainer->id))) {
+            abort(403);
+        }
+
         $gymClass->delete();
 
         return redirect()->route('classes.index')

@@ -18,13 +18,18 @@
 
             <div class="field-group">
                 <label class="field-label">Member Name</label>
-                <input type="text" value="{{ $member->user->name ?? '' }}" class="field-input" disabled>
-                <small style="color: #a9a89d;">User information cannot be edited here</small>
+                <input type="text" name="name" value="{{ old('name', $member->user->name ?? '') }}" class="field-input" required>
+                @error('name')
+                    <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="field-group">
                 <label class="field-label">Member Email</label>
-                <input type="email" value="{{ $member->user->email ?? '' }}" class="field-input" disabled>
+                <input type="email" name="email" value="{{ old('email', $member->user->email ?? '') }}" class="field-input" required>
+                @error('email')
+                    <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="field-group">

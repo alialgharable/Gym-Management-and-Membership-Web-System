@@ -8,11 +8,15 @@ class MemberDashboardController extends Controller
 {
     public function index()
     {
-        $member = Member::with(['user', 'subscription', 'bookings.gymClass'])->first();
+        $user = auth()->user();
 
-        if (!$member) {
-            return view('member.dashboard', ['member' => null]);
+        if (!$user || !$user->isMember()) {
+            abort(403);
         }
+
+        $member = Member::with(['user', 'subscription', 'bookings.gymClass'])
+            ->where('user_id', $user->id)
+            ->first();
 
         return view('member.dashboard', compact('member'));
     }
