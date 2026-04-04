@@ -40,3 +40,7 @@ Route::get('/trainer/dashboard', [TrainerDashboardController::class, 'index'])
 Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])
     ->middleware(['auth'])
     ->name('admin.dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
+});

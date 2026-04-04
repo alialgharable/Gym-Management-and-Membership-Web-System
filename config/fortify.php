@@ -10,7 +10,7 @@ return [
 
     'email' => 'email',
 
-    'home' => '/member/dashboard',
+    'home' => '/',
 
     'prefix' => '',
 

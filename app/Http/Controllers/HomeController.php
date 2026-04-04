@@ -4,27 +4,29 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use App\Models\MembershipPlan;
 
 class HomeController extends Controller
 {
-    public function index(Request $request): RedirectResponse|\Illuminate\View\View
+    public function index()
     {
-        // If user is authenticated, redirect to their dashboard
-        if ($request->user()) {
-            if ($request->user()->isAdmin()) {
+
+        $plans = MembershipPlan::all();
+
+        if (auth()->check()) {
+            if (auth()->user()->isAdmin()) {
                 return redirect()->route('admin.dashboard');
             }
 
-            if ($request->user()->isTrainer()) {
+            if (auth()->user()->isTrainer()) {
                 return redirect()->route('trainer.dashboard');
             }
 
-            if ($request->user()->isMember()) {
+            if (auth()->user()->isMember()) {
                 return redirect()->route('member.dashboard');
             }
         }
 
-        // Show home page for guests
-        return view('home');
+        return view('home', compact('plans'));
     }
 }

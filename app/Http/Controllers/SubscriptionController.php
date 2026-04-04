@@ -35,18 +35,29 @@ class SubscriptionController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'member_id' => 'required|exists:members,id',
-            'membership_plan_id' => 'required|exists:membership_plans,id',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'status' => 'required|in:active,inactive,expired',
+        $request->validate([
+            'plan_id' => 'required|exists:plans,id',
         ]);
 
-        Subscription::create($validated);
+        // Optional: prevent duplicate active subscription
+        $alreadySubscribed = Subscription::where('user_id', auth()->id())
+            ->where('status', 'active')
+            ->exists();
 
-        return redirect()->route('subscriptions.index')
-            ->with('success', 'Subscription created successfully!');
+        if ($alreadySubscribed) {
+            return back()->with('error', 'You already have an active subscription.');
+        }
+
+        Subscription::create([
+            'user_id' => auth()->id(),
+            'plan_id' => $request->plan_id,
+            'start_date' => now(),
+            'end_date' => now()->addMonth(), // later: dynamic based on plan
+            'status' => 'active',
+        ]);
+
+        return redirect()->route('home')
+            ->with('success', 'Subscription activated!');
     }
 
     /**

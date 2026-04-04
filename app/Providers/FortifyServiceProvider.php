@@ -27,19 +27,22 @@ class FortifyServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
-        Fortify::loginView(fn () => view('auth.login'));
-        Fortify::registerView(fn () => view('auth.register'));
+        Fortify::loginView(fn() => view('auth.login'));
+        Fortify::registerView(fn() => view('auth.register'));
+        Fortify::redirects('register', function () {
+            return route('home') . '?showPlansModal=1';
+        });
 
         Fortify::createUsersUsing(CreateNewUser::class);
 
-        Fortify::requestPasswordResetLinkView(fn () => view('auth.passwords.email'));
-        Fortify::resetPasswordView(fn ($request) => view('auth.passwords.reset', ['request' => $request]));
+        Fortify::requestPasswordResetLinkView(fn() => view('auth.passwords.email'));
+        Fortify::resetPasswordView(fn($request) => view('auth.passwords.reset', ['request' => $request]));
     }
 
     protected function configureRateLimiting(): void
     {
         RateLimiter::for('login', function (Request $request) {
-            return Limit::perMinute(5)->by($request->email.$request->ip());
+            return Limit::perMinute(5)->by($request->email . $request->ip());
         });
 
         RateLimiter::for('two-factor', function (Request $request) {

@@ -14,7 +14,7 @@ class MembershipPlanController extends Controller
     {
         $plans = MembershipPlan::withCount('subscriptions')->latest()->get();
 
-        return view('membership-plans.index', compact('plans'));
+        return view('plans.index', compact('plans'));
     }
 
     /**
@@ -22,7 +22,7 @@ class MembershipPlanController extends Controller
      */
     public function create()
     {
-        return view('membership-plans.create');
+        return view('plans.create');
     }
 
     /**
@@ -39,7 +39,7 @@ class MembershipPlanController extends Controller
 
         MembershipPlan::create($validated);
 
-        return redirect()->route('membership-plans.index')
+        return redirect()->route('plans.index')
             ->with('success', 'Membership plan created successfully!');
     }
 
@@ -50,7 +50,7 @@ class MembershipPlanController extends Controller
     {
         $membershipPlan->load('subscriptions.member.user');
 
-        return view('membership-plans.show', compact('membershipPlan'));
+        return view('plans.show', compact('membershipPlan'));
     }
 
     /**
@@ -58,7 +58,7 @@ class MembershipPlanController extends Controller
      */
     public function edit(MembershipPlan $membershipPlan)
     {
-        return view('membership-plans.edit', compact('membershipPlan'));
+        return view('plans.edit', compact('membershipPlan'));
     }
 
     /**
@@ -75,7 +75,7 @@ class MembershipPlanController extends Controller
 
         $membershipPlan->update($validated);
 
-        return redirect()->route('membership-plans.show', $membershipPlan)
+        return redirect()->route('plans.show', $membershipPlan)
             ->with('success', 'Membership plan updated successfully!');
     }
 
@@ -86,7 +86,7 @@ class MembershipPlanController extends Controller
     {
         $membershipPlan->delete();
 
-        return redirect()->route('membership-plans.index')
+        return redirect()->route('plans.index')
             ->with('success', 'Membership plan deleted successfully!');
     }
 }
