@@ -8,7 +8,12 @@
             <h1 class="section-title">Membership Plans</h1>
             <p class="section-subtitle">Manage gym membership plans</p>
         </div>
-        <a href="{{ route('plans.create') }}" class="btn btn-primary">+ New Plan</a>
+        @auth
+            @if(auth()->user()->isAdmin())
+                <a href="{{ route('plans.create') }}" class="btn btn-primary">+ New Plan</a>
+            @endif
+        @endauth
+
     </div>
 
     @if ($plans->count())

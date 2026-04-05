@@ -25,7 +25,7 @@
             margin: 0;
             min-height: 100vh;
             background: radial-gradient(circle at top left, rgba(255, 221, 89, 0.08), transparent 30%),
-                        linear-gradient(180deg, #070707 0%, #111111 100%);
+                linear-gradient(180deg, #070707 0%, #111111 100%);
             color: #f8f7ec;
         }
 
@@ -409,11 +409,30 @@
                 <a href="/">💪 Gym Management</a>
             </div>
             <nav class="site-nav" aria-label="Primary navigation">
+
+                <!-- Main Navigation -->
                 <div class="nav-group">
-                    <a class="nav-link" href="{{ url('/') }}">Home</a>
+                    <a class="nav-link" href="{{ route('home') }}">Home</a>
+                    <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
+                    <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
                 </div>
 
                 @auth
+                    <!-- Member Access -->
+                    @if(auth()->user()->isMember())
+                        <div class="nav-group">
+                            <span class="nav-group-label">Member</span>
+                            <a class="nav-link" href="{{ route('member.dashboard') }}">Dashboard</a>
+                        </div>
+                    @else
+                        <!-- Not subscribed yet -->
+                        <div class="nav-group">
+                            <span class="nav-group-label">Get Started</span>
+                            <a class="nav-link" href="{{ route('plans.index') }}">Get Membership</a>
+                        </div>
+                    @endif
+
+                    <!-- Admin (keep yours) -->
                     @if(auth()->user()->isAdmin())
                         <div class="nav-group">
                             <span class="nav-group-label">Management</span>
@@ -426,17 +445,24 @@
                     @endif
                 @endauth
 
+                <!-- Auth Buttons -->
                 <div class="nav-group">
                     @guest
                         <a class="nav-link" href="{{ route('login') }}">Login</a>
                         <a class="nav-link" href="{{ route('register') }}">Signup</a>
                     @else
-                        <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" style="background: #d32f2f; border-color: #d32f2f;">Logout</a>
+                        <a class="nav-link" href="#"
+                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                            style="background: #d32f2f; border-color: #d32f2f;">
+                            Logout
+                        </a>
+
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                             @csrf
                         </form>
                     @endguest
                 </div>
+
             </nav>
         </header>
 

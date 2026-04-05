@@ -25,25 +25,37 @@
 
         <div class="field-group">
             <label class="field-label" for="name">Name</label>
-            <input id="name" type="text" name="name" class="field-input" value="{{ old('name') }}" required autofocus>
-            @error('name') <span style="color:#ff5555;">{{ $message }}</span> @enderror
+            <input id="name" type="text" name="name" class="field-input" value="{{ old('name') }}" required autofocus
+                autocomplete="name">
+            @error('name')
+                <span style="color:#ff5555;">{{ $message }}</span>
+            @enderror
         </div>
 
         <div class="field-group">
             <label class="field-label" for="email">Email</label>
-            <input id="email" type="email" name="email" class="field-input" value="{{ old('email') }}" required>
-            @error('email') <span style="color:#ff5555;">{{ $message }}</span> @enderror
+            <input id="email" type="email" name="email" class="field-input" value="{{ old('email') }}" required
+                autocomplete="email">
+            @error('email')
+                <span style="color:#ff5555;">{{ $message }}</span>
+            @enderror
         </div>
 
         <div class="field-group">
             <label class="field-label" for="password">Password</label>
-            <input id="password" type="password" name="password" class="field-input" required>
-            @error('password') <span style="color:#ff5555;">{{ $message }}</span> @enderror
+            <input id="password" type="password" name="password" class="field-input" required autocomplete="new-password">
+            @error('password')
+                <span style="color:#ff5555;">{{ $message }}</span>
+            @enderror
         </div>
 
         <div class="field-group">
             <label class="field-label" for="password_confirmation">Confirm Password</label>
-            <input id="password_confirmation" type="password" name="password_confirmation" class="field-input" required>
+            <input id="password_confirmation" type="password" name="password_confirmation" class="field-input" required
+                autocomplete="new-password">
+            @error('password_confirmation')
+                <span style="color:#ff5555;">{{ $message }}</span>
+            @enderror
         </div>
 
         <button type="submit" class="btn btn-primary">Register</button>

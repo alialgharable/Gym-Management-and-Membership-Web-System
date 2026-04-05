@@ -3,25 +3,40 @@
 @section('title', 'Home')
 
 @section('content')
-    <div style="
-            margin-bottom: 1.75rem;
-            padding: 2.25rem;
-            border-radius: 20px;
-            background: linear-gradient(135deg, rgba(35, 44, 82, 0.94), rgba(14, 23, 45, 0.92));
-            border: 1px solid #2a3166;
-        ">
-        <h1 style="font-size: clamp(2rem, 5vw, 2.8rem); margin: 0 0 0.8rem;">
-            Start your fitness journey today
-        </h1>
-        <p style="color: #bebcbc; font-size: 1.05rem; margin-bottom: 1.25rem; max-width: 760px;">
-            Join a community of motivated members, explore fitness classes, and connect with professional trainers.
-            Create your account to book sessions, track progress, and stay consistent.
-        </p>
-        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-            <a href="{{ route('login') }}" class="btn btn-primary" style="text-decoration:none;">Login</a>
-            <a href="{{ route('register') }}" class="btn btn-secondary" style="text-decoration:none;">Get Started</a>
+    @guest
+        <div style="
+                                                    margin-bottom: 1.75rem;
+                                                    padding: 2.25rem;
+                                                    border-radius: 20px;
+                                                    background: linear-gradient(135deg, rgba(35, 44, 82, 0.94), rgba(14, 23, 45, 0.92));
+                                                    border: 1px solid #2a3166;
+                                                ">
+            <h1 style="font-size: clamp(2rem, 5vw, 2.8rem); margin: 0 0 0.8rem;">
+                Start your fitness journey today
+            </h1>
+            <p style="color: #bebcbc; font-size: 1.05rem; margin-bottom: 1.25rem; max-width: 760px;">
+                Join a community of motivated members, explore fitness classes, and connect with professional trainers.
+                Create your account to book sessions, track progress, and stay consistent.
+            </p>
+            <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                <a href="{{ route('login') }}" class="btn btn-primary" style="text-decoration:none;">Login</a>
+                <a href="{{ route('register') }}" class="btn btn-secondary" style="text-decoration:none;">Get Started</a>
+            </div>
         </div>
-    </div>
+    @endguest
+
+    @auth
+        @if(!auth()->user()->isMember())
+            <div class="card" style="margin-bottom:1.5rem; background:#1e293b;">
+                <p style="margin:0;">
+                    You’re not subscribed yet.
+                    <a href="{{ route('plans.index') }}" style="color:#ffd54f; font-weight:600;">
+                        View membership plans →
+                    </a>
+                </p>
+            </div>
+        @endif
+    @endauth
 
     <div class="page-header">
         <div>
@@ -34,12 +49,12 @@
 
     <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-bottom: 2rem;">
 
-        <a href="{{ route('register') }}" style="text-decoration: none;">
+        <a href="{{ auth()->check() ? route('plans.index') : route('register') }}" style="text-decoration: none;">
             <div class="card" style="cursor: pointer; transition: transform 0.2s ease; height: 100%;">
                 <div style="font-size: 2.5rem; margin-bottom: 1rem;">👥</div>
                 <h3>Join as a Member</h3>
                 <p style="color: #a9a89d;">Create your account and start booking classes</p>
-                <p style="font-size: 0.9rem; color: #ffd54f; font-weight: 600;">Sign Up →</p>
+                <p style="font-size: 0.9rem; color: #ffd54f; font-weight: 600;">Join Us →</p>
             </div>
         </a>
 
@@ -70,7 +85,8 @@
             </div>
         </a>
 
-        <a href="{{ route('register') }}" style="text-decoration: none;">
+        <a href="{{ auth()->check() ? route('trainer-applications.create') : route('register') }}"
+            style="text-decoration: none;">
             <div class="card" style="cursor: pointer; transition: transform 0.2s ease; height: 100%;">
                 <div style="font-size: 2.5rem; margin-bottom: 1rem;">📝</div>
                 <h3>Become a Trainer</h3>
@@ -110,78 +126,4 @@
             </div>
         </div>
     </div>
-
-    @if(session('showPlansModal'))
-    <div id="plansModal" style="
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.75);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-    ">
-
-        <div style="
-            background: #0f172a;
-            padding: 2rem;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 900px;
-            position: relative;
-        ">
-
-            <!-- ❌ CLOSE BUTTON -->
-            <button onclick="closePlansModal()" style="
-                position: absolute;
-                top: 12px;
-                right: 15px;
-                background: none;
-                border: none;
-                font-size: 1.5rem;
-                color: white;
-                cursor: pointer;
-            ">
-                ✕
-            </button>
-
-            <h2 style="margin-bottom: 1rem;">Choose Your Membership</h2>
-
-            <div style="
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 1rem;
-            ">
-
-                @foreach($plans as $plan)
-                    <div style="
-                        background: #1e293b;
-                        padding: 1rem;
-                        border-radius: 12px;
-                    ">
-                        <h3>{{ $plan->name }}</h3>
-                        <p style="color:#aaa;">{{ $plan->description }}</p>
-                        <p style="font-size:1.5rem;">${{ $plan->price }}</p>
-
-                        <form method="POST" action="{{ route('subscriptions.store') }}">
-                            @csrf
-                            <input type="hidden" name="plan_id" value="{{ $plan->id }}">
-                            <button class="btn btn-primary" style="width:100%;">
-                                Subscribe
-                            </button>
-                        </form>
-                    </div>
-                @endforeach
-
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function closePlansModal() {
-            document.getElementById('plansModal').style.display = 'none';
-        }
-    </script>
-@endif
 @endsection

@@ -30,7 +30,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::loginView(fn() => view('auth.login'));
         Fortify::registerView(fn() => view('auth.register'));
         Fortify::redirects('register', function () {
-            return route('home') . '?showPlansModal=1';
+            return route('home');
         });
 
         Fortify::createUsersUsing(CreateNewUser::class);

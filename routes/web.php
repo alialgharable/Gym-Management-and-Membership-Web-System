@@ -14,32 +14,50 @@ use App\Http\Controllers\TrainerApplicationController;
 use App\Http\Controllers\TrainerReviewController;
 use App\Http\Controllers\AdminController;
 
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 
-// Resource routes
 Route::resource('bookings', BookingController::class);
+// ->only(['index','show']);
 Route::resource('members', MemberController::class);
+// ->only(['index','show']);
 Route::resource('classes', GymClassController::class);
+// ->only(['index','show']);
 Route::resource('plans', MembershipPlanController::class);
+// ->only(['index', 'show']);
 Route::resource('subscriptions', SubscriptionController::class);
+// ->only(['index','show']);
 Route::resource('trainers', TrainerController::class);
+// ->only(['index','show']);
 Route::resource('trainer-applications', TrainerApplicationController::class);
+// ->only(['index','show']);
 Route::resource('reviews', TrainerReviewController::class);
-Route::resource('admins', AdminController::class);
+// ->only(['index','show']);
+Route::resource('admin/admins', AdminController::class);
+// ->only(['index','show']);
 
-// Custom routes
+
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::resource('plans', MembershipPlanController::class)->except(['index', 'show']);
+    Route::resource('admin/admins', AdminController::class)->except(['index', 'show']);
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+});
+
+Route::middleware(['auth', 'trainer'])->group(function () {
+    Route::resource('classes', GymClassController::class)->except(['index', 'show']);
+    
+});
+
+
 Route::get('/member/dashboard', [MemberDashboardController::class, 'index'])
-    ->middleware(['auth'])
+    ->middleware(['auth', 'member'])
     ->name('member.dashboard');
 
 Route::get('/trainer/dashboard', [TrainerDashboardController::class, 'index'])
-    ->middleware(['auth'])
+    ->middleware(['auth', 'trainer'])
     ->name('trainer.dashboard');
-
-Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])
-    ->middleware(['auth'])
-    ->name('admin.dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::post('/subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');

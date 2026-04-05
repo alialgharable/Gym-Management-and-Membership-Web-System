@@ -8,7 +8,6 @@
             <h1 class="section-title">Trainers</h1>
             <p class="section-subtitle">Manage gym trainers and their classes</p>
         </div>
-        <a href="{{ route('trainers.create') }}" class="btn btn-primary">+ Add Trainer</a>
     </div>
 
     @if ($trainers->count())

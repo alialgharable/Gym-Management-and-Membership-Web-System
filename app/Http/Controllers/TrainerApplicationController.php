@@ -33,14 +33,22 @@ class TrainerApplicationController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'cv_file' => 'required|string',
+            'cv_file' => 'required|file|mimes:pdf,doc,docx|max:2048',
             'experience' => 'required|string',
             'certifications' => 'nullable|string',
-            'status' => 'required|in:pending,approved,rejected',
         ]);
 
-        TrainerApplication::create($validated);
+        // Store file
+        $cvPath = $request->file('cv_file')->store('cvs', 'public');
+
+        TrainerApplication::create([
+            'user_id' => auth()->id(),
+            'reviewed_by' => null, 
+            'cv_file' => $cvPath,
+            'experience' => $validated['experience'],
+            'certifications' => $validated['certifications'],
+            'status' => 'pending',
+        ]);
 
         return redirect()->route('trainer-applications.index')
             ->with('success', 'Application submitted successfully!');

@@ -59,17 +59,4 @@ class User extends Authenticatable
     {
         return $this->role === 'member' || $this->member()->exists();
     }
-
-    public function primaryRole(): string
-    {
-        if ($this->isAdmin()) {
-            return 'admin';
-        }
-
-        if ($this->isTrainer()) {
-            return 'trainer';
-        }
-
-        return 'member';
-    }
 }
