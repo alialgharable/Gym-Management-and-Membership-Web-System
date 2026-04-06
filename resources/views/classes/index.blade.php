@@ -24,19 +24,25 @@
                     <p style="font-size: 0.9rem; color: #a9a89d;">Bookings: {{ $class->bookings->count() }}</p>
                     <div class="actions" style="margin-top: 1rem;">
                         <a href="{{ route('classes.show', $class) }}" class="btn btn-secondary">View</a>
-                        <a href="{{ route('classes.edit', $class) }}" class="btn btn-secondary">Edit</a>
-                        <form action="{{ route('classes.destroy', $class) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-                        </form>
+                        @auth
+                            @if(auth()->user()->isAdmin() || auth()->user()->isTrainer())
+
+                                <a href="{{ route('classes.edit', $class) }}" class="btn btn-secondary">Edit</a>
+                                <form action="{{ route('classes.destroy', $class) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                                </form>
+                            @endif
+                        @endauth
                     </div>
                 </div>
             @endforeach
         </div>
     @else
         <div class="alert alert-warning">
-            No classes found. <a href="{{ route('classes.create') }}" style="color: #ffd700; font-weight: bold;">Create one now</a>
+            No classes found. <a href="{{ route('classes.create') }}" style="color: #ffd700; font-weight: bold;">Create one
+                now</a>
         </div>
     @endif
 @endsection

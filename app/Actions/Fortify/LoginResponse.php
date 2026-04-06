@@ -16,7 +16,6 @@ class LoginResponse implements LoginResponseContract
             return redirect()->route('login');
         }
 
-        // Redirect based on user's primary role
         if ($user->isAdmin()) {
             return redirect()->route('admin.dashboard')->with('success', 'Welcome back, Admin!');
         }
