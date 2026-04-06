@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subscription;
+use App\Models\User;
 use App\Models\Member;
 use App\Models\MembershipPlan;
 use Illuminate\Http\Request;
@@ -24,10 +25,10 @@ class SubscriptionController extends Controller
      */
     public function create()
     {
-        $members = Member::with('user')->get();
+        $users = User::all();
         $plans = MembershipPlan::all();
 
-        return view('subscriptions.create', compact('members', 'plans'));
+        return view('subscriptions.create', compact('users', 'plans'));
     }
 
     /**
@@ -36,11 +37,22 @@ class SubscriptionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'plan_id' => 'required|exists:plans,id',
+            'plan_id' => 'required|exists:membership_plans,id',
         ]);
 
-        // Optional: prevent duplicate active subscription
-        $alreadySubscribed = Subscription::where('user_id', auth()->id())
+        $user = auth()->user();
+        
+        // Create member if doesn't exist
+        $member = $user->member;
+        if (!$member) {
+            $member = Member::create([
+                'user_id' => $user->id,
+            ]);
+            // Update user role to member
+            $user->update(['role' => 'member']);
+        }
+
+        $alreadySubscribed = Subscription::where('member_id', $member->id)
             ->where('status', 'active')
             ->exists();
 
@@ -49,8 +61,8 @@ class SubscriptionController extends Controller
         }
 
         Subscription::create([
-            'user_id' => auth()->id(),
-            'plan_id' => $request->plan_id,
+            'member_id' => $member->id,
+            'membership_plan_id' => $request->plan_id,
             'start_date' => now(),
             'end_date' => now()->addMonth(), // later: dynamic based on plan
             'status' => 'active',

@@ -19,7 +19,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 
 Route::resource('bookings', BookingController::class);
-// ->only(['index','show']);
 Route::resource('members', MemberController::class);
 // ->only(['index','show']);
 Route::resource('classes', GymClassController::class);

@@ -19,13 +19,13 @@
                 <label class="field-label">Member <span style="color: #ff5555;">*</span></label>
                 <select name="member_id" class="field-select" required>
                     <option value="">Select a member...</option>
-                    @foreach ($members as $member)
-                        <option value="{{ $member->id }}" @selected(old('member_id') == $member->id)>
-                            {{ $member->user->name ?? 'N/A' }}
+                    @foreach ($users as $user)
+                        <option value="{{ $user->id }}" @selected(old('user_id') == $user->id)>
+                            {{ $user->name ?? 'N/A' }}
                         </option>
                     @endforeach
                 </select>
-                @error('member_id')
+                @error('user_id')
                     <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
                 @enderror
             </div>

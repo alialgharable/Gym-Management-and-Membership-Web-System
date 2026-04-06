@@ -45,9 +45,13 @@ class BookingController extends Controller
         $isMember = $user && $user->isMember();
         $isTrainer = $user && $user->isTrainer();
         $isAdmin = $user && $user->isAdmin();
+        $isGuest = !auth()->check();
 
-        if (!$isMember && !$isTrainer && !$isAdmin) {
-            abort(403);
+        if ( $isGuest) {
+            return redirect ('login');
+        }
+        else if (auth()->check() && !$isMember && !$isTrainer &&!$isAdmin ){
+            return redirect ('subscriptions/create');
         }
 
         $classes = GymClass::with('trainer.user')->get();
