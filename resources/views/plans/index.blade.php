@@ -29,12 +29,16 @@
                     <p style="font-size: 0.9rem; color: #a9a89d;">Active Subscriptions: {{ $plan->subscriptions->count() }}</p>
                     <div class="actions" style="margin-top: 1rem;">
                         <a href="{{ route('plans.show', $plan) }}" class="btn btn-secondary">View</a>
+                         @auth
+                            @if(auth()->user()->isAdmin())
                         <a href="{{ route('plans.edit', $plan) }}" class="btn btn-secondary">Edit</a>
                         <form action="{{ route('plans.destroy', $plan) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
                         </form>
+                           @endif
+                        @endauth
                     </div>
                 </div>
             @endforeach
