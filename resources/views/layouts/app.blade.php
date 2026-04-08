@@ -5,8 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Gym Management System')</title>
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
-    <link rel="apple-touch-icon" href="{{ asset('favicon.svg') }}">
+    <link rel="icon" type="image/png" href="{{ asset('favicon-nobg.png') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
     <style>
@@ -406,14 +405,13 @@
     <div class="site-shell">
         <header class="site-header">
             <div class="site-brand">
-                <a href="/">💪 Gym Management</a>
+                <a href="/">Gym Management</a>
             </div>
             <nav class="site-nav" aria-label="Primary navigation">
 
                 <!-- Main Navigation -->
                 <div class="nav-group">
                     <a class="nav-link" href="{{ route('home') }}">Home</a>
-                    <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
                     <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
                 </div>
 
@@ -427,7 +425,6 @@
                     @else
                         <!-- Not subscribed yet -->
                         <div class="nav-group">
-                            <span class="nav-group-label">Get Started</span>
                             <a class="nav-link" href="{{ route('plans.index') }}">Get Membership</a>
                         </div>
                     @endif
