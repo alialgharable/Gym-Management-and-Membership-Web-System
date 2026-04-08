@@ -398,8 +398,109 @@
             font-size: 0.9rem;
             padding: 0.5rem 1rem;
         }
+
+        /* ===== Profile Avatar ===== */
+        .profile-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-trigger {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 209, 37, 0.35);
+            background: transparent;
+            padding: 0;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .profile-trigger:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 209, 37, 0.7);
+        }
+
+        .profile-avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ===== Dropdown ===== */
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            min-width: 180px;
+            background: #141414;
+            border: 1px solid #343434;
+            border-radius: 14px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            padding: 0.5rem;
+            display: none;
+            z-index: 50;
+        }
+
+        /* Show state */
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        /* Dropdown links */
+        .profile-dropdown-link {
+            display: block;
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            border-radius: 10px;
+            color: #f8f7ec;
+            background: transparent;
+            border: none;
+            text-align: left;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .profile-dropdown-link:hover {
+            background: rgba(255, 209, 37, 0.15);
+        }
+
+        /* Logout styling */
+        .profile-logout {
+            color: #ff6b6b;
+        }
+
+        .profile-logout:hover {
+            background: rgba(255, 0, 0, 0.15);
+        }
+
+        .profile-header-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ffd54a;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+        }
     </style>
 </head>
+<script>
+    function toggleProfileMenu() {
+        document.getElementById('profileDropdown').classList.toggle('show');
+    }
+
+    document.addEventListener('click', function (event) {
+        const menu = document.querySelector('.profile-menu');
+        const dropdown = document.getElementById('profileDropdown');
+
+        if (menu && !menu.contains(event.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+</script>
 
 <body>
     <div class="site-shell">
@@ -417,37 +518,49 @@
                 </div>
 
                 @auth
-                    <div class="nav-group">
-                        @if(auth()->user()->member)
-                            <a class="nav-link" href="{{ route('members.show', auth()->user()->member->id) }}">Profile</a>
-                        @endif
-                    </div>
+                            @if(auth()->user()->isAdmin())
+                                <div class="nav-group">
+                                    <span class="nav-group-label">Management</span>
+                                    <a class="nav-link" href="{{ route('bookings.index') }}">Bookings</a>
+                                    <a class="nav-link" href="{{ route('members.index') }}">Members</a>
+                                    <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
+                                    <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
+                                </div>
+                            @endif
 
-                    @if(auth()->user()->isAdmin())
-                        <div class="nav-group">
-                            <span class="nav-group-label">Management</span>
-                            <a class="nav-link" href="{{ route('bookings.index') }}">Bookings</a>
-                            <a class="nav-link" href="{{ route('members.index') }}">Members</a>
-                            <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
-                            <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
-                        </div>
-                    @endif
+                            <div class="profile-menu">
+                                <button class="profile-trigger" type="button" onclick="toggleProfileMenu()">
+                                    <img src="{{ auth()->user()->profile_picture
+                    ? asset('storage/' . auth()->user()->profile_picture)
+                    : asset('images/default-avatar.png') }}" alt="Profile" class="profile-avatar"
+                                        onerror="this.onerror=null; this.src='{{ asset('images/default-avatar.png') }}';">
+                                </button>
+
+                                <div class="profile-dropdown" id="profileDropdown">
+                                    @if(auth()->user()->member)
+                                        <a href="{{ route('members.show', auth()->user()->member->id) }}" class="profile-dropdown-link">
+                                            Profile
+                                        </a>
+
+                                        <a href="{{ route('members.edit', auth()->user()->member->id) }}" class="profile-dropdown-link">
+                                            Edit Profile
+                                        </a>
+                                    @endif
+
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="profile-dropdown-link profile-logout">
+                                            Logout
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
                 @endauth
 
                 <div class="nav-group">
                     @guest
                         <a class="nav-link" href="{{ route('login') }}">Login</a>
                         <a class="nav-link" href="{{ route('register') }}">Signup</a>
-                    @else
-                        <a class="nav-link" href="#"
-                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                            style="background: #d32f2f; border-color: #d32f2f;">
-                            Logout
-                        </a>
-
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                            @csrf
-                        </form>
                     @endguest
                 </div>
 

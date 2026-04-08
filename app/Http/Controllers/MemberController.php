@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Member;
+use Illuminate\Support\Facades\Storage;
 
 class MemberController extends Controller
 {
@@ -71,32 +72,33 @@ class MemberController extends Controller
         }
 
         $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $member->user->id,
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $member->user->id,
             'user_id' => 'sometimes|exists:users,id',
+            'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        if ($request->filled('name')) {
-            $member->user->name = $request->name;
-        }
-
-        if ($request->filled('email')) {
-            $member->user->email = $request->email;
-        }
+        $member->user->name = $request->name;
+        $member->user->email = $request->email;
 
         if ($request->filled('user_id') && $user->isAdmin()) {
             $member->user_id = $request->user_id;
         }
 
-        $member->push();
+        if ($request->hasFile('profile_picture')) {
+            if ($member->user->profile_picture && Storage::disk('public')->exists($member->user->profile_picture)) {
+                Storage::disk('public')->delete($member->user->profile_picture);
+            }
 
-        if ($member->isDirty() || $member->user->isDirty()) {
-            $member->save();
-            $member->user->save();
+            $path = $request->file('profile_picture')->store('profile-pictures', 'public');
+            $member->user->profile_picture = $path;
         }
 
+        $member->user->save();
+        $member->save();
+
         return redirect()->route('members.show', $member)
-            ->with('success', 'Member updated successfully!');
+            ->with('success', 'Profile updated successfully!');
     }
 
     /**
