@@ -24,7 +24,7 @@ Route::resource('members', MemberController::class);
 Route::resource('classes', GymClassController::class);
 // ->only(['index','show']);
 Route::resource('plans', MembershipPlanController::class)->only(['index', 'show']);
-Route::resource('subscriptions', SubscriptionController::class);
+
 Route::resource('trainers', TrainerController::class);
 // ->only(['index','show']);
 Route::resource('trainers', TrainerController::class)->only(['index', 'show']);
@@ -42,12 +42,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('admin/admins', AdminController::class)->except(['index', 'show']);
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::resource('trainers', TrainerController::class)->except(['index', 'show']);
-    Route::resource('plans',MembershipPlanController::class)->except(['index', 'show']);
+    Route::resource('plans', MembershipPlanController::class)->except(['index', 'show']);
 });
 
 Route::middleware(['auth', 'trainer'])->group(function () {
     Route::resource('classes', GymClassController::class)->except(['index', 'show']);
-    
+
 });
 
 
@@ -60,5 +60,5 @@ Route::get('/trainer/dashboard', [TrainerDashboardController::class, 'index'])
     ->name('trainer.dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::post('/subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
+    Route::resource('subscriptions', SubscriptionController::class)->only(['store']);
 });

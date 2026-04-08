@@ -10,7 +10,11 @@
         </div>
         <div class="actions">
             <a href="{{ route('plans.index') }}" class="btn btn-secondary">← Back</a>
-            <a href="{{ route('plans.edit', $plan) }}" class="btn btn-primary">Edit</a>
+            @auth
+                @if(auth()->user()->isAdmin())
+                    <a href="{{ route('plans.edit', $plan) }}" class="btn btn-primary">Edit</a>
+                @endif
+            @endauth
         </div>
     </div>
 
@@ -29,11 +33,16 @@
         </div>
     </div>
 
-    <div style="margin-top: 1.5rem;">
-        <form action="{{ route('plans.destroy', $plan) }}" method="POST">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-danger" onclick="return confirm('This will permanently delete this plan. Are you sure?')">Delete Plan</button>
-        </form>
-    </div>
+    @auth
+        @if(auth()->user()->isAdmin())
+            <div style="margin-top: 1.5rem;">
+                <form action="{{ route('plans.destroy', $plan) }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('This will permanently delete this plan. Are you sure?')">Delete Plan</button>
+                </form>
+            </div>
+        @endif()
+    @endauth
 @endsection

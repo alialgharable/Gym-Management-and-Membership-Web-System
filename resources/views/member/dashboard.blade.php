@@ -35,14 +35,29 @@
 
             <div class="card" style="background: linear-gradient(135deg, #f57c00 0%, #bf360c 100%);">
                 <h3 style="color: #ffffff; margin-top: 0;">Confirmed Bookings</h3>
-                <p style="font-size: 2.5rem; font-weight: 700; color: #ffffff; margin: 0;">{{ $member->bookings->where('status', 'confirmed')->count() }}</p>
+                <p style="font-size: 2.5rem; font-weight: 700; color: #ffffff; margin: 0;">
+                    {{ $member->bookings->where('status', 'confirmed')->count() }}
+                </p>
                 <p style="color: #ffb74d; font-size: 0.9rem;">Upcoming classes</p>
             </div>
 
             <div class="card" style="background: linear-gradient(135deg, #c2185b 0%, #880e4f 100%);">
                 <h3 style="color: #ffffff; margin-top: 0;">Member Since</h3>
                 <p style="color: #f48fb1;">{{ $member->created_at->format('M d, Y') }}</p>
-                <p style="color: #f48fb1; font-size: 0.9rem;">({{ $member->created_at->diffInMonths(now()) }} months)</p>
+                <p style="color: #f48fb1; font-size: 0.9rem;">
+                    (
+                    @if($member->created_at->diffInDays() < 30)
+                        @if($member->created_at->diffInDays() < 1)
+                            0 days
+                        @else
+                            {{ $member->created_at->diffInDays() }} days
+                        @endif
+
+                    @else
+                        {{ $member->created_at->diffInMonths() }} months
+                    @endif
+                    )
+                </p>
             </div>
         </div>
 
@@ -51,7 +66,7 @@
                 <h3>My Bookings</h3>
                 <a href="{{ route('bookings.create') }}" class="btn btn-primary">+ Book Class</a>
             </div>
-            
+
             @if ($member->bookings->count())
                 <div style="overflow-x: auto;">
                     <table>
@@ -87,7 +102,8 @@
                     </table>
                 </div>
             @else
-                <p style="color: #a9a89d;">No bookings yet. <a href="{{ route('bookings.create') }}" style="color: #f7d34a; font-weight: bold;">Book a class now</a></p>
+                <p style="color: #a9a89d;">No bookings yet. <a href="{{ route('bookings.create') }}"
+                        style="color: #f7d34a; font-weight: bold;">Book a class now</a></p>
             @endif
         </div>
     @else

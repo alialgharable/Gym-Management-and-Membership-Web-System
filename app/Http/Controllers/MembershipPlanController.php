@@ -46,19 +46,19 @@ class MembershipPlanController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(MembershipPlan $membershipPlan)
+    public function show(MembershipPlan $plan)
     {
-        $membershipPlan->load('subscriptions.member.user');
+        $plan->load('subscriptions.member.user');
 
-        return view('plans.show', compact('membershipPlan'));
+        return view('plans.show', compact('plan'));
     }
 
     /**
      * Show the form for editing the resource.
      */
-    public function edit(MembershipPlan $membershipPlan)
+    public function edit(MembershipPlan $plan)
     {
-        return view('plans.edit', compact('membershipPlan'));
+        return view('plans.edit', compact('plan'));
     }
 
     /**
