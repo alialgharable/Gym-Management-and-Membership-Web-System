@@ -409,27 +409,20 @@
             </div>
             <nav class="site-nav" aria-label="Primary navigation">
 
-                <!-- Main Navigation -->
                 <div class="nav-group">
                     <a class="nav-link" href="{{ route('home') }}">Home</a>
                     <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
+                    <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
+                    <a class="nav-link" href="{{ route('plans.index') }}">Membership</a>
                 </div>
 
                 @auth
-                    <!-- Member Access -->
-                    @if(auth()->user()->isMember())
-                        <div class="nav-group">
-                            <span class="nav-group-label">Member</span>
-                            <a class="nav-link" href="{{ route('member.dashboard') }}">Dashboard</a>
-                        </div>
-                    @else
-                        <!-- Not subscribed yet -->
-                        <div class="nav-group">
-                            <a class="nav-link" href="{{ route('plans.index') }}">Get Membership</a>
-                        </div>
-                    @endif
+                    <div class="nav-group">
+                        @if(auth()->user()->member)
+                            <a class="nav-link" href="{{ route('members.show', auth()->user()->member->id) }}">Profile</a>
+                        @endif
+                    </div>
 
-                    <!-- Admin (keep yours) -->
                     @if(auth()->user()->isAdmin())
                         <div class="nav-group">
                             <span class="nav-group-label">Management</span>
@@ -437,12 +430,10 @@
                             <a class="nav-link" href="{{ route('members.index') }}">Members</a>
                             <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
                             <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
-                            <a class="nav-link" href="{{ route('admins.index') }}">Admins</a>
                         </div>
                     @endif
                 @endauth
 
-                <!-- Auth Buttons -->
                 <div class="nav-group">
                     @guest
                         <a class="nav-link" href="{{ route('login') }}">Login</a>

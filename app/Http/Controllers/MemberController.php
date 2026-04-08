@@ -46,9 +46,13 @@ class MemberController extends Controller
      */
     public function edit(Member $member)
     {
+        if (!auth()->check()) {
+            abort(403);
+        }
+
         $user = auth()->user();
 
-        if (!$user || (!$user->isAdmin() && $member->user_id !== $user->id)) {
+        if (!$user->isAdmin() && $user->id !== $member->user_id) {
             abort(403);
         }
 
@@ -68,7 +72,7 @@ class MemberController extends Controller
 
         $request->validate([
             'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,'.$member->user->id,
+            'email' => 'sometimes|email|unique:users,email,' . $member->user->id,
             'user_id' => 'sometimes|exists:users,id',
         ]);
 

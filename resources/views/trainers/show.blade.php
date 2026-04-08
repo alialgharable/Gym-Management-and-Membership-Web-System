@@ -14,7 +14,11 @@
             @else
                 <a href="{{ route('trainers.index') }}" class="btn btn-secondary">← Back</a>
             @endif
-            <a href="{{ route('trainers.edit', $trainer) }}" class="btn btn-primary">Edit</a>
+            @auth
+                @if(auth()->id() === $trainer->user_id)
+                    <a href="{{ route('trainers.edit', $trainer) }}" class="btn btn-primary">Edit</a>
+                @endif
+            @endauth
         </div>
     </div>
 
@@ -30,7 +34,8 @@
             <h3>Statistics</h3>
             <p><strong>Classes:</strong> {{ $trainer->gymClasses->count() }}</p>
             <p><strong>Reviews:</strong> {{ $trainer->reviews->count() }}</p>
-            <p><strong>Avg Rating:</strong> {{ $trainer->reviews->count() > 0 ? number_format($trainer->reviews->avg('rating'), 1) : 'N/A' }}/5</p>
+            <p><strong>Avg Rating:</strong>
+                {{ $trainer->reviews->count() > 0 ? number_format($trainer->reviews->avg('rating'), 1) : 'N/A' }}/5</p>
         </div>
     </div>
 
@@ -40,7 +45,8 @@
             <ul style="list-style: none; padding: 0;">
                 @foreach ($trainer->gymClasses as $class)
                     <li style="padding: 10px 0; border-bottom: 1px solid #2b2b2b;">
-                        <a href="{{ route('classes.show', $class) }}" style="color: #f7d34a; font-weight: 600;">{{ $class->name }}</a>
+                        <a href="{{ route('classes.show', $class) }}"
+                            style="color: #f7d34a; font-weight: 600;">{{ $class->name }}</a>
                         <span style="color: #a9a89d;">{{ $class->schedule ?? 'N/A' }}</span>
                     </li>
                 @endforeach
@@ -62,12 +68,16 @@
             </ul>
         </div>
     @endif
-
-    <div style="margin-top: 1.5rem;">
-        <form action="{{ route('trainers.destroy', $trainer) }}" method="POST">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-danger" onclick="return confirm('This will permanently delete this trainer. Are you sure?')">Delete Trainer</button>
-        </form>
-    </div>
+    @auth
+        @if(auth()->id() === $trainer->user_id)
+            <div style="margin-top: 1.5rem;">
+                <form action="{{ route('trainers.destroy', $trainer) }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('This will permanently delete this trainer. Are you sure?')">Delete Profile</button>
+                </form>
+            </div>
+        @endif
+    @endauth
 @endsection

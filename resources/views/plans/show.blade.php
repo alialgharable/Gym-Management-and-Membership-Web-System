@@ -33,6 +33,16 @@
         </div>
     </div>
 
+
+    <div style="margin-top: 1.5rem;">
+        <form action="{{ route('subscriptions.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="plan_id" value="{{ $plan->id }}">
+            <button class="btn btn-primary">Subscribe</button>
+        </form>
+    </div>
+
+
     @auth
         @if(auth()->user()->isAdmin())
             <div style="margin-top: 1.5rem;">

@@ -8,7 +8,6 @@
             <h1 class="section-title">My Dashboard</h1>
             <p class="section-subtitle">Welcome to your personal gym dashboard</p>
         </div>
-        <a href="{{ route('members.edit', $member) }}" class="btn btn-secondary">Edit Profile</a>
     </div>
 
     @if ($member)
@@ -77,6 +76,7 @@
                                 <th>Schedule</th>
                                 <th>Status</th>
                                 <th>Booked On</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -90,12 +90,34 @@
                                     <td>{{ $className }}</td>
                                     <td>{{ $trainerName }}</td>
                                     <td>{{ $schedule }}</td>
+
                                     <td>
-                                        <span style="color: {{ $booking->status === 'confirmed' ? '#5fd68f' : '#ffd700' }};">
+                                        <span style="color:
+                                            {{ $booking->status === 'confirmed' ? '#5fd68f' :
+                                ($booking->status === 'cancelled' ? '#ff5555' : '#ffd700') }};">
                                             {{ ucfirst($booking->status) }}
                                         </span>
                                     </td>
+
                                     <td>{{ $booking->created_at->format('M d, Y') }}</td>
+
+                                    <td>
+                                        @if($booking->status === 'confirmed')
+                                            <form action="{{ route('bookings.update', $booking) }}" method="POST"
+                                                onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                                @csrf
+                                                @method('PUT')
+
+                                                <input type="hidden" name="status" value="cancelled">
+
+                                                <button class="btn btn-danger" style="padding: 0.4rem 0.8rem;">
+                                                    Cancel
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span style="color: gray;">Cancelled</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

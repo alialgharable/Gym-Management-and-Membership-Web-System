@@ -47,11 +47,10 @@ class BookingController extends Controller
         $isAdmin = $user && $user->isAdmin();
         $isGuest = !auth()->check();
 
-        if ( $isGuest) {
-            return redirect ('login');
-        }
-        else if (auth()->check() && !$isMember && !$isTrainer &&!$isAdmin ){
-            return redirect ('subscriptions/create');
+        if ($isGuest) {
+            return redirect('login');
+        } else if (auth()->check() && !$isMember && !$isTrainer && !$isAdmin) {
+            return redirect('subscriptions/create');
         }
 
         $classes = GymClass::with('trainer.user')->get();
@@ -74,6 +73,14 @@ class BookingController extends Controller
                 'class_id' => 'required|exists:classes,id',
             ]);
 
+            $alreadyBooked = Booking::where('member_id', $member->id)
+                ->where('class_id', $request->class_id)
+                ->exists();
+
+            if ($alreadyBooked) {
+                return back()->with('error', 'You already booked this class.');
+            }
+
             Booking::create([
                 'member_id' => $member->id,
                 'class_id' => $request->class_id,
@@ -88,6 +95,14 @@ class BookingController extends Controller
             'member_id' => 'required|exists:members,id',
             'class_id' => 'required|exists:classes,id',
         ]);
+
+        $alreadyBooked = Booking::where('member_id', $request->member_id)
+            ->where('class_id', $request->class_id)
+            ->exists();
+
+        if ($alreadyBooked) {
+            return back()->with('error', 'This member already booked this class.');
+        }
 
         Booking::create([
             'member_id' => $request->member_id,
@@ -156,18 +171,21 @@ class BookingController extends Controller
      */
     public function update(Request $request, Booking $booking)
     {
-        $this->authorizeBooking($booking);
+        $user = auth()->user();
+
+        if (!$user->isAdmin() && $booking->member->user_id !== $user->id) {
+            abort(403);
+        }
 
         $request->validate([
-            'member_id' => 'required|exists:members,id',
-            'class_id' => 'required|exists:classes,id',
-            'status' => 'sometimes|string',
+            'status' => 'required|in:cancelled',
         ]);
 
-        $booking->update($request->only(['member_id', 'class_id', 'status']));
+        $booking->update([
+            'status' => $request->status,
+        ]);
 
-        return redirect()->route('bookings.show', $booking)
-            ->with('success', 'Booking updated successfully!');
+        return back()->with('success', 'Booking cancelled successfully!');
     }
 
     /**

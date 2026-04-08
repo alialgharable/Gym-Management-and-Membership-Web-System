@@ -10,7 +10,11 @@
         </div>
         <div class="actions">
             <a href="{{ route('classes.index') }}" class="btn btn-secondary">← Back</a>
-            <a href="{{ route('classes.edit', $gymClass) }}" class="btn btn-primary">Edit</a>
+            @auth
+                @if(auth()->user()->isTrainer())
+                    <a href="{{ route('classes.edit', $gymClass) }}" class="btn btn-primary">Edit</a>
+                @endif
+            @endauth
         </div>
     </div>
 
@@ -26,7 +30,8 @@
         <div class="card">
             <h3>Bookings</h3>
             <p><strong>Total Bookings:</strong> {{ $gymClass->bookings->count() }}</p>
-            <p><strong>Availability:</strong> {{ $gymClass->capacity - $gymClass->bookings->count() }}/{{ $gymClass->capacity }}</p>
+            <p><strong>Availability:</strong>
+                {{ $gymClass->capacity - $gymClass->bookings->count() }}/{{ $gymClass->capacity }}</p>
         </div>
     </div>
 
@@ -37,7 +42,8 @@
                 @foreach ($gymClass->bookings as $booking)
                     <li style="padding: 10px 0; border-bottom: 1px solid #2b2b2b;">
                         <strong>{{ $booking->member->user->name ?? 'N/A' }}</strong>
-                        <span style="color: {{ $booking->status === 'confirmed' ? '#5fd68f' : '#ffd700' }};">{{ ucfirst($booking->status) }}</span>
+                        <span
+                            style="color: {{ $booking->status === 'confirmed' ? '#5fd68f' : '#ffd700' }};">{{ ucfirst($booking->status) }}</span>
                     </li>
                 @endforeach
             </ul>
@@ -45,10 +51,20 @@
     @endif
 
     <div style="margin-top: 1.5rem;">
-        <form action="{{ route('classes.destroy', $gymClass) }}" method="POST">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-danger" onclick="return confirm('This will permanently delete this class. Are you sure?')">Delete Class</button>
-        </form>
+        
     </div>
+
+
+    @auth
+        @if(auth()->user()->isTrainer())
+            <div style="margin-top: 1.5rem;">
+                <form action="{{ route('classes.destroy', $gymClass) }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('This will permanently delete this class. Are you sure?')">Delete Class</button>
+                </form>
+            </div>
+        @endif
+    @endauth
 @endsection

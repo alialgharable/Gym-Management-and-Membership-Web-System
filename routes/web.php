@@ -50,10 +50,11 @@ Route::middleware(['auth', 'trainer'])->group(function () {
 
 });
 
+Route::middleware(['auth', 'member'])->group(function () {
+    Route::get('/member/dashboard', [MemberDashboardController::class, 'index'])->name('member.dashboard');
 
-Route::get('/member/dashboard', [MemberDashboardController::class, 'index'])
-    ->middleware(['auth', 'member'])
-    ->name('member.dashboard');
+});
+
 
 Route::get('/trainer/dashboard', [TrainerDashboardController::class, 'index'])
     ->middleware(['auth', 'trainer'])

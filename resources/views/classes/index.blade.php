@@ -24,7 +24,18 @@
                     <p style="font-size: 0.9rem; color: #a9a89d;">Bookings: {{ $class->bookings->count() }}</p>
                     <div class="actions" style="margin-top: 1rem;">
                         <a href="{{ route('classes.show', $class) }}" class="btn btn-secondary">View</a>
-                        <a href="{{ route('bookings.create', $class) }}" class="btn btn-secondary">Book</a>
+                        @auth
+                            @if(auth()->user()->isMember())
+                                <form action="{{ route('bookings.store') }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    <input type="hidden" name="class_id" value="{{ $class->id }}">
+
+                                    <button class="btn btn-secondary">
+                                        Book
+                                    </button>
+                                </form>
+                            @endif
+                        @endauth
 
                         @auth
                             @if(auth()->user()->isAdmin() || auth()->user()->isTrainer())

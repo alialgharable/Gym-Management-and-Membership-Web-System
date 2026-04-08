@@ -9,8 +9,12 @@
             <p class="section-subtitle">Member ID: #{{ $member->id }}</p>
         </div>
         <div class="actions">
-            <a href="{{ route('members.index') }}" class="btn btn-secondary">← Back</a>
-            <a href="{{ route('members.edit', $member) }}" class="btn btn-primary">Edit</a>
+            <a href="{{ route('member.dashboard') }}" class="btn btn-secondary">← Back</a>
+            @auth
+                @if(auth()->user()->isAdmin() || auth()->id() === $member->user_id)
+                    <a href="{{ route('members.edit', $member) }}" class="btn btn-primary">Edit</a>
+                @endif
+            @endauth
         </div>
     </div>
 
@@ -45,7 +49,8 @@
                     <li style="padding: 10px 0; border-bottom: 1px solid #2b2b2b;">
                         <strong>{{ $booking->gymClass->name ?? 'N/A' }}</strong>
                         <span style="color: #a9a89d; font-size: 0.9rem;">{{ $booking->created_at->format('M d, Y') }}</span>
-                        <span style="color: {{ $booking->status === 'confirmed' ? '#5fd68f' : '#ffd700' }};">{{ ucfirst($booking->status) }}</span>
+                        <span
+                            style="color: {{ $booking->status === 'confirmed' ? '#5fd68f' : '#ffd700' }};">{{ ucfirst($booking->status) }}</span>
                     </li>
                 @endforeach
             </ul>
@@ -58,7 +63,9 @@
         <form action="{{ route('members.destroy', $member) }}" method="POST">
             @csrf
             @method('DELETE')
-            <button type="submit" class="btn btn-danger" onclick="return confirm('This will permanently delete this member. Are you sure?')">Delete Member</button>
+            <button type="submit" class="btn btn-danger"
+                onclick="return confirm('This will permanently delete this member. Are you sure?')">Cancel
+                Subscription</button>
         </form>
     </div>
 @endsection
