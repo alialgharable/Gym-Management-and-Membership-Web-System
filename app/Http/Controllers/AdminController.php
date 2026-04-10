@@ -9,6 +9,7 @@ use App\Models\Booking;
 use App\Models\GymClass;
 use App\Models\Trainer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -96,14 +97,40 @@ class AdminController extends Controller
      */
     public function update(Request $request, Admin $admin)
     {
-        $validated = $request->validate([
-            'role' => 'sometimes|string|max:255',
+        $user = auth()->user();
+
+        if (!$user || !$user->isAdmin()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $admin->user->id,
+            'user_id' => 'sometimes|exists:users,id',
+            'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $admin->update($validated);
+        $admin->user->name = $request->name;
+        $admin->user->email = $request->email;
+
+        if ($request->filled('user_id')) {
+            $admin->user_id = $request->user_id;
+        }
+
+        if ($request->hasFile('profile_picture')) {
+            if ($admin->user->profile_picture && Storage::disk('public')->exists($admin->user->profile_picture)) {
+                Storage::disk('public')->delete($admin->user->profile_picture);
+            }
+
+            $path = $request->file('profile_picture')->store('profile-pictures', 'public');
+            $admin->user->profile_picture = $path;
+        }
+
+        $admin->user->save();
+        $admin->save();
 
         return redirect()->route('admins.show', $admin)
-            ->with('success', 'Admin updated successfully!');
+            ->with('success', 'Admin profile updated successfully!');
     }
 
     /**
