@@ -22,6 +22,7 @@ class MembershipPlanController extends Controller
      */
     public function create()
     {
+        
         return view('plans.create');
     }
 
@@ -32,9 +33,9 @@ class MembershipPlanController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'duration_months' => 'nullable|integer|min:1',
+            'duration' => 'required|integer|min:1',
         ]);
 
         MembershipPlan::create($validated);
@@ -64,27 +65,27 @@ class MembershipPlanController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MembershipPlan $membershipPlan)
+    public function update(Request $request, MembershipPlan $plan)
     {
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
             'price' => 'sometimes|numeric|min:0',
-            'duration_months' => 'nullable|integer|min:1',
+            'duration' => 'required|integer|min:1',
         ]);
 
-        $membershipPlan->update($validated);
+        $plan->update($validated);
 
-        return redirect()->route('plans.show', $membershipPlan)
+        return redirect()->route('plans.show', ['plan' => $plan])
             ->with('success', 'Membership plan updated successfully!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MembershipPlan $membershipPlan)
+    public function destroy(MembershipPlan $plan)
     {
-        $membershipPlan->delete();
+        $plan->delete();
 
         return redirect()->route('plans.index')
             ->with('success', 'Membership plan deleted successfully!');

@@ -33,8 +33,8 @@
 
             <div class="field-group">
                 <label class="field-label">Duration (Months) <span style="color: #ff5555;">*</span></label>
-                <input type="number" name="duration_months" class="field-input" value="{{ old('duration_months') }}" min="1" placeholder="3" required>
-                @error('duration_months')
+                <input type="number" name="duration" class="field-input" value="{{ old('duration') }}" min="1" placeholder="3" required>
+                @error('duration')
                     <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
                 @enderror
             </div>

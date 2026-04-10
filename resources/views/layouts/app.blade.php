@@ -520,7 +520,6 @@
                 @auth
                             @if(auth()->user()->isAdmin())
                                 <div class="nav-group">
-                                    <span class="nav-group-label">Management</span>
                                     <a class="nav-link" href="{{ route('bookings.index') }}">Bookings</a>
                                     <a class="nav-link" href="{{ route('members.index') }}">Members</a>
                                     <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>

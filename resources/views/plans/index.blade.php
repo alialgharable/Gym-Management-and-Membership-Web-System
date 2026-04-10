@@ -28,11 +28,15 @@
                     <p style="color: #d7d2ad; line-height: 1.6;">{{ $plan->description ?? 'No description' }}</p>
                     <div class="actions" style="margin-top: 1rem;">
                         <a href="{{ route('plans.show', $plan) }}" class="btn btn-secondary">View</a>
-                        <form action="{{ route('subscriptions.store') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="plan_id" value="{{ $plan->id }}">
-                            <button class="btn btn-primary">Subscribe</button>
-                        </form>
+                        @auth
+                            @if(auth()->user()->isMember())
+                                <form action="{{ route('subscriptions.store') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="plan_id" value="{{ $plan->id }}">
+                                    <button class="btn btn-primary">Subscribe</button>
+                                </form>
+                            @endif
+                        @endauth
 
 
                         @auth

@@ -22,7 +22,7 @@
         <div class="card">
             <h3>Plan Information</h3>
             <p><strong>Price:</strong> ${{ number_format($plan->price, 2) }}</p>
-            <p><strong>Duration:</strong> {{ $plan->duration_months }} months</p>
+            <p><strong>Duration:</strong> {{ $plan->duration }} months</p>
             <p><strong>Description:</strong> {{ $plan->description ?? 'N/A' }}</p>
         </div>
 
@@ -33,14 +33,17 @@
         </div>
     </div>
 
-
-    <div style="margin-top: 1.5rem;">
-        <form action="{{ route('subscriptions.store') }}" method="POST">
-            @csrf
-            <input type="hidden" name="plan_id" value="{{ $plan->id }}">
-            <button class="btn btn-primary">Subscribe</button>
-        </form>
-    </div>
+    @auth
+        @if(auth()->user()->isMember())
+            <div style="margin-top: 1.5rem;">
+                <form action="{{ route('subscriptions.store') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="plan_id" value="{{ $plan->id }}">
+                    <button class="btn btn-primary">Subscribe</button>
+                </form>
+            </div>
+        @endif
+    @endauth
 
 
     @auth

@@ -10,7 +10,7 @@ class MembershipPlan extends Model
         'name',
         'price',
         'duration',
-        'descriptiom',
+        'description',
     ];
     public function subscriptions()
     {

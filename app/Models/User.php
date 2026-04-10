@@ -47,16 +47,16 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin' || $this->admin()->exists();
+        return $this->role === 'admin';
     }
 
     public function isTrainer(): bool
     {
-        return $this->role === 'trainer' || $this->trainer()->exists();
+        return $this->role === 'trainer';
     }
 
     public function isMember(): bool
     {
-        return $this->role === 'member' || $this->member()->exists();
+        return $this->role === 'member';
     }
 }
