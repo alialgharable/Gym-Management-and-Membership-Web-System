@@ -8,7 +8,6 @@
             <h1 class="section-title">Members</h1>
             <p class="section-subtitle">Manage gym members and their information</p>
         </div>
-        <a href="{{ route('members.create') }}" class="btn btn-primary">+ Add Member</a>
     </div>
 
     @if ($members->count())
@@ -42,12 +41,6 @@
                             <td>
                                 <div class="actions">
                                     <a href="{{ route('members.show', $member) }}" class="btn btn-secondary">View</a>
-                                    <a href="{{ route('members.edit', $member) }}" class="btn btn-secondary">Edit</a>
-                                    <form action="{{ route('members.destroy', $member) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-                                    </form>
                                 </div>
                             </td>
                         </tr>

@@ -35,10 +35,14 @@
             </div>
 
             <div class="actions" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                <a href="{{ route('member.dashboard') }}" class="btn btn-secondary">← Back</a>
+                @if(auth()->user()->isMember())
+                    <a href="{{ route('member.dashboard') }}" class="btn btn-secondary">← Back</a>
+                @elseif(auth()->user()->isAdmin())
+                    <a href="{{ route('members.index') }}" class="btn btn-secondary">← Back</a>
+                @endif
 
                 @auth
-                    @if(auth()->user()->isAdmin() || auth()->id() === $member->user_id)
+                    @if(auth()->id() === $member->user_id)
                         <a href="{{ route('members.edit', $member) }}" class="btn btn-primary">Edit Profile</a>
                     @endif
                 @endauth
@@ -94,7 +98,7 @@
     </div>
 
     @auth
-        @if(auth()->user()->isAdmin() || auth()->id() === $member->user_id)
+        @if(auth()->id() === $member->user_id)
             <div style="margin-top: 1.5rem;">
                 <form action="{{ route('members.destroy', $member) }}" method="POST">
                     @csrf

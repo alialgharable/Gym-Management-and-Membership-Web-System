@@ -178,14 +178,14 @@ class BookingController extends Controller
         }
 
         $request->validate([
-            'status' => 'required|in:cancelled',
+            'status' => 'required|in:pending,confirmed,cancelled',
         ]);
 
         $booking->update([
             'status' => $request->status,
         ]);
 
-        return back()->with('success', 'Booking cancelled successfully!');
+        return redirect('bookings')->with('success', 'Booking Updated successfully!');
     }
 
     /**

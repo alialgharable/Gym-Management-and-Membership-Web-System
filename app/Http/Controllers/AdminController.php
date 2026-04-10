@@ -80,7 +80,7 @@ class AdminController extends Controller
     {
         $admin->load('user');
 
-        return view('admins.show', compact('admin'));
+        return view('admin.admins.show', compact('admin'));
     }
 
     /**
@@ -88,7 +88,7 @@ class AdminController extends Controller
      */
     public function edit(Admin $admin)
     {
-        return view('admins.edit', compact('admin'));
+        return view('admin.admins.edit', compact('admin'));
     }
 
     /**

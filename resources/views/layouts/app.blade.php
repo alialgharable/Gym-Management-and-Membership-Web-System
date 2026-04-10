@@ -512,9 +512,10 @@
 
                 <div class="nav-group">
                     <a class="nav-link" href="{{ route('home') }}">Home</a>
-                    <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
-                    <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
                     <a class="nav-link" href="{{ route('plans.index') }}">Membership</a>
+                    <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
+                    <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
+
                 </div>
 
                 @auth
@@ -522,8 +523,8 @@
                                 <div class="nav-group">
                                     <a class="nav-link" href="{{ route('bookings.index') }}">Bookings</a>
                                     <a class="nav-link" href="{{ route('members.index') }}">Members</a>
-                                    <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
-                                    <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
+
+
                                 </div>
                             @endif
 
@@ -545,6 +546,17 @@
                                             Edit Profile
                                         </a>
                                     @endif
+
+                                    @if(auth()->user()->isAdmin())
+                                        <a href="{{ route('admins.show', auth()->user()->admin->id) }}" class="profile-dropdown-link">
+                                            Profile
+                                        </a>
+
+                                        <a href="{{ route('admins.edit', auth()->user()->admin->id) }}" class="profile-dropdown-link">
+                                            Edit Profile
+                                        </a>
+                                    @endif 
+                                    
 
                                     <form action="{{ route('logout') }}" method="POST">
                                         @csrf
