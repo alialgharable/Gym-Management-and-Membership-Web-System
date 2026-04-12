@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GymClass;
 use App\Models\Trainer;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class GymClassController extends Controller
@@ -56,8 +57,8 @@ class GymClassController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
-                'schedule' => 'nullable|string',
-                'capacity' => 'nullable|integer',
+                'schedule' => 'nullable|date_format:Y-m-d\\TH:i',
+                'capacity' => 'nullable|integer|min:1|max:30',
             ]);
             $validated['trainer_id'] = $user->trainer->id;
         } else {
@@ -65,9 +66,14 @@ class GymClassController extends Controller
                 'trainer_id' => 'required|exists:trainers,id',
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
-                'schedule' => 'nullable|string',
-                'capacity' => 'nullable|integer',
+                'schedule' => 'nullable|date_format:Y-m-d\\TH:i',
+                'capacity' => 'nullable|integer|min:1|max:30',
             ]);
+        }
+
+        if (!empty($validated['schedule'])) {
+            $validated['schedule'] = Carbon::createFromFormat('Y-m-d\\TH:i', $validated['schedule'])
+                ->format('Y-m-d H:i:s');
         }
 
         GymClass::create($validated);
@@ -117,9 +123,14 @@ class GymClassController extends Controller
             'trainer_id' => 'sometimes|exists:trainers,id',
             'name' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
-            'schedule' => 'nullable|string',
-            'capacity' => 'nullable|integer',
+            'schedule' => 'nullable|date_format:Y-m-d\\TH:i',
+            'capacity' => 'nullable|integer|min:1|max:30',
         ]);
+
+        if (!empty($validated['schedule'])) {
+            $validated['schedule'] = Carbon::createFromFormat('Y-m-d\\TH:i', $validated['schedule'])
+                ->format('Y-m-d H:i:s');
+        }
 
         // Trainers should not reassign class to another trainer
         if ($user->isTrainer()) {

@@ -14,6 +14,10 @@ class GymClass extends Model
         'schedule',
         'capacity',
     ];
+
+    protected $casts = [
+        'schedule' => 'datetime',
+    ];
     
     protected $table = 'classes';
     public function trainer()

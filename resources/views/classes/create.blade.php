@@ -50,7 +50,7 @@
 
             <div class="field-group">
                 <label class="field-label">Schedule</label>
-                <input type="text" name="schedule" class="field-input" value="{{ old('schedule') }}" placeholder="e.g., Monday & Wednesday 10:00 AM">
+                <input type="datetime-local" name="schedule" class="field-input" value="{{ old('schedule') }}">
                 @error('schedule')
                     <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
                 @enderror
@@ -58,7 +58,7 @@
 
             <div class="field-group">
                 <label class="field-label">Capacity</label>
-                <input type="number" name="capacity" class="field-input" value="{{ old('capacity') }}" min="1">
+                <input type="number" name="capacity" class="field-input" value="{{ old('capacity') }}" min="1" max="30">
                 @error('capacity')
                     <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
                 @enderror

@@ -331,111 +331,96 @@
         }
     </style>
 
-    @guest
-        <div class="home-hero">
-            <div class="home-hero-inner">
-                <div class="hero-copy">
-                    <h1>Modern gym management with real momentum</h1>
-                    <p>View available classes, compare memberships, and find trainers with a clean interface that feels fast, polished, and ready for action.</p>
-                    <div class="hero-actions">
-                        <a href="{{ route('plans.index') }}" class="btn btn-primary">Explore Plans</a>
-                        <a href="{{ route('classes.index') }}" class="btn btn-secondary">Browse Classes</a>
-                    </div>
-
-                    <div class="hero-highlight">
-                        <div class="hero-spotlight">
-                            <span class="icon-badge">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a2 2 0 0 1 2 2v2h3a1 1 0 0 1 1 1v4h-2V8h-2v3h-4V8H9v4H7V7a1 1 0 0 1 1-1h3V4a2 2 0 0 1 2-2Zm-7 11h2v7h2v-7h2v7h2V13h2v7h2v-7h2v7h2v-7h2v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-7Z"/></svg>
-                            </span>
-                            <strong>{{ \App\Models\GymClass::count() }}</strong>
-                            <span>Classes available now</span>
-                        </div>
-                        <div class="hero-spotlight">
-                            <span class="icon-badge">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H7a1 1 0 0 0-1 1v6H3v2h3v6h2v-6h2v6h2v-6h3v-2h-3V4a1 1 0 0 0-1-1H9Zm2 8H9V5h2v6Zm5 0h-2V5h2v6Z"/></svg>
-                            </span>
-                            <strong>{{ \App\Models\Trainer::count() }}</strong>
-                            <span>Trainers ready to coach</span>
-                        </div>
-                        <div class="hero-spotlight">
-                            <span class="icon-badge">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 3h12a1 1 0 0 1 1 1v2H5V4a1 1 0 0 1 1-1Zm13 4v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7h14Zm-9 3H7v6h3V10Zm5 0h-3v6h3v-6Zm2 0h-1v6h1v-6Z"/></svg>
-                            </span>
-                            <strong>{{ \App\Models\Member::count() }}</strong>
-                            <span>Members already active</span>
-                        </div>
-                    </div>
+    <div class="home-hero">
+        <div class="home-hero-inner">
+            <div class="hero-copy">
+                <h1>Modern gym management with real momentum</h1>
+                <p>View available classes, compare memberships, and find trainers with a clean interface that feels fast, polished, and ready for action.</p>
+                <div class="hero-actions">
+                    <a href="{{ route('plans.index') }}" class="btn btn-primary">Explore Plans</a>
+                    <a href="{{ route('classes.index') }}" class="btn btn-secondary">Browse Classes</a>
                 </div>
 
-                <div class="hero-visual">
-                    <div class="hero-visual-card">
-                        <div class="visual-card-header">
-                            <div>
-                                <span class="visual-label">Live dashboard</span>
-                                <h2 class="visual-title">Today’s training flow</h2>
-                            </div>
-                            <span class="visual-badge">Live</span>
+                <div class="hero-highlight">
+                    <div class="hero-spotlight">
+                        <span class="icon-badge">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a2 2 0 0 1 2 2v2h3a1 1 0 0 1 1 1v4h-2V8h-2v3h-4V8H9v4H7V7a1 1 0 0 1 1-1h3V4a2 2 0 0 1 2-2Zm-7 11h2v7h2v-7h2v7h2V13h2v7h2v-7h2v7h2v-7h2v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-7Z"/></svg>
+                        </span>
+                        <strong>{{ $totalClasses }}</strong>
+                        <span>Classes available now</span>
+                    </div>
+                    <div class="hero-spotlight">
+                        <span class="icon-badge">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H7a1 1 0 0 0-1 1v6H3v2h3v6h2v-6h2v6h2v-6h3v-2h-3V4a1 1 0 0 0-1-1H9Zm2 8H9V5h2v6Zm5 0h-2V5h2v6Z"/></svg>
+                        </span>
+                        <strong>{{ $totalTrainers }}</strong>
+                        <span>Trainers ready to coach</span>
+                    </div>
+                    <div class="hero-spotlight">
+                        <span class="icon-badge">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 3h12a1 1 0 0 1 1 1v2H5V4a1 1 0 0 1 1-1Zm13 4v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7h14Zm-9 3H7v6h3V10Zm5 0h-3v6h3v-6Zm2 0h-1v6h1v-6Z"/></svg>
+                        </span>
+                        <strong>{{ $totalMembers }}</strong>
+                        <span>Members already active</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="hero-visual-card">
+                    <div class="visual-card-header">
+                        <div>
+                            <span class="visual-label">Live dashboard</span>
+                            <h2 class="visual-title">Today’s training flow</h2>
+                        </div>
+                        <span class="visual-badge">Live</span>
+                    </div>
+
+                    <div class="dashboard-preview">
+                        <div class="preview-top">
+                            <span class="preview-chip">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h16v3H4V4Zm0 5h10v3H4V9Zm0 5h16v6H4v-6Z" fill="#ffd54f"/></svg>
+                                Schedule
+                            </span>
+                            <span class="preview-status">{{ $bookedPercent }}% booked</span>
                         </div>
 
-                        <div class="dashboard-preview">
-                            <div class="preview-top">
-                                <span class="preview-chip">
-                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h16v3H4V4Zm0 5h10v3H4V9Zm0 5h16v6H4v-6Z" fill="#ffd54f"/></svg>
-                                    Schedule
-                                </span>
-                                <span class="preview-status">85% booked</span>
+                        <div class="preview-main-panel">
+                            <div class="preview-tile preview-tile-large">
+                                <div class="preview-tile-title">Upcoming sessions</div>
+                                <p class="preview-tile-value">{{ $upcomingSessions }}</p>
+                                <p class="preview-tile-meta">Strong classes, load balance, and trainer availability in one view.</p>
                             </div>
 
-                            <div class="preview-main-panel">
-                                <div class="preview-tile preview-tile-large">
-                                    <div class="preview-tile-title">Upcoming sessions</div>
-                                    <p class="preview-tile-value">32</p>
-                                    <p class="preview-tile-meta">Strong classes, load balance, and trainer availability in one view.</p>
+                            <div class="preview-grid">
+                                <div class="preview-tile">
+                                    <div class="preview-tile-title">Open seats</div>
+                                    <p class="preview-tile-value">{{ $openSeats }}</p>
+                                    <p class="preview-tile-meta">Ready for new members to book now.</p>
                                 </div>
-
-                                <div class="preview-grid">
-                                    <div class="preview-tile">
-                                        <div class="preview-tile-title">Open seats</div>
-                                        <p class="preview-tile-value">18</p>
-                                        <p class="preview-tile-meta">Ready for new members to book now.</p>
-                                    </div>
-                                    <div class="preview-tile">
-                                        <div class="preview-tile-title">Active plans</div>
-                                        <p class="preview-tile-value">124</p>
-                                        <p class="preview-tile-meta">Current member subscriptions and renewals.</p>
-                                    </div>
+                                <div class="preview-tile">
+                                    <div class="preview-tile-title">Active plans</div>
+                                    <p class="preview-tile-value">{{ $activePlans }}</p>
+                                    <p class="preview-tile-meta">Current member subscriptions and renewals.</p>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="preview-footer">
-                                <div class="preview-small-card">
-                                    <span>Trainer load</span>
-                                    <strong>9/12</strong>
-                                </div>
-                                <div class="preview-small-card">
-                                    <span>Classes today</span>
-                                    <strong>7</strong>
-                                </div>
+                        <div class="preview-footer">
+                            <div class="preview-small-card">
+                                <span>Trainer load</span>
+                                <strong>{{ $trainersWithClasses }}/{{ $totalTrainers }}</strong>
+                            </div>
+                            <div class="preview-small-card">
+                                <span>Classes today</span>
+                                <strong>{{ $classesToday }}</strong>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    @endguest
-
-    @auth
-        @if(!auth()->user()->isMember())
-            <div class="card" style="margin-bottom:1.5rem; background:#1e293b;">
-                <p style="margin:0;">
-                    You’re not subscribed yet.
-                    <a href="{{ route('plans.index') }}" style="color:#ffd54f; font-weight:600;">
-                        View membership plans →
-                    </a>
-                </p>
-            </div>
-        @endif
-    @endauth
+    </div>
 
     <div class="page-header">
         <div>
@@ -493,19 +478,19 @@
         <div class="community-tiles">
             <div class="community-tile">
                 <p>Members joined</p>
-                <strong>{{ \App\Models\Member::count() }}</strong>
+                <strong>{{ $totalMembers }}</strong>
             </div>
             <div class="community-tile">
                 <p>Available classes</p>
-                <strong>{{ \App\Models\GymClass::count() }}</strong>
+                <strong>{{ $totalClasses }}</strong>
             </div>
             <div class="community-tile">
                 <p>Expert trainers</p>
-                <strong>{{ \App\Models\Trainer::count() }}</strong>
+                <strong>{{ $totalTrainers }}</strong>
             </div>
             <div class="community-tile">
                 <p>Total bookings</p>
-                <strong>{{ \App\Models\Booking::count() }}</strong>
+                <strong>{{ $totalBookings }}</strong>
             </div>
         </div>
     </div>

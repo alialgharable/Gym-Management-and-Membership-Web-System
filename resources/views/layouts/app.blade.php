@@ -468,6 +468,12 @@
             background: rgba(255, 209, 37, 0.15);
         }
 
+        .profile-dropdown-divider {
+            height: 1px;
+            margin: 0.4rem 0.25rem;
+            background: #2b2b2b;
+        }
+
         /* Logout styling */
         .profile-logout {
             color: #ff6b6b;
@@ -519,14 +525,15 @@
                 </div>
 
                 @auth
-                            @if(auth()->user()->isAdmin())
-                                <div class="nav-group">
-                                    <a class="nav-link" href="{{ route('bookings.index') }}">Bookings</a>
-                                    <a class="nav-link" href="{{ route('members.index') }}">Members</a>
-
-
-                                </div>
-                            @endif
+                            <div class="nav-group">
+                                @if(auth()->user()->isAdmin())
+                                    <a class="nav-link" href="{{ route('admin.dashboard') }}">Dashboard</a>
+                                @elseif(auth()->user()->isTrainer())
+                                    <a class="nav-link" href="{{ route('trainer.dashboard') }}">Dashboard</a>
+                                @elseif(auth()->user()->isMember())
+                                    <a class="nav-link" href="{{ route('member.dashboard') }}">Dashboard</a>
+                                @endif
+                            </div>
 
                             <div class="profile-menu">
                                 <button class="profile-trigger" type="button" onclick="toggleProfileMenu()">
@@ -555,7 +562,29 @@
                                         <a href="{{ route('admins.edit', auth()->user()->admin->id) }}" class="profile-dropdown-link">
                                             Edit Profile
                                         </a>
+
+                                        <div class="profile-dropdown-divider"></div>
+
+                                        <a href="{{ route('admin.dashboard') }}" class="profile-dropdown-link">
+                                            Admin Dashboard
+                                        </a>
+                                        <a href="{{ route('bookings.index') }}" class="profile-dropdown-link">
+                                            Manage Bookings
+                                        </a>
+                                        <a href="{{ route('members.index') }}" class="profile-dropdown-link">
+                                            Manage Members
+                                        </a>
                                     @endif 
+
+                                    @if(auth()->user()->trainer)
+                                        <a href="{{ route('trainers.show', auth()->user()->trainer->id) }}" class="profile-dropdown-link">
+                                            Profile
+                                        </a>
+
+                                        <a href="{{ route('trainers.edit', auth()->user()->trainer->id) }}" class="profile-dropdown-link">
+                                            Edit Profile
+                                        </a>
+                                    @endif
                                     
 
                                     <form action="{{ route('logout') }}" method="POST">
