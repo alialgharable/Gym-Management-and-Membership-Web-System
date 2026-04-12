@@ -8,7 +8,11 @@
             <h1 class="section-title">Trainer Reviews</h1>
             <p class="section-subtitle">Manage trainer reviews and ratings</p>
         </div>
-        <a href="{{ route('reviews.create') }}" class="btn btn-primary">+ New Review</a>
+        @auth
+            @if(auth()->user()->isMember())
+                <a href="{{ route('reviews.create') }}" class="btn btn-primary">+ New Review</a>
+            @endif
+        @endauth
     </div>
 
     @if ($reviews->count())
@@ -35,12 +39,16 @@
                             <td>
                                 <div class="actions">
                                     <a href="{{ route('reviews.show', $review) }}" class="btn btn-secondary">View</a>
-                                    <a href="{{ route('reviews.edit', $review) }}" class="btn btn-secondary">Edit</a>
-                                    <form action="{{ route('reviews.destroy', $review) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-                                    </form>
+                                    @auth
+                                        @if(auth()->user()->isAdmin() || (auth()->user()->isMember() && optional($review->member)->user_id === auth()->id()))
+                                            <a href="{{ route('reviews.edit', $review) }}" class="btn btn-secondary">Edit</a>
+                                            <form action="{{ route('reviews.destroy', $review) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                                            </form>
+                                        @endif
+                                    @endauth
                                 </div>
                             </td>
                         </tr>

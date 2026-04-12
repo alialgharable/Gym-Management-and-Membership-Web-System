@@ -13,19 +13,42 @@ class MembershipPlanSeeder extends Seeder
      */
     public function run(): void
     {
-        foreach (range(1, 5) as $i) {
-            MembershipPlan::create([
-                'name' => fake()->randomElement([
-                    'Basic Plan',
-                    'Gold Plan',
-                    'Premium Plan',
-                    'Student Plan',
-                    'Pro Plan'
-                ]),
-                'price' => fake()->numberBetween(20, 100),
-                'duration' => fake()->numberBetween(30, 90),
-                'description' => fake()->sentence(),
-            ]);
+        $plans = [
+            [
+                'name' => 'Basic Plan',
+                'price' => 29.99,
+                'duration' => 30,
+                'description' => 'Great starter plan for consistent monthly training.',
+            ],
+            [
+                'name' => 'Standard Plan',
+                'price' => 79.99,
+                'duration' => 90,
+                'description' => 'Balanced 3-month plan for building routine and momentum.',
+            ],
+            [
+                'name' => 'Premium Plan',
+                'price' => 149.99,
+                'duration' => 180,
+                'description' => '6-month plan for long-term progress and class consistency.',
+            ],
+            [
+                'name' => 'Annual Plan',
+                'price' => 269.99,
+                'duration' => 365,
+                'description' => 'Best value yearly plan for committed members.',
+            ],
+        ];
+
+        foreach ($plans as $plan) {
+            MembershipPlan::updateOrCreate(
+                ['name' => $plan['name']],
+                [
+                    'price' => $plan['price'],
+                    'duration' => $plan['duration'],
+                    'description' => $plan['description'],
+                ]
+            );
         }
     }
 }

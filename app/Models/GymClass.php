@@ -9,7 +9,9 @@ class GymClass extends Model
 
     protected $fillable = [
         'trainer_id',
+        'room_id',
         'name',
+        'category',
         'description',
         'schedule',
         'capacity',
@@ -23,6 +25,11 @@ class GymClass extends Model
     public function trainer()
     {
         return $this->belongsTo(Trainer::class);
+    }
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'room_id');
     }
 
     public function bookings()

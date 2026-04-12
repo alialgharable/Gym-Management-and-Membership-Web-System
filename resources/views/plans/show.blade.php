@@ -22,7 +22,7 @@
         <div class="card">
             <h3>Plan Information</h3>
             <p><strong>Price:</strong> ${{ number_format($plan->price, 2) }}</p>
-            <p><strong>Duration:</strong> {{ $plan->duration }} months</p>
+            <p><strong>Duration:</strong> {{ $plan->durationLabel() }}</p>
             <p><strong>Description:</strong> {{ $plan->description ?? 'N/A' }}</p>
         </div>
 

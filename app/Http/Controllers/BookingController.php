@@ -53,7 +53,7 @@ class BookingController extends Controller
             return redirect('subscriptions/create');
         }
 
-        $classes = GymClass::with('trainer.user')->get();
+        $classes = GymClass::with(['trainer.user', 'room'])->get();
         $members = $isMember ? Member::where('user_id', $user->id)->get() : Member::all();
 
         return view('bookings.create', compact('members', 'classes', 'isMember'));
@@ -65,6 +65,17 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user();
+
+        $selectedClassId = (int) $request->input('class_id');
+        $selectedClass = GymClass::findOrFail($selectedClassId);
+
+        $isClassFull = Booking::where('class_id', $selectedClassId)
+            ->where('status', 'confirmed')
+            ->count() >= (int) $selectedClass->capacity;
+
+        if ($isClassFull) {
+            return back()->withInput()->with('error', 'This class is already full.');
+        }
 
         if ($user && $user->isMember()) {
             $member = Member::where('user_id', $user->id)->firstOrFail();
@@ -79,6 +90,17 @@ class BookingController extends Controller
 
             if ($alreadyBooked) {
                 return back()->with('error', 'You already booked this class.');
+            }
+
+            $hasTimeConflict = Booking::where('member_id', $member->id)
+                ->where('status', '!=', 'cancelled')
+                ->whereHas('gymClass', function ($query) use ($selectedClass) {
+                    $query->where('schedule', $selectedClass->schedule);
+                })
+                ->exists();
+
+            if ($hasTimeConflict) {
+                return back()->withInput()->with('error', 'Time conflict: you already have another class booked at this time.');
             }
 
             Booking::create([
@@ -102,6 +124,17 @@ class BookingController extends Controller
 
         if ($alreadyBooked) {
             return back()->with('error', 'This member already booked this class.');
+        }
+
+        $hasTimeConflict = Booking::where('member_id', $request->member_id)
+            ->where('status', '!=', 'cancelled')
+            ->whereHas('gymClass', function ($query) use ($selectedClass) {
+                $query->where('schedule', $selectedClass->schedule);
+            })
+            ->exists();
+
+        if ($hasTimeConflict) {
+            return back()->withInput()->with('error', 'Time conflict: this member already has another class booked at this time.');
         }
 
         Booking::create([

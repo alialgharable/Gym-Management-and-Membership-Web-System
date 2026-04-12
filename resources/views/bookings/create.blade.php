@@ -45,7 +45,7 @@
                     <option value="">Select a class...</option>
                     @foreach ($classes as $class)
                         <option value="{{ $class->id }}" @selected(old('class_id') == $class->id)>
-                            {{ $class->name }}
+                            {{ $class->name }} - {{ $class->room->name ?? 'No room' }} - {{ $class->schedule ? $class->schedule->format('Y-m-d H:i') : 'No time' }}
                         </option>
                     @endforeach
                 </select>

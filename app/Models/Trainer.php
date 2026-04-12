@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Trainer extends Model
 {
+    public const SPECIALTIES = [
+        'combat' => 'Combat Sports',
+        'yoga_pilates' => 'Yoga & Pilates',
+        'group_training' => 'Group Training',
+        'fitness_machines' => 'Fitness Machines',
+    ];
 
     protected $fillable = [
         'user_id',
@@ -28,5 +34,10 @@ class Trainer extends Model
     public function reviews()
     {
         return $this->hasMany(TrainerReview::class);
+    }
+
+    public function specialtyLabel(): string
+    {
+        return self::SPECIALTIES[$this->specialty] ?? 'N/A';
     }
 }

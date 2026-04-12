@@ -18,7 +18,9 @@
             @foreach ($classes as $class)
                 <div class="card">
                     <h3>{{ $class->name }}</h3>
+                    <p><strong>Category:</strong> {{ str_replace('_', ' ', ucfirst($class->category ?? 'N/A')) }}</p>
                     <p><strong>Trainer:</strong> {{ $class->trainer->user->name ?? 'N/A' }}</p>
+                    <p><strong>Room:</strong> {{ $class->room->name ?? 'N/A' }}</p>
                     <p><strong>Schedule:</strong> {{ $class->schedule ?? 'N/A' }}</p>
                     <p><strong>Capacity:</strong> {{ $class->capacity ?? 'N/A' }} members</p>
                     <p style="font-size: 0.9rem; color: #a9a89d;">Bookings: {{ $class->bookings->count() }}</p>

@@ -34,8 +34,16 @@
 
             <div class="field-group">
                 <label class="field-label">Duration (Months) <span style="color: #ff5555;">*</span></label>
-                <input type="number" name="duration" class="field-input" value="{{ old('duration', $plan->duration) }}" min="1" required>
-                @error('duration')
+                @php
+                    $durationMonths = old('duration_months', max(1, (int) round($plan->duration / 30)));
+                @endphp
+                <select name="duration_months" class="field-select" required>
+                    <option value="1" @selected($durationMonths == 1)>1 month</option>
+                    <option value="3" @selected($durationMonths == 3)>3 months</option>
+                    <option value="6" @selected($durationMonths == 6)>6 months</option>
+                    <option value="12" @selected($durationMonths == 12)>12 months</option>
+                </select>
+                @error('duration_months')
                     <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
                 @enderror
             </div>

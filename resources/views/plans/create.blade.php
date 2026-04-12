@@ -33,8 +33,14 @@
 
             <div class="field-group">
                 <label class="field-label">Duration (Months) <span style="color: #ff5555;">*</span></label>
-                <input type="number" name="duration" class="field-input" value="{{ old('duration') }}" min="1" placeholder="3" required>
-                @error('duration')
+                <select name="duration_months" class="field-select" required>
+                    <option value="">Select duration...</option>
+                    <option value="1" @selected(old('duration_months') == 1)>1 month</option>
+                    <option value="3" @selected(old('duration_months') == 3)>3 months</option>
+                    <option value="6" @selected(old('duration_months') == 6)>6 months</option>
+                    <option value="12" @selected(old('duration_months') == 12)>12 months</option>
+                </select>
+                @error('duration_months')
                     <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
                 @enderror
             </div>

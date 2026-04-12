@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             TrainerSeeder::class,
             MemberSeeder::class,
+            RoomSeeder::class,
             GymClassSeeder::class,
             SubscriptionSeeder::class,
             BookingSeeder::class,

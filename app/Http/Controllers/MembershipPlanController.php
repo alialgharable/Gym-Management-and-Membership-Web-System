@@ -35,8 +35,11 @@ class MembershipPlanController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'duration' => 'required|integer|min:1',
+            'duration_months' => 'required|integer|in:1,3,6,12',
         ]);
+
+        $validated['duration'] = $validated['duration_months'] * 30;
+        unset($validated['duration_months']);
 
         MembershipPlan::create($validated);
 
@@ -71,8 +74,11 @@ class MembershipPlanController extends Controller
             'name' => 'sometimes|string|max:255',
             'description' => 'required|string',
             'price' => 'sometimes|numeric|min:0',
-            'duration' => 'required|integer|min:1',
+            'duration_months' => 'required|integer|in:1,3,6,12',
         ]);
+
+        $validated['duration'] = $validated['duration_months'] * 30;
+        unset($validated['duration_months']);
 
         $plan->update($validated);
 

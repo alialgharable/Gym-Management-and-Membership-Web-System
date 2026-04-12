@@ -48,6 +48,37 @@
             </div>
 
             <div class="field-group">
+                <label class="field-label">Category <span style="color: #ff5555;">*</span></label>
+                <select name="category" class="field-select" required>
+                    @if(auth()->check() && auth()->user()->isTrainer())
+                        @php
+                            $trainerSpecialty = auth()->user()->trainer->specialty;
+                            $trainerSpecialtyLabel = $categories[$trainerSpecialty] ?? 'My Specialty';
+                        @endphp
+                        <option value="{{ $trainerSpecialty }}" selected>
+                            {{ $trainerSpecialtyLabel }}
+                        </option>
+                    @else
+                        @foreach ($categories as $value => $label)
+                            <option value="{{ $value }}" @selected(old('category', $gymClass->category) == $value)>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    @endif
+                </select>
+                <small style="color: #888; margin-top: 0.15rem; display: block;">
+                    @if(auth()->check() && auth()->user()->isTrainer())
+                        You can only assign classes to your specialty. Room is assigned automatically.
+                    @else
+                        Room is assigned automatically based on category.
+                    @endif
+                </small>
+                @error('category')
+                    <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="field-group">
                 <label class="field-label">Capacity</label>
                 <input type="number" name="capacity" class="field-input" value="{{ old('capacity', $gymClass->capacity) }}" min="1" max="30">
                 @error('capacity')

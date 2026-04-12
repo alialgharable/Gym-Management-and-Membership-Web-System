@@ -16,31 +16,21 @@
             @csrf
 
             <div class="field-group">
+                <label class="field-label">Member</label>
+                <input type="text" class="field-input" value="{{ auth()->user()->name ?? 'N/A' }}" disabled>
+            </div>
+
+            <div class="field-group">
                 <label class="field-label">Trainer <span style="color: #ff5555;">*</span></label>
                 <select name="trainer_id" class="field-select" required>
                     <option value="">Select a trainer...</option>
                     @foreach ($trainers as $trainer)
-                        <option value="{{ $trainer->id }}" @selected(old('trainer_id') == $trainer->id)>
+                        <option value="{{ $trainer->id }}" @selected(old('trainer_id', $selectedTrainerId ?? null) == $trainer->id)>
                             {{ $trainer->user->name ?? 'N/A' }}
                         </option>
                     @endforeach
                 </select>
                 @error('trainer_id')
-                    <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div class="field-group">
-                <label class="field-label">Member <span style="color: #ff5555;">*</span></label>
-                <select name="member_id" class="field-select" required>
-                    <option value="">Select a member...</option>
-                    @foreach ($members as $member)
-                        <option value="{{ $member->id }}" @selected(old('member_id') == $member->id)>
-                            {{ $member->user->name ?? 'N/A' }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('member_id')
                     <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
                 @enderror
             </div>

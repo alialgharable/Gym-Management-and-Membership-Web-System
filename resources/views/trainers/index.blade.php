@@ -37,7 +37,7 @@
                     </div>
 
                     <p><strong>Email:</strong> {{ $trainerUser->email ?? 'N/A' }}</p>
-                    <p><strong>Specialization:</strong> {{ $trainer->specialty ?? 'N/A' }}</p>
+                    <p><strong>Specialization:</strong> {{ $trainer->specialtyLabel() }}</p>
                     <p style="font-size: 0.9rem; color: #a9a89d;">
                         Classes: {{ $trainer->gymClasses->count() }} | Reviews: {{ $trainer->reviews->count() }}
                     </p>

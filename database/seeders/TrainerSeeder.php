@@ -20,11 +20,10 @@ class TrainerSeeder extends Seeder
             Trainer::create([
                 'user_id' => $user->id,
                 'specialty' => fake()->randomElement([
-                    'Yoga',
-                    'CrossFit',
-                    'Boxing',
-                    'Cardio',
-                    'Strength Training'
+                    'combat',
+                    'yoga_pilates',
+                    'group_training',
+                    'fitness_machines',
                 ]),
                 'bio' => fake()->paragraph(),
                 'profile_image' => null,

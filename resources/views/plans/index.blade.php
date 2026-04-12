@@ -24,7 +24,7 @@
                     <p style="font-size: 2rem; font-weight: 700; color: #5fd68f; margin: 0;">
                         ${{ number_format($plan->price, 2) }}
                     </p>
-                    <p style="color: #a9a89d; margin: 10px 0;">{{ $plan->duration }} months</p>
+                    <p style="color: #a9a89d; margin: 10px 0;">{{ $plan->durationLabel() }}</p>
                     <p style="color: #d7d2ad; line-height: 1.6;">{{ $plan->description ?? 'No description' }}</p>
                     <div class="actions" style="margin-top: 1rem;">
                         <a href="{{ route('plans.show', $plan) }}" class="btn btn-secondary">View</a>

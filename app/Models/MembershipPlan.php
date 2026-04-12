@@ -16,4 +16,14 @@ class MembershipPlan extends Model
     {
         return $this->hasMany(Subscription::class);
     }
+
+    public function durationLabel(): string
+    {
+        if ($this->duration % 30 === 0) {
+            $months = (int) ($this->duration / 30);
+            return $months . ' month' . ($months === 1 ? '' : 's');
+        }
+
+        return $this->duration . ' days';
+    }
 }

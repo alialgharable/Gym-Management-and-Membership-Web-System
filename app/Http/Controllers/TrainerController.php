@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trainer;
+use App\Models\TrainerReview;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class TrainerController extends Controller
 {
@@ -24,8 +26,9 @@ class TrainerController extends Controller
     public function create()
     {
         $users = User::whereDoesntHave('trainer')->get();
+        $specialties = Trainer::SPECIALTIES;
 
-        return view('trainers.create', compact('users'));
+        return view('trainers.create', compact('users', 'specialties'));
     }
 
     /**
@@ -35,7 +38,7 @@ class TrainerController extends Controller
     {
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
-            'specialty' => 'nullable|string|max:255',
+            'specialty' => 'required|in:combat,yoga_pilates,group_training,fitness_machines',
             'bio' => 'nullable|string',
         ]);
 
@@ -52,7 +55,16 @@ class TrainerController extends Controller
     {
         $trainer->load(['user', 'gymClasses', 'reviews.member.user']);
 
-        return view('trainers.show', compact('trainer'));
+        $memberReview = null;
+        if (auth()->check() && auth()->user()->isMember()) {
+            $memberReview = TrainerReview::where('trainer_id', $trainer->id)
+                ->whereHas('member', function ($query) {
+                    $query->where('user_id', auth()->id());
+                })
+                ->first();
+        }
+
+        return view('trainers.show', compact('trainer', 'memberReview'));
     }
 
     /**
@@ -60,7 +72,9 @@ class TrainerController extends Controller
      */
     public function edit(Trainer $trainer)
     {
-        return view('trainers.edit', compact('trainer'));
+        $specialties = Trainer::SPECIALTIES;
+
+        return view('trainers.edit', compact('trainer', 'specialties'));
     }
 
     /**
@@ -69,9 +83,20 @@ class TrainerController extends Controller
     public function update(Request $request, Trainer $trainer)
     {
         $validated = $request->validate([
-            'specialty' => 'sometimes|string|max:255',
+            'specialty' => 'required|in:combat,yoga_pilates,group_training,fitness_machines',
             'bio' => 'nullable|string',
+            'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
+
+        if ($request->hasFile('profile_picture')) {
+            if ($trainer->user->profile_picture && Storage::disk('public')->exists($trainer->user->profile_picture)) {
+                Storage::disk('public')->delete($trainer->user->profile_picture);
+            }
+
+            $path = $request->file('profile_picture')->store('profile-pictures', 'public');
+            $trainer->user->profile_picture = $path;
+            $trainer->user->save();
+        }
 
         $trainer->update($validated);
 

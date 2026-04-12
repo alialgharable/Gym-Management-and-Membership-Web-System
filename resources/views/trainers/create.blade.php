@@ -32,7 +32,14 @@
 
             <div class="field-group">
                 <label class="field-label">Specialization</label>
-                <input type="text" name="specialty" class="field-input" value="{{ old('specialty') }}" placeholder="e.g., CrossFit, Yoga, Boxing">
+                <select name="specialty" class="field-select" required>
+                    <option value="">Select specialty...</option>
+                    @foreach ($specialties as $value => $label)
+                        <option value="{{ $value }}" @selected(old('specialty') == $value)>
+                            {{ $label }}
+                        </option>
+                    @endforeach
+                </select>
                 @error('specialty')
                     <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
                 @enderror

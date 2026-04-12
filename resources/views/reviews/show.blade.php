@@ -10,7 +10,11 @@
         </div>
         <div class="actions">
             <a href="{{ route('reviews.index') }}" class="btn btn-secondary">← Back</a>
-            <a href="{{ route('reviews.edit', $review) }}" class="btn btn-primary">Edit</a>
+            @auth
+                @if(auth()->user()->isAdmin() || (auth()->user()->isMember() && optional($review->member)->user_id === auth()->id()))
+                    <a href="{{ route('reviews.edit', $review) }}" class="btn btn-primary">Edit</a>
+                @endif
+            @endauth
         </div>
     </div>
 
@@ -36,11 +40,15 @@
         <p style="color: #a9a89d; font-size: 0.9rem;">Posted on {{ $review->created_at->format('M d, Y') }}</p>
     </div>
 
-    <div style="margin-top: 1.5rem;">
-        <form action="{{ route('reviews.destroy', $review) }}" method="POST">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-danger" onclick="return confirm('This will permanently delete this review. Are you sure?')">Delete Review</button>
-        </form>
-    </div>
+    @auth
+        @if(auth()->user()->isAdmin() || (auth()->user()->isMember() && optional($review->member)->user_id === auth()->id()))
+            <div style="margin-top: 1.5rem;">
+                <form action="{{ route('reviews.destroy', $review) }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('This will permanently delete this review. Are you sure?')">Delete Review</button>
+                </form>
+            </div>
+        @endif
+    @endauth
 @endsection

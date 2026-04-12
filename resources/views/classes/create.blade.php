@@ -57,6 +57,51 @@
             </div>
 
             <div class="field-group">
+                <label class="field-label">Category <span style="color: #ff5555;">*</span></label>
+                <select name="category" class="field-select" required>
+                    @if ($isTrainer)
+                        @php
+                            $trainerSpecialty = auth()->user()->trainer->specialty;
+                            $trainerSpecialtyLabel = $categories[$trainerSpecialty] ?? 'My Specialty';
+                        @endphp
+                        <option value="{{ $trainerSpecialty }}" selected>
+                            {{ $trainerSpecialtyLabel }}
+                        </option>
+                    @else
+                        <option value="">Select a category...</option>
+                        @foreach ($categories as $value => $label)
+                            <option value="{{ $value }}" @selected(old('category') == $value)>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    @endif
+                </select>
+                <small style="color: #888; margin-top: 0.15rem; display: block;">
+                    @if ($isTrainer)
+                        You can only create classes in your specialty. Room is assigned automatically.
+                    @else
+                        Room is assigned automatically based on category.
+                    @endif
+                </small>
+                @error('category')
+                    <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" style="display: flex; align-items: center; gap: 0.6rem;">
+                    <input type="checkbox" name="create_full_month" value="1" {{ old('create_full_month') ? 'checked' : '' }}>
+                    Create full month schedule
+                </label>
+                <small style="color: #888; margin-top: 0.15rem; display: block;">
+                    When enabled, this class is created every 7 days from the selected date/time until the end of that month.
+                </small>
+                @error('create_full_month')
+                    <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="field-group">
                 <label class="field-label">Capacity</label>
                 <input type="number" name="capacity" class="field-input" value="{{ old('capacity') }}" min="1" max="30">
                 @error('capacity')

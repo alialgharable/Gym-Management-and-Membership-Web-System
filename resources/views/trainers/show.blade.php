@@ -47,7 +47,7 @@
             <h3>Personal Information</h3>
             <p><strong>Name:</strong> {{ $trainer->user->name ?? 'N/A' }}</p>
             <p><strong>Email:</strong> {{ $trainer->user->email ?? 'N/A' }}</p>
-            <p><strong>Specialization:</strong> {{ $trainer->specialty ?? 'N/A' }}</p>
+            <p><strong>Specialization:</strong> {{ $trainer->specialtyLabel() }}</p>
         </div>
 
         <div class="card">
@@ -59,6 +59,53 @@
             </p>
         </div>
     </div>
+
+    @auth
+        @if(auth()->user()->isMember())
+            <div class="card" style="margin-top: 1.5rem;">
+                <h3>{{ $memberReview ? 'Your Review' : 'Add Your Review' }}</h3>
+
+                @if($memberReview)
+                    <p style="margin-bottom: 0.8rem; color: #d7d2ad;">
+                        You already reviewed this trainer.
+                    </p>
+                    <p><strong>Rating:</strong> <span style="color: #ffd700;">★ {{ $memberReview->rating }}/5</span></p>
+                    <p><strong>Comment:</strong> {{ $memberReview->comment ?? 'No comment' }}</p>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem;">
+                        <a href="{{ route('reviews.edit', $memberReview) }}" class="btn btn-primary">Edit Review</a>
+                        <form action="{{ route('reviews.destroy', $memberReview) }}" method="POST" style="display: inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Delete your review?')">Delete Review</button>
+                        </form>
+                    </div>
+                @else
+                    <form action="{{ route('reviews.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="trainer_id" value="{{ $trainer->id }}">
+
+                        <div class="field-group">
+                            <label class="field-label">Rating (1-5) <span style="color: #ff5555;">*</span></label>
+                            <input type="number" name="rating" class="field-input" value="{{ old('rating') }}" min="1" max="5" required>
+                            @error('rating')
+                                <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label">Comment</label>
+                            <textarea name="comment" class="field-input" rows="4" style="resize: vertical;">{{ old('comment') }}</textarea>
+                            @error('comment')
+                                <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </form>
+                @endif
+            </div>
+        @endif
+    @endauth
 
     @if ($trainer->gymClasses->count())
         <div class="card" style="margin-top: 1.5rem;">
