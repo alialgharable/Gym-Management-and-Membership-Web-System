@@ -104,6 +104,17 @@ class TrainerController extends Controller
             ->with('success', 'Trainer updated successfully!');
     }
 
+
+    public static function createTrainer(array $data)
+    {
+        return Trainer::create([
+            'user_id' => $data['user_id'],
+            'specialty' => $data['specialty'],
+            'bio' => $data['bio'] ?? null,
+        ]);
+    }
+
+
     /**
      * Remove the specified resource from storage.
      */

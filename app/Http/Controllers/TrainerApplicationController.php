@@ -6,6 +6,9 @@ use App\Models\TrainerApplication;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\TrainerController;
+use Illuminate\Support\Facades\DB;
+use App\Models\Trainer;
 class TrainerApplicationController extends Controller
 {
     /**
@@ -62,10 +65,9 @@ class TrainerApplicationController extends Controller
      */
     public function show(TrainerApplication $trainerApplication)
     {
-        if ($trainerApplication->user_id !== auth()->id()) {
+        if (!auth()->user()->isAdmin() && $trainerApplication->user_id !== auth()->id()) {
             abort(403);
         }
-
         $trainerApplication->load('user');
 
         return view('trainer-applications.show', [
@@ -114,6 +116,77 @@ class TrainerApplicationController extends Controller
         return redirect()->route('trainer-applications.show', $trainerApplication)
             ->with('success', 'Application updated successfully!');
     }
+
+
+    public function accept(Request $request, TrainerApplication $trainerApplication)
+    {
+        if (!auth()->user()->isAdmin()) {
+            abort(403);
+        }
+
+        if ($trainerApplication->status !== 'pending') {
+            return back()->with('error', 'This application has already been reviewed.');
+        }
+
+        if (Trainer::where('user_id', $trainerApplication->user_id)->exists()) {
+            return back()->with('error', 'This user is already a trainer.');
+        }
+
+        $validated = $request->validate([
+            'specialty' => 'required|in:combat,yoga_pilates,group_training,fitness_machines',
+            'bio' => 'nullable|string',
+        ]);
+
+        $admin = auth()->user()->admin;
+
+        if (!$admin) {
+            return back()->with('error', 'Admin record not found for this user.');
+        }
+
+        DB::transaction(function () use ($trainerApplication, $validated, $admin) {
+            TrainerController::createTrainer([
+                'user_id' => $trainerApplication->user_id,
+                'specialty' => $validated['specialty'],
+                'bio' => $validated['bio'] ?? $trainerApplication->experience,
+            ]);
+
+            $trainerApplication->update([
+                'status' => 'approved',
+                'reviewed_by' => $admin->id,
+            ]);
+        });
+
+        return redirect()->route('trainer-applications.index')
+            ->with('success', 'Application approved and trainer created successfully!');
+    }
+
+
+
+    public function reject(TrainerApplication $trainerApplication)
+    {
+        if (!auth()->user()->isAdmin()) {
+            abort(403);
+        }
+
+        if ($trainerApplication->status !== 'pending') {
+            return back()->with('error', 'This application has already been reviewed.');
+        }
+
+        $admin = auth()->user()->admin;
+
+        if (!$admin) {
+            return back()->with('error', 'Admin record not found for this user.');
+        }
+
+        $trainerApplication->update([
+            'status' => 'rejected',
+            'reviewed_by' => $admin->id,
+        ]);
+
+        return back()->with('success', 'Application rejected successfully.');
+    }
+
+
 
     /**
      * Remove the specified resource from storage.

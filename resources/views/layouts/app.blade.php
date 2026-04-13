@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" href="{{ asset('favicon-nobg.png') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
             color-scheme: dark;
@@ -491,6 +492,32 @@
             border: 3px solid #ffd54a;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
         }
+
+        .notification-bell {
+            position: relative;
+            font-size: 1.4rem;
+            color: #ffffff;
+            text-decoration: none;
+            margin-left: 15px;
+            transition: 0.2s ease;
+        }
+
+        .notification-bell:hover {
+            color: #ffd700;
+            transform: scale(1.1);
+        }
+
+        .notification-bell .badge {
+            position: absolute;
+            top: -6px;
+            right: -10px;
+            background: #ff5555;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 50%;
+            font-weight: bold;
+        }
     </style>
 </head>
 <script>
@@ -521,10 +548,22 @@
                     <a class="nav-link" href="{{ route('plans.index') }}">Membership</a>
                     <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
                     <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
-                    @if(auth()->check() && (!auth()->user()->isAdmin() || !auth()->user()->isMember() || !auth()->user()->isTrainer()))
+                    @if(auth()->check() && !auth()->user()->isAdmin() && !auth()->user()->isMember() && !auth()->user()->isTrainer())
                         <a class="nav-link" href="{{ route('trainer-applications.create') }}">Become a Trainer</a>
                     @endif
+                    @if(auth()->check() && auth()->user()->isAdmin())
+                        @php
+                            $pendingCount = \App\Models\TrainerApplication::where('status', 'pending')->count();
+                        @endphp
 
+                        <a href="{{ route('trainer-applications.index') }}" class="notification-bell">
+                            <i class="fa-solid fa-bell"></i>
+
+                            @if($pendingCount > 0)
+                                <span class="badge">{{ $pendingCount }}</span>
+                            @endif
+                        </a>
+                    @endif
                 </div>
 
                 @auth

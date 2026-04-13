@@ -16,6 +16,31 @@ use App\Http\Controllers\AdminController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+Route::middleware(['auth'])->group(function () {
+    Route::post('subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
+
+    Route::get('trainer-applications/create', [TrainerApplicationController::class, 'create'])
+        ->name('trainer-applications.create');
+
+    Route::post('trainer-applications', [TrainerApplicationController::class, 'store'])
+        ->name('trainer-applications.store');
+
+    Route::get('my-trainer-application', [TrainerApplicationController::class, 'myApplication'])
+        ->name('trainer-applications.mine');
+
+    Route::get('trainer-applications/{trainerApplication}', [TrainerApplicationController::class, 'show'])
+        ->name('trainer-applications.show');
+
+    Route::get('trainer-applications/{trainerApplication}/edit', [TrainerApplicationController::class, 'edit'])
+        ->name('trainer-applications.edit');
+
+    Route::put('trainer-applications/{trainerApplication}', [TrainerApplicationController::class, 'update'])
+        ->name('trainer-applications.update');
+
+    Route::delete('trainer-applications/{trainerApplication}', [TrainerApplicationController::class, 'destroy'])
+        ->name('trainer-applications.destroy');
+});
+
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
@@ -24,6 +49,15 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('trainers', TrainerController::class)->except(['index', 'show']);
     Route::resource('subscriptions', SubscriptionController::class)->except(['store']);
     Route::resource('members', MemberController::class)->except(['index', 'show', 'create']);
+
+    Route::get('trainer-applications', [TrainerApplicationController::class, 'index'])
+        ->name('trainer-applications.index');
+
+    Route::patch('trainer-applications/{trainerApplication}/accept', [TrainerApplicationController::class, 'accept'])
+        ->name('trainer-applications.accept');
+
+    Route::patch('trainer-applications/{trainerApplication}/reject', [TrainerApplicationController::class, 'reject'])
+        ->name('trainer-applications.reject');
 });
 
 Route::middleware(['auth', 'trainer'])->group(function () {
@@ -37,16 +71,11 @@ Route::middleware(['auth', 'member'])->group(function () {
     Route::resource('members', MemberController::class)->only(['edit', 'update', 'destroy']);
 });
 
-Route::middleware('auth')->group(function () {
-    Route::resource('subscriptions', SubscriptionController::class)->only(['store']);
-});
-
 Route::resource('bookings', BookingController::class);
 
 Route::resource('members', MemberController::class)->only(['index', 'show']);
 Route::resource('classes', GymClassController::class)->only(['index', 'show']);
 Route::resource('plans', MembershipPlanController::class)->only(['index', 'show']);
 Route::resource('trainers', TrainerController::class)->only(['index', 'show']);
-Route::resource('trainer-applications', TrainerApplicationController::class);
 Route::resource('reviews', TrainerReviewController::class);
 Route::resource('admins', AdminController::class)->only(['index', 'show']);
