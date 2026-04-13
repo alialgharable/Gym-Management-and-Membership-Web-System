@@ -24,16 +24,37 @@
 
         <div class="card">
             <h3>Application Status</h3>
-            <p><strong>Status:</strong> <span style="color: {{ $application->status === 'approved' ? '#5fd68f' : ($application->status === 'rejected' ? '#ff5555' : '#ffd700') }};">{{ ucfirst($application->status) }}</span></p>
-            <p><strong>Experience:</strong> {{ $application->experience ?? 'N/A' }}</p>
-        </div>
-    </div>
 
-    <div style="margin-top: 1.5rem;">
-        <form action="{{ route('trainer-applications.destroy', $application) }}" method="POST">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-danger" onclick="return confirm('This will permanently delete this application. Are you sure?')">Delete Application</button>
-        </form>
-    </div>
+            <p>
+                <strong>Status:</strong>
+                <span
+                    style="color: {{ $application->status === 'approved' ? '#5fd68f' : ($application->status === 'rejected' ? '#ff5555' : '#ffd700') }};">
+                    {{ ucfirst($application->status) }}
+                </span>
+            </p>
+
+            <p><strong>Experience:</strong> {{ $application->experience ?? 'N/A' }}</p>
+
+            <p style="margin-top: 1rem;">
+                <strong>CV:</strong>
+                @if($application->cv_file)
+                    <a href="{{ asset('storage/' . $application->cv_file) }}" target="_blank" class="btn btn-secondary"
+                        style="margin-left: 10px;">
+                        View CV
+                    </a>
+                @else
+                    <span style="color: #aaa;">No CV uploaded</span>
+                @endif
+            </p>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+            <form action="{{ route('trainer-applications.destroy', $application) }}" method="POST">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('This will permanently delete this application. Are you sure?')">Delete
+                    Application</button>
+            </form>
+        </div>
 @endsection

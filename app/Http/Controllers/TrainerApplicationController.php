@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\TrainerApplication;
 use App\Models\User;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Storage;
 class TrainerApplicationController extends Controller
 {
     /**
@@ -23,8 +23,13 @@ class TrainerApplicationController extends Controller
      */
     public function create()
     {
-        $users = User::all();
-        return view('trainer-applications.create', compact('users'));
+        $application = auth()->user()->trainerApplication;
+
+        if ($application) {
+            return redirect()->route('trainer-applications.show', $application);
+        }
+
+        return view('trainer-applications.create');
     }
 
     /**
@@ -38,30 +43,34 @@ class TrainerApplicationController extends Controller
             'certifications' => 'nullable|string',
         ]);
 
-        // Store file
         $cvPath = $request->file('cv_file')->store('cvs', 'public');
 
-        TrainerApplication::create([
+        $application = TrainerApplication::create([
             'user_id' => auth()->id(),
-            'reviewed_by' => null, 
+            'reviewed_by' => null,
             'cv_file' => $cvPath,
             'experience' => $validated['experience'],
             'certifications' => $validated['certifications'],
             'status' => 'pending',
         ]);
 
-        return redirect()->route('trainer-applications.index')
+        return redirect()->route('trainer-applications.show', $application)
             ->with('success', 'Application submitted successfully!');
     }
-
     /**
      * Display the specified resource.
      */
     public function show(TrainerApplication $trainerApplication)
     {
+        if ($trainerApplication->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $trainerApplication->load('user');
 
-        return view('trainer-applications.show', compact('trainerApplication'));
+        return view('trainer-applications.show', [
+            'application' => $trainerApplication,
+        ]);
     }
 
     /**
@@ -69,17 +78,36 @@ class TrainerApplicationController extends Controller
      */
     public function edit(TrainerApplication $trainerApplication)
     {
-        return view('trainer-applications.edit', compact('trainerApplication'));
+        if ($trainerApplication->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $trainerApplication->load('user');
+
+        return view('trainer-applications.edit', [
+            'application' => $trainerApplication,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, TrainerApplication $trainerApplication)
     {
+        if ($trainerApplication->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $validated = $request->validate([
-            'status' => 'sometimes|in:pending,approved,rejected',
+            'experience' => 'required|string',
+            'certifications' => 'nullable|string',
+            'cv_file' => 'nullable|mimes:pdf,doc,docx|max:2048',
         ]);
+
+        if ($request->hasFile('cv_file')) {
+            if ($trainerApplication->cv_file && Storage::disk('public')->exists($trainerApplication->cv_file)) {
+                Storage::disk('public')->delete($trainerApplication->cv_file);
+            }
+
+            $validated['cv_file'] = $request->file('cv_file')->store('cvs', 'public');
+        }
 
         $trainerApplication->update($validated);
 

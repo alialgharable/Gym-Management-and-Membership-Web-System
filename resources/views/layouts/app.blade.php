@@ -521,6 +521,9 @@
                     <a class="nav-link" href="{{ route('plans.index') }}">Membership</a>
                     <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
                     <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
+                    @if(auth()->check() && (!auth()->user()->isAdmin() || !auth()->user()->isMember() || !auth()->user()->isTrainer()))
+                        <a class="nav-link" href="{{ route('trainer-applications.create') }}">Become a Trainer</a>
+                    @endif
 
                 </div>
 
