@@ -525,16 +525,6 @@
                 </div>
 
                 @auth
-                            <div class="nav-group">
-                                @if(auth()->user()->isAdmin())
-                                    <a class="nav-link" href="{{ route('admin.dashboard') }}">Dashboard</a>
-                                @elseif(auth()->user()->isTrainer())
-                                    <a class="nav-link" href="{{ route('trainer.dashboard') }}">Dashboard</a>
-                                @elseif(auth()->user()->isMember())
-                                    <a class="nav-link" href="{{ route('member.dashboard') }}">Dashboard</a>
-                                @endif
-                            </div>
-
                             <div class="profile-menu">
                                 <button class="profile-trigger" type="button" onclick="toggleProfileMenu()">
                                     <img src="{{ auth()->user()->profile_picture
@@ -544,48 +534,34 @@
                                 </button>
 
                                 <div class="profile-dropdown" id="profileDropdown">
-                                    @if(auth()->user()->member)
-                                        <a href="{{ route('members.show', auth()->user()->member->id) }}" class="profile-dropdown-link">
+                                    @php
+                                        $user = auth()->user();
+                                    @endphp
+
+                                    @if($user->isAdmin() && $user->admin)
+                                        <a href="{{ route('admins.show', $user->admin->id) }}" class="profile-dropdown-link">
                                             Profile
                                         </a>
+                                        <a href="{{ route('admins.edit', $user->admin->id) }}" class="profile-dropdown-link">
+                                            Edit Profile
+                                        </a>
 
-                                        <a href="{{ route('members.edit', auth()->user()->member->id) }}" class="profile-dropdown-link">
+                                    @elseif($user->trainer)
+                                        <a href="{{ route('trainers.show', $user->trainer->id) }}" class="profile-dropdown-link">
+                                            Profile
+                                        </a>
+                                        <a href="{{ route('trainers.edit', $user->trainer->id) }}" class="profile-dropdown-link">
+                                            Edit Profile
+                                        </a>
+
+                                    @elseif($user->member)
+                                        <a href="{{ route('members.show', $user->member->id) }}" class="profile-dropdown-link">
+                                            Profile
+                                        </a>
+                                        <a href="{{ route('members.edit', $user->member->id) }}" class="profile-dropdown-link">
                                             Edit Profile
                                         </a>
                                     @endif
-
-                                    @if(auth()->user()->isAdmin())
-                                        <a href="{{ route('admins.show', auth()->user()->admin->id) }}" class="profile-dropdown-link">
-                                            Profile
-                                        </a>
-
-                                        <a href="{{ route('admins.edit', auth()->user()->admin->id) }}" class="profile-dropdown-link">
-                                            Edit Profile
-                                        </a>
-
-                                        <div class="profile-dropdown-divider"></div>
-
-                                        <a href="{{ route('admin.dashboard') }}" class="profile-dropdown-link">
-                                            Admin Dashboard
-                                        </a>
-                                        <a href="{{ route('bookings.index') }}" class="profile-dropdown-link">
-                                            Manage Bookings
-                                        </a>
-                                        <a href="{{ route('members.index') }}" class="profile-dropdown-link">
-                                            Manage Members
-                                        </a>
-                                    @endif 
-
-                                    @if(auth()->user()->trainer)
-                                        <a href="{{ route('trainers.show', auth()->user()->trainer->id) }}" class="profile-dropdown-link">
-                                            Profile
-                                        </a>
-
-                                        <a href="{{ route('trainers.edit', auth()->user()->trainer->id) }}" class="profile-dropdown-link">
-                                            Edit Profile
-                                        </a>
-                                    @endif
-                                    
 
                                     <form action="{{ route('logout') }}" method="POST">
                                         @csrf

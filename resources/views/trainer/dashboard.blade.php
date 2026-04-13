@@ -8,10 +8,6 @@
             <h1 class="section-title">Trainer Dashboard</h1>
             <p class="section-subtitle">Track classes, bookings, and feedback from members</p>
         </div>
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-            <a href="{{ route('trainers.show', auth()->user()->trainer->id) }}" class="btn btn-primary">View Profile</a>
-            <a href="{{ route('trainers.edit', auth()->user()->trainer->id) }}" class="btn btn-secondary">Edit Profile</a>
-        </div>
     </div>
 
     @if ($trainer)

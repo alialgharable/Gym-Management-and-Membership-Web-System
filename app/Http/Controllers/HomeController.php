@@ -16,6 +16,19 @@ class HomeController extends Controller
     public function index()
     {
 
+
+        if (auth()->check() && auth()->user()->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        if (auth()->check() && auth()->user()->isMember()) {
+            return redirect()->route('member.dashboard');
+        }
+
+        if (auth()->check() && auth()->user()->isTrainer()) {
+            return redirect()->route('trainer.dashboard');
+        }
+
         $plans = MembershipPlan::all();
         $totalClasses = GymClass::count();
         $totalTrainers = Trainer::count();

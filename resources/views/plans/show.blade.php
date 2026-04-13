@@ -34,7 +34,7 @@
     </div>
 
     @auth
-        @if(auth()->user()->isMember())
+        @if(!auth()->user()->isAdmin() && !auth()->user()->isTrainer())
             <div style="margin-top: 1.5rem;">
                 <form action="{{ route('subscriptions.store') }}" method="POST">
                     @csrf

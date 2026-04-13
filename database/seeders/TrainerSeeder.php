@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use App\Models\Trainer;
+use Illuminate\Support\Facades\Hash;
 
 class TrainerSeeder extends Seeder
 {
@@ -14,20 +15,19 @@ class TrainerSeeder extends Seeder
      */
     public function run(): void
     {
-        $users = User::all();
+        $user = User::updateOrCreate(
+            ['email' => 'trainer@gmail.com'],
+            [
+                'name' => 'trainer',
+                'password' => Hash::make('trainer123'),
+                'role' => 'trainer',
+            ]
+        );
 
-        foreach ($users->take(5) as $user) {
-            Trainer::create([
-                'user_id' => $user->id,
-                'specialty' => fake()->randomElement([
-                    'combat',
-                    'yoga_pilates',
-                    'group_training',
-                    'fitness_machines',
-                ]),
-                'bio' => fake()->paragraph(),
-                'profile_image' => null,
-            ]);
-        }
+        // Link user to admins table (avoid duplicates)
+        Trainer::updateOrCreate([
+            'user_id' => $user->id,
+            'specialty' => 'fighting',
+        ]);
     }
 }

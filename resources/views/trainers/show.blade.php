@@ -76,7 +76,8 @@
                         <form action="{{ route('reviews.destroy', $memberReview) }}" method="POST" style="display: inline;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('Delete your review?')">Delete Review</button>
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Delete your review?')">Delete
+                                Review</button>
                         </form>
                     </div>
                 @else
@@ -94,7 +95,8 @@
 
                         <div class="field-group">
                             <label class="field-label">Comment</label>
-                            <textarea name="comment" class="field-input" rows="4" style="resize: vertical;">{{ old('comment') }}</textarea>
+                            <textarea name="comment" class="field-input" rows="4"
+                                style="resize: vertical;">{{ old('comment') }}</textarea>
                             @error('comment')
                                 <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
                             @enderror
@@ -129,7 +131,7 @@
         <div class="card" style="margin-top: 1.5rem;">
             <h3>Recent Reviews</h3>
             <ul style="list-style: none; padding: 0;">
-                @foreach ($trainer->reviews->take(5) as $review)
+                @foreach ($trainer->reviews()->latest()->take(5)->get() as $review)
                     <li style="padding: 10px 0; border-bottom: 1px solid #2b2b2b;">
                         <strong>{{ $review->member->user->name ?? 'Anonymous' }}</strong>
                         <span style="color: #ffd700;">★ {{ $review->rating }}/5</span>

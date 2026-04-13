@@ -29,7 +29,7 @@
                     <div class="actions" style="margin-top: 1rem;">
                         <a href="{{ route('plans.show', $plan) }}" class="btn btn-secondary">View</a>
                         @auth
-                            @if(auth()->user()->isMember())
+                              @if(!auth()->user()->isAdmin() && !auth()->user()->isTrainer())
                                 <form action="{{ route('subscriptions.store') }}" method="POST">
                                     @csrf
                                     <input type="hidden" name="plan_id" value="{{ $plan->id }}">

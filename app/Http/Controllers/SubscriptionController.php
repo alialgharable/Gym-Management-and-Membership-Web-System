@@ -40,8 +40,12 @@ class SubscriptionController extends Controller
             'plan_id' => 'required|exists:membership_plans,id',
         ]);
 
+        if (auth()->user()->isAdmin() || auth()->user()->isTrainer()) {
+            abort(403);
+        }
+
         $user = auth()->user();
-        
+
         // Create member if doesn't exist
         $member = $user->member;
         if (!$member) {

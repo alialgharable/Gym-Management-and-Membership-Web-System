@@ -144,7 +144,7 @@ class TrainerReviewController extends Controller
 
         $review->delete();
 
-        return redirect()->route('reviews.index')
+        return redirect()->route('trainers.show', $review->trainer_id)
             ->with('success', 'Review deleted successfully!');
     }
 
