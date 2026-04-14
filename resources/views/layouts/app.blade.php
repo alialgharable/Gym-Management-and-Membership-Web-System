@@ -78,14 +78,6 @@
             flex-wrap: wrap;
         }
 
-        .nav-group-label {
-            font-size: 0.75rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: #d7d2ad;
-            font-weight: 700;
-        }
-
         .nav-link {
             display: inline-flex;
             align-items: center;
@@ -101,6 +93,13 @@
             transform: translateY(-1px);
             background: rgba(255, 209, 37, 0.2);
             border-color: rgba(255, 209, 37, 0.5);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 209, 37, 0.24);
+            border-color: rgba(255, 209, 37, 0.6);
+            color: #fff7cc;
+            box-shadow: 0 0 0 1px rgba(255, 209, 37, 0.14) inset;
         }
 
         @media (max-width: 1100px) {
@@ -127,11 +126,12 @@
         }
 
         .panel {
-            background: #0f0f0f;
-            border: 1px solid #2b2b2b;
+            background: rgba(15, 15, 15, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px;
-            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
             padding: 32px;
+            backdrop-filter: blur(8px);
         }
 
         .section-title {
@@ -164,11 +164,18 @@
         }
 
         .card {
-            background: #141414;
+            background: linear-gradient(180deg, #141414, #101010);
             border: 1px solid #343434;
             border-radius: 20px;
             padding: 22px;
             box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
+            transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 209, 37, 0.22);
+            box-shadow: 0 20px 46px rgba(0, 0, 0, 0.42);
         }
 
         .card h2,
@@ -239,14 +246,6 @@
             background: #1f1f1f;
         }
 
-        .alert {
-            padding: 20px 24px;
-            border-radius: 18px;
-            background: #191400;
-            border: 1px solid #c59f1a;
-            color: #f7d34a;
-        }
-
         .grid-stack {
             display: grid;
             gap: 1.5rem;
@@ -269,36 +268,10 @@
             font-size: 0.9rem;
         }
 
-        .alert-success {
-            padding: 20px 24px;
-            border-radius: 18px;
-            background: #0d4620;
-            border: 1px solid #2a9d5f;
-            color: #5fd68f;
-            margin-bottom: 1.5rem;
-        }
-
-        .alert-danger {
-            padding: 20px 24px;
-            border-radius: 18px;
-            background: #4a0a0a;
-            border: 1px solid #a92a2a;
-            color: #ff5555;
-            margin-bottom: 1.5rem;
-        }
-
-        .alert-warning {
-            padding: 20px 24px;
-            border-radius: 18px;
-            background: #5a4a0a;
-            border: 1px solid #c5a500;
-            color: #ffd700;
-            margin-bottom: 1.5rem;
-        }
-
         .btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             padding: 0.85rem 1.5rem;
             border-radius: 12px;
             border: none;
@@ -366,6 +339,9 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
+            border-radius: 18px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.02);
         }
 
         table thead {
@@ -378,11 +354,17 @@
             font-weight: 700;
             color: #f7d34a;
             border-bottom: 2px solid #2b2b2b;
+            vertical-align: middle;
         }
 
         table td {
             padding: 1rem;
             border-bottom: 1px solid #2b2b2b;
+            vertical-align: middle;
+        }
+
+        table tbody tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
         }
 
         table tr:hover {
@@ -400,7 +382,6 @@
             padding: 0.5rem 1rem;
         }
 
-        /* ===== Profile Avatar ===== */
         .profile-menu {
             position: relative;
             display: flex;
@@ -430,12 +411,11 @@
             object-fit: cover;
         }
 
-        /* ===== Dropdown ===== */
         .profile-dropdown {
             position: absolute;
             top: calc(100% + 10px);
             right: 0;
-            min-width: 180px;
+            min-width: 220px;
             background: #141414;
             border: 1px solid #343434;
             border-radius: 14px;
@@ -445,12 +425,28 @@
             z-index: 50;
         }
 
-        /* Show state */
         .profile-dropdown.show {
             display: block;
         }
 
-        /* Dropdown links */
+        .profile-dropdown-user {
+            padding: 0.7rem 0.9rem 0.85rem;
+        }
+
+        .profile-dropdown-user strong {
+            display: block;
+            color: #f8f7ec;
+            font-size: 0.95rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .profile-dropdown-user span {
+            display: block;
+            color: #bdb89c;
+            font-size: 0.82rem;
+            letter-spacing: 0.03em;
+        }
+
         .profile-dropdown-link {
             display: block;
             width: 100%;
@@ -475,7 +471,6 @@
             background: #2b2b2b;
         }
 
-        /* Logout styling */
         .profile-logout {
             color: #ff6b6b;
         }
@@ -518,45 +513,243 @@
             border-radius: 50%;
             font-weight: bold;
         }
+
+        .flash-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.68);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 9999;
+            backdrop-filter: blur(6px);
+        }
+
+        .flash-modal.show {
+            display: flex;
+        }
+
+        .flash-modal-card {
+            width: min(100%, 460px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(180deg, #171717, #101010);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+            padding: 1.6rem;
+            animation: modalPop 0.2s ease;
+        }
+
+        .flash-modal.success .flash-modal-card {
+            border-color: rgba(95, 214, 143, 0.35);
+        }
+
+        .flash-modal.error .flash-modal-card {
+            border-color: rgba(255, 85, 85, 0.35);
+        }
+
+        .flash-modal.warning .flash-modal-card {
+            border-color: rgba(255, 215, 0, 0.35);
+        }
+
+        .flash-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .flash-modal-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .flash-modal.success .flash-modal-icon {
+            background: rgba(95, 214, 143, 0.14);
+            color: #5fd68f;
+        }
+
+        .flash-modal.error .flash-modal-icon {
+            background: rgba(255, 85, 85, 0.14);
+            color: #ff6b6b;
+        }
+
+        .flash-modal.warning .flash-modal-icon {
+            background: rgba(255, 215, 0, 0.14);
+            color: #ffd700;
+        }
+
+        .flash-modal-title {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #f8f7ec;
+        }
+
+        .flash-modal-subtitle {
+            margin: 0.25rem 0 0;
+            color: #bfb99c;
+            font-size: 0.92rem;
+        }
+
+        .flash-modal-body {
+            color: #ddd8bc;
+            line-height: 1.75;
+            font-size: 0.98rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .flash-modal-errors {
+            margin: 0;
+            padding-left: 1.2rem;
+            color: #ffd2d2;
+        }
+
+        .flash-modal-errors li + li {
+            margin-top: 0.45rem;
+        }
+
+        .flash-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        @keyframes modalPop {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @media (max-width: 760px) {
+            .site-shell {
+                padding: 16px;
+            }
+
+            .site-header {
+                padding: 16px;
+                border-radius: 18px;
+            }
+
+            .nav-link {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .profile-menu {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .panel {
+                padding: 20px;
+            }
+
+            .flash-modal-card {
+                padding: 1.2rem;
+                border-radius: 20px;
+            }
+        }
     </style>
 </head>
-<script>
-    function toggleProfileMenu() {
-        document.getElementById('profileDropdown').classList.toggle('show');
-    }
-
-    document.addEventListener('click', function (event) {
-        const menu = document.querySelector('.profile-menu');
-        const dropdown = document.getElementById('profileDropdown');
-
-        if (menu && !menu.contains(event.target)) {
-            dropdown.classList.remove('show');
-        }
-    });
-</script>
 
 <body>
+    @php
+        $flashType = null;
+        $flashTitle = null;
+        $flashMessage = null;
+
+        if (session('success')) {
+            $flashType = 'success';
+            $flashTitle = 'Success';
+            $flashMessage = session('success');
+        } elseif (session('error')) {
+            $flashType = 'error';
+            $flashTitle = 'Something went wrong';
+            $flashMessage = session('error');
+        } elseif (session('warning')) {
+            $flashType = 'warning';
+            $flashTitle = 'Warning';
+            $flashMessage = session('warning');
+        } elseif ($errors->any()) {
+            $flashType = 'error';
+            $flashTitle = 'Please fix the following';
+        }
+    @endphp
+
+    @if($flashType)
+        <div id="flashModal" class="flash-modal {{ $flashType }} show">
+            <div class="flash-modal-card" role="dialog" aria-modal="true" aria-labelledby="flashModalTitle">
+                <div class="flash-modal-header">
+                    <div class="flash-modal-icon">
+                        @if($flashType === 'success')
+                            <i class="fa-solid fa-check"></i>
+                        @elseif($flashType === 'warning')
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        @else
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                        @endif
+                    </div>
+
+                    <div>
+                        <h2 id="flashModalTitle" class="flash-modal-title">{{ $flashTitle }}</h2>
+                        <p class="flash-modal-subtitle">Gym Management System</p>
+                    </div>
+                </div>
+
+                <div class="flash-modal-body">
+                    @if($errors->any())
+                        <ul class="flash-modal-errors">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    @else
+                        {{ $flashMessage }}
+                    @endif
+                </div>
+
+                <div class="flash-modal-actions">
+                    <button type="button" class="btn btn-primary" onclick="closeFlashModal()">Okay</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="site-shell">
         <header class="site-header">
             <div class="site-brand">
                 <a href="/">Gym Management</a>
             </div>
-            <nav class="site-nav" aria-label="Primary navigation">
 
+            <nav class="site-nav" aria-label="Primary navigation">
                 <div class="nav-group">
-                    <a class="nav-link" href="{{ route('home') }}">Home</a>
-                    <a class="nav-link" href="{{ route('plans.index') }}">Membership</a>
-                    <a class="nav-link" href="{{ route('classes.index') }}">Classes</a>
-                    <a class="nav-link" href="{{ route('trainers.index') }}">Trainers</a>
+                    <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
+                    <a class="nav-link {{ request()->routeIs('plans.*') ? 'active' : '' }}" href="{{ route('plans.index') }}">Membership</a>
+                    <a class="nav-link {{ request()->routeIs('classes.*') ? 'active' : '' }}" href="{{ route('classes.index') }}">Classes</a>
+                    <a class="nav-link {{ request()->routeIs('trainers.*') ? 'active' : '' }}" href="{{ route('trainers.index') }}">Trainers</a>
+
                     @if(auth()->check() && !auth()->user()->isAdmin() && !auth()->user()->isMember() && !auth()->user()->isTrainer())
-                        <a class="nav-link" href="{{ route('trainer-applications.create') }}">Become a Trainer</a>
+                        <a class="nav-link {{ request()->routeIs('trainer-applications.create') ? 'active' : '' }}" href="{{ route('trainer-applications.create') }}">
+                            Become a Trainer
+                        </a>
                     @endif
+
                     @if(auth()->check() && auth()->user()->isAdmin())
                         @php
                             $pendingCount = \App\Models\TrainerApplication::where('status', 'pending')->count();
                         @endphp
 
-                        <a href="{{ route('trainer-applications.index') }}" class="notification-bell">
+                        <a href="{{ route('trainer-applications.index') }}" class="notification-bell" title="Trainer applications">
                             <i class="fa-solid fa-bell"></i>
 
                             @if($pendingCount > 0)
@@ -567,95 +760,69 @@
                 </div>
 
                 @auth
-                            <div class="profile-menu">
-                                <button class="profile-trigger" type="button" onclick="toggleProfileMenu()">
-                                    <img src="{{ auth()->user()->profile_picture
-                    ? asset('storage/' . auth()->user()->profile_picture)
-                    : asset('images/default-avatar.png') }}" alt="Profile" class="profile-avatar"
-                                        onerror="this.onerror=null; this.src='{{ asset('images/default-avatar.png') }}';">
-                                </button>
+                    <div class="profile-menu">
+                        <button class="profile-trigger" type="button" onclick="toggleProfileMenu()">
+                            <img
+                                src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('images/default-avatar.png') }}"
+                                alt="Profile"
+                                class="profile-avatar"
+                                onerror="this.onerror=null; this.src='{{ asset('images/default-avatar.png') }}';"
+                            >
+                        </button>
 
-                                <div class="profile-dropdown" id="profileDropdown">
-                                    @php
-                                        $user = auth()->user();
-                                    @endphp
+                        <div class="profile-dropdown" id="profileDropdown">
+                            @php
+                                $user = auth()->user();
+                            @endphp
 
-                                    @if($user->isAdmin() && $user->admin)
-                                        <a href="{{ route('admins.show', $user->admin->id) }}" class="profile-dropdown-link">
-                                            Profile
-                                        </a>
-                                        <a href="{{ route('admins.edit', $user->admin->id) }}" class="profile-dropdown-link">
-                                            Edit Profile
-                                        </a>
-
+                            <div class="profile-dropdown-user">
+                                <strong>{{ $user->name }}</strong>
+                                <span>
+                                    @if($user->admin)
+                                        Admin
                                     @elseif($user->trainer)
-                                        <a href="{{ route('trainers.show', $user->trainer->id) }}" class="profile-dropdown-link">
-                                            Profile
-                                        </a>
-                                        <a href="{{ route('trainers.edit', $user->trainer->id) }}" class="profile-dropdown-link">
-                                            Edit Profile
-                                        </a>
-
+                                        Trainer
                                     @elseif($user->member)
-                                        <a href="{{ route('members.show', $user->member->id) }}" class="profile-dropdown-link">
-                                            Profile
-                                        </a>
-                                        <a href="{{ route('members.edit', $user->member->id) }}" class="profile-dropdown-link">
-                                            Edit Profile
-                                        </a>
+                                        Member
+                                    @else
+                                        User
                                     @endif
-
-                                    <form action="{{ route('logout') }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="profile-dropdown-link profile-logout">
-                                            Logout
-                                        </button>
-                                    </form>
-                                </div>
+                                </span>
                             </div>
+
+                            <div class="profile-dropdown-divider"></div>
+
+                            @if($user->isAdmin() && $user->admin)
+                                <a href="{{ route('admins.show', $user->admin->id) }}" class="profile-dropdown-link">Profile</a>
+                                <a href="{{ route('admins.edit', $user->admin->id) }}" class="profile-dropdown-link">Edit Profile</a>
+                            @elseif($user->trainer)
+                                <a href="{{ route('trainers.show', $user->trainer->id) }}" class="profile-dropdown-link">Profile</a>
+                                <a href="{{ route('trainers.edit', $user->trainer->id) }}" class="profile-dropdown-link">Edit Profile</a>
+                            @elseif($user->member)
+                                <a href="{{ route('members.show', $user->member->id) }}" class="profile-dropdown-link">Profile</a>
+                                <a href="{{ route('members.edit', $user->member->id) }}" class="profile-dropdown-link">Edit Profile</a>
+                            @endif
+
+                            <div class="profile-dropdown-divider"></div>
+
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="profile-dropdown-link profile-logout">Logout</button>
+                            </form>
+                        </div>
+                    </div>
                 @endauth
 
                 <div class="nav-group">
                     @guest
-                        <a class="nav-link" href="{{ route('login') }}">Login</a>
-                        <a class="nav-link" href="{{ route('register') }}">Signup</a>
+                        <a class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}" href="{{ route('login') }}">Login</a>
+                        <a class="nav-link {{ request()->routeIs('register') ? 'active' : '' }}" href="{{ route('register') }}">Signup</a>
                     @endguest
                 </div>
-
             </nav>
         </header>
 
         <main class="page-content">
-            <!-- Flash Messages -->
-            @if ($message = Session::get('success'))
-                <div class="alert alert-success">
-                    {{ $message }}
-                </div>
-            @endif
-
-            @if ($message = Session::get('error'))
-                <div class="alert alert-danger">
-                    {{ $message }}
-                </div>
-            @endif
-
-            @if ($message = Session::get('warning'))
-                <div class="alert alert-warning">
-                    {{ $message }}
-                </div>
-            @endif
-
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <strong>Oops! There were some problems with your input.</strong>
-                    <ul style="margin: 10px 0 0; padding-left: 20px;">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
             <section class="panel">
                 @yield('content')
             </section>
@@ -665,6 +832,47 @@
             </footer>
         </main>
     </div>
+
+    <script>
+        function toggleProfileMenu() {
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+
+        function closeFlashModal() {
+            const modal = document.getElementById('flashModal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
+        }
+
+        document.addEventListener('click', function (event) {
+            const menu = document.querySelector('.profile-menu');
+            const dropdown = document.getElementById('profileDropdown');
+
+            if (menu && dropdown && !menu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+
+            const modal = document.getElementById('flashModal');
+            if (modal && event.target === modal) {
+                closeFlashModal();
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeFlashModal();
+
+                const dropdown = document.getElementById('profileDropdown');
+                if (dropdown) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

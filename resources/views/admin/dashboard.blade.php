@@ -3,75 +3,80 @@
 @section('title', 'Admin Dashboard')
 
 @section('content')
+
     <div class="page-header">
         <div>
             <h1 class="section-title">Admin Dashboard</h1>
-            <p class="section-subtitle">System Overview and Statistics</p>
+            <p class="section-subtitle">System overview and performance insights</p>
         </div>
     </div>
 
-    <div class="card-grid">
-        <div class="card" style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);">
-            <h3 style="color: #ffffff; margin-top: 0;">Total Members</h3>
-            <p style="font-size: 2.5rem; font-weight: 700; color: #ffffff; margin: 0;">{{ $stats['total_members'] }}</p>
-            <a href="{{ route('members.index') }}" style="color: #a8d5a8; text-decoration: underline;">View all members →</a>
+    <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+
+        <div class="card" style="background: linear-gradient(135deg, #2e7d32, #1b5e20);">
+            <h3 style="color:#fff;">Members</h3>
+            <p style="font-size:2.5rem; font-weight:700; color:#fff;">{{ $stats['total_members'] }}</p>
+            <a href="{{ route('members.index') }}" style="color:#a8d5a8;">View all →</a>
         </div>
 
-        <div class="card" style="background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);">
-            <h3 style="color: #ffffff; margin-top: 0;">Active Subscriptions</h3>
-            <p style="font-size: 2.5rem; font-weight: 700; color: #ffffff; margin: 0;">{{ $stats['active_subscriptions'] }}</p>
-            <a href="{{ route('subscriptions.index') }}" style="color: #90caf9; text-decoration: underline;">View subscriptions →</a>
+        <div class="card" style="background: linear-gradient(135deg, #1976d2, #0d47a1);">
+            <h3 style="color:#fff;">Subscriptions</h3>
+            <p style="font-size:2.5rem; font-weight:700; color:#fff;">{{ $stats['active_subscriptions'] }}</p>
+            <a href="{{ route('subscriptions.index') }}" style="color:#90caf9;">View →</a>
         </div>
 
-        <div class="card" style="background: linear-gradient(135deg, #f57c00 0%, #bf360c 100%);">
-            <h3 style="color: #ffffff; margin-top: 0;">Total Classes</h3>
-            <p style="font-size: 2.5rem; font-weight: 700; color: #ffffff; margin: 0;">{{ $stats['total_classes'] }}</p>
-            <a href="{{ route('classes.index') }}" style="color: #ffb74d; text-decoration: underline;">Manage classes →</a>
+        <div class="card" style="background: linear-gradient(135deg, #f57c00, #bf360c);">
+            <h3 style="color:#fff;">Classes</h3>
+            <p style="font-size:2.5rem; font-weight:700; color:#fff;">{{ $stats['total_classes'] }}</p>
+            <a href="{{ route('classes.index') }}" style="color:#ffb74d;">Manage →</a>
         </div>
 
-        <div class="card" style="background: linear-gradient(135deg, #c2185b 0%, #880e4f 100%);">
-            <h3 style="color: #ffffff; margin-top: 0;">Trainers</h3>
-            <p style="font-size: 2.5rem; font-weight: 700; color: #ffffff; margin: 0;">{{ $stats['total_trainers'] }}</p>
-            <a href="{{ route('trainers.index') }}" style="color: #f48fb1; text-decoration: underline;">View trainers →</a>
+        <div class="card" style="background: linear-gradient(135deg, #c2185b, #880e4f);">
+            <h3 style="color:#fff;">Trainers</h3>
+            <p style="font-size:2.5rem; font-weight:700; color:#fff;">{{ $stats['total_trainers'] }}</p>
+            <a href="{{ route('trainers.index') }}" style="color:#f48fb1;">View →</a>
         </div>
 
-        <div class="card" style="background: linear-gradient(135deg, #6a1b9a 0%, #38006b 100%); grid-column: 1 / -1;">
-            <h3 style="color: #ffffff; margin-top: 0;">Total Bookings</h3>
-            <p style="font-size: 2.5rem; font-weight: 700; color: #ffffff; margin: 0;">{{ $stats['total_bookings'] }}</p>
-            <a href="{{ route('bookings.index') }}" style="color: #ce93d8; text-decoration: underline;">View all bookings →</a>
+        <div class="card" style="background: linear-gradient(135deg, #6a1b9a, #38006b); grid-column: 1 / -1;">
+            <h3 style="color:#fff;">Bookings</h3>
+            <p style="font-size:2.5rem; font-weight:700; color:#fff;">{{ $stats['total_bookings'] }}</p>
+            <a href="{{ route('bookings.index') }}" style="color:#ce93d8;">View all →</a>
         </div>
+
     </div>
 
-    <div class="card" style="margin-top: 1.5rem;">
-        <h3>Recent Members</h3>
+    <div class="card" style="margin-top:1.5rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3>Recent Members</h3>
+            <a href="{{ route('members.index') }}" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+
         @if ($recentMembers->count())
-            <div style="overflow-x: auto;">
+            <div style="overflow-x:auto;">
                 <table>
                     <thead>
                         <tr>
                             <th>Name</th>
                             <th>Email</th>
-                            <th>Member Since</th>
-                            <th>Subscription</th>
+                            <th>Joined</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($recentMembers as $member)
                             @php
-                                $memberName = optional($member->user)->name ?? 'N/A';
-                                $memberEmail = optional($member->user)->email ?? 'N/A';
+                                $name = optional($member->user)->name ?? 'N/A';
+                                $email = optional($member->user)->email ?? 'N/A';
+                                $activeSub = $member->subscription()->where('status', 'active')->first();
+                                $planName = $activeSub && $activeSub->plan ? $activeSub->plan->name : null;
                             @endphp
                             <tr>
-                                <td>{{ $memberName }}</td>
-                                <td>{{ $memberEmail }}</td>
+                                <td>{{ $name }}</td>
+                                <td>{{ $email }}</td>
                                 <td>{{ $member->created_at->format('M d, Y') }}</td>
                                 <td>
-                                    @php
-                                        $activeSub = $member->subscription()->where('status', 'active')->first();
-                                        $activePlanName = $activeSub && $activeSub->plan ? $activeSub->plan->name : null;
-                                    @endphp
-                                    <span style="color: {{ $activePlanName ? '#5fd68f' : '#ff5555' }};">
-                                        {{ $activePlanName ?? 'Inactive' }}
+                                    <span style="color: {{ $planName ? '#5fd68f' : '#ff5555' }};">
+                                        {{ $planName ?? 'Inactive' }}
                                     </span>
                                 </td>
                             </tr>
@@ -79,31 +84,37 @@
                     </tbody>
                 </table>
             </div>
+        @else
+            <p style="color:#aaa;">No recent members.</p>
         @endif
     </div>
 
-    <div class="card" style="margin-top: 1.5rem;">
-        <h3>Recent Bookings</h3>
+    <div class="card" style="margin-top:1.5rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3>Recent Bookings</h3>
+            <a href="{{ route('bookings.index') }}" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+
         @if ($recentBookings->count())
-            <div style="overflow-x: auto;">
+            <div style="overflow-x:auto;">
                 <table>
                     <thead>
                         <tr>
                             <th>Member</th>
                             <th>Class</th>
                             <th>Status</th>
-                            <th>Booked</th>
+                            <th>Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($recentBookings as $booking)
                             @php
-                                $bookingMemberName = optional($booking->member)->user->name ?? 'N/A';
-                                $bookingClassName = optional($booking->gymClass)->name ?? 'N/A';
+                                $memberName = optional($booking->member)->user->name ?? 'N/A';
+                                $className = optional($booking->gymClass)->name ?? 'N/A';
                             @endphp
                             <tr>
-                                <td>{{ $bookingMemberName }}</td>
-                                <td>{{ $bookingClassName }}</td>
+                                <td>{{ $memberName }}</td>
+                                <td>{{ $className }}</td>
                                 <td>
                                     <span style="color: {{ $booking->status === 'confirmed' ? '#5fd68f' : '#ffd700' }};">
                                         {{ ucfirst($booking->status) }}
@@ -115,6 +126,9 @@
                     </tbody>
                 </table>
             </div>
+        @else
+            <p style="color:#aaa;">No recent bookings.</p>
         @endif
     </div>
+
 @endsection

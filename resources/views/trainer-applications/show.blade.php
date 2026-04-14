@@ -3,6 +3,7 @@
 @section('title', 'Application Details')
 
 @section('content')
+
     <div class="page-header">
         <div>
             <h1 class="section-title">{{ $application->user->name ?? 'Applicant' }}'s Application</h1>
@@ -12,71 +13,61 @@
         <div class="actions">
             @auth
                 @if(auth()->id() === $application->user_id)
-                    <a href="{{ route('home') }}" class="btn btn-secondary">← Back</a>
+                    <a href="{{ route('home') }}" class="btn btn-secondary">Back</a>
                     <a href="{{ route('trainer-applications.edit', $application) }}" class="btn btn-primary">
                         Edit
                     </a>
                 @else
-                    <a href="{{ route('trainer-applications.index') }}" class="btn btn-secondary">← Back</a>
+                    <a href="{{ route('trainer-applications.index') }}" class="btn btn-secondary">Back</a>
                 @endif
             @endauth
         </div>
     </div>
 
-    <div class="card-grid" style="grid-template-columns: 1fr 1fr;">
+    <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
 
-        {{-- Applicant Info --}}
         <div class="card">
             <h3>Applicant Information</h3>
             <p><strong>Name:</strong> {{ $application->user->name ?? 'N/A' }}</p>
             <p><strong>Email:</strong> {{ $application->user->email ?? 'N/A' }}</p>
-            <p><strong>Applied On:</strong> {{ $application->created_at->format('M d, Y') }}</p>
+            <p><strong>Applied:</strong> {{ $application->created_at->format('M d, Y') }}</p>
         </div>
 
-        {{-- Application Status --}}
         <div class="card">
             <h3>Application Status</h3>
 
             <p>
                 <strong>Status:</strong>
-                <span style="color: 
-                        {{ $application->status === 'approved' ? '#5fd68f' :
-        ($application->status === 'rejected' ? '#ff5555' : '#ffd700') }};">
+                <span style="font-weight:600; color:
+                    {{ $application->status === 'approved' ? '#5fd68f' :
+                       ($application->status === 'rejected' ? '#ff5555' : '#ffd700') }};">
                     {{ ucfirst($application->status) }}
                 </span>
             </p>
 
             <p><strong>Experience:</strong> {{ $application->experience ?? 'N/A' }}</p>
 
-            <p style="margin-top: 1rem;">
+            <p style="margin-top:1rem;">
                 <strong>CV:</strong>
                 @if($application->cv_file)
-                    <a href="{{ asset('storage/' . $application->cv_file) }}" target="_blank" class="btn btn-secondary"
-                        style="margin-left: 10px;">
-                        View CV
+                    <a href="{{ asset('storage/' . $application->cv_file) }}" target="_blank" class="btn btn-secondary" style="margin-left:10px;">
+                        View
                     </a>
                 @else
-                    <span style="color: #aaa;">No CV uploaded</span>
+                    <span style="color:#aaa;">No file</span>
                 @endif
             </p>
         </div>
+
     </div>
 
-    {{-- Admin Review Section --}}
     @auth
         @if(auth()->user()->isAdmin() && $application->status === 'pending')
-            <div class="card" style="
-                        margin-top: 24px;
-                        padding: 28px;
-                        border: 1px solid rgba(255, 215, 0, 0.12);
-                        border-radius: 22px;
-                        background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%);
-                        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-                    ">
-                <div style="margin-bottom: 22px;">
-                    <h3 style="margin: 0; font-size: 1.6rem; color: #ffd700;">Review Application</h3>
-                    <p style="margin: 8px 0 0; color: #aaa; font-size: 0.95rem;">
-                        Review the trainer application carefully before approving or rejecting it.
+            <div class="card" style="margin-top:1.5rem;">
+                <div style="margin-bottom:1.5rem;">
+                    <h3 style="margin:0;">Review Application</h3>
+                    <p style="margin-top:6px; color:#aaa;">
+                        Approve or reject this trainer request
                     </p>
                 </div>
 
@@ -84,144 +75,122 @@
                     @csrf
                     @method('PATCH')
 
-                    <div style="
-                                display: grid;
-                                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                                gap: 20px;
-                                margin-bottom: 22px;
-                            ">
-                        <div>
-                            <label for="specialty" style="
-                                        display: block;
-                                        margin-bottom: 8px;
-                                        font-weight: 600;
-                                        color: #f5f5f5;
-                                    ">
-                                Specialty
-                            </label>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
 
-                            <select name="specialty" id="specialty" required style="
-                                        width: 100%;
-                                        padding: 14px 16px;
-                                        border-radius: 14px;
-                                        border: 1px solid rgba(255,255,255,0.12);
-                                        background: #111;
-                                        color: #f5f5f5;
-                                        outline: none;
-                                    ">
+                        <div>
+                            <label class="field-label">Specialty</label>
+                            <select name="specialty" class="field-select" required>
                                 <option value="">Select specialty</option>
                                 @foreach(\App\Models\Trainer::SPECIALTIES as $value => $label)
-                                    <option value="{{ $value }}" {{ old('specialty') == $value ? 'selected' : '' }}>
+                                    <option value="{{ $value }}" @selected(old('specialty') == $value)>
                                         {{ $label }}
                                     </option>
                                 @endforeach
                             </select>
-
                             @error('specialty')
-                                <div style="color: #ff6b6b; margin-top: 8px; font-size: 0.9rem;">{{ $message }}</div>
+                                <span style="color:#ff5555; font-size:0.9rem;">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div>
-                            <label for="bio" style="
-                                        display: block;
-                                        margin-bottom: 8px;
-                                        font-weight: 600;
-                                        color: #f5f5f5;
-                                    ">
-                                Bio
-                            </label>
-
-                            <textarea name="bio" id="bio" rows="5" style="
-                                        width: 100%;
-                                        padding: 14px 16px;
-                                        border-radius: 14px;
-                                        border: 1px solid rgba(255,255,255,0.12);
-                                        background: #111;
-                                        color: #f5f5f5;
-                                        resize: vertical;
-                                        outline: none;
-                                    ">{{ old('bio', $application->experience) }}</textarea>
-
+                            <label class="field-label">Bio</label>
+                            <textarea
+                                name="bio"
+                                rows="4"
+                                class="field-input"
+                                style="resize:vertical;"
+                            >{{ old('bio', $application->experience) }}</textarea>
                             @error('bio')
-                                <div style="color: #ff6b6b; margin-top: 8px; font-size: 0.9rem;">{{ $message }}</div>
+                                <span style="color:#ff5555; font-size:0.9rem;">{{ $message }}</span>
                             @enderror
                         </div>
+
                     </div>
 
-                    <div style="
-                                display: flex;
-                                gap: 14px;
-                                flex-wrap: wrap;
-                                align-items: center;
-                            ">
-                        <button type="submit" class="btn btn-success" style="
-                                    min-width: 210px;
-                                    padding: 14px 22px;
-                                    border-radius: 14px;
-                                    font-weight: 700;
-                                    font-size: 0.98rem;
-                                " onclick="return confirm('Approve this application and create trainer account?')">
+                    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:1.5rem;">
+                        <button type="submit" class="btn btn-success btn-approve">
                             Approve Application
                         </button>
                 </form>
 
-                <form action="{{ route('trainer-applications.reject', $application) }}" method="POST" style="margin: 0;">
+                <form action="{{ route('trainer-applications.reject', $application) }}" method="POST">
                     @csrf
                     @method('PATCH')
-                    <button type="submit" class="btn btn-danger" style="
-                                        min-width: 210px;
-                                        padding: 14px 22px;
-                                        border-radius: 14px;
-                                        font-weight: 700;
-                                        font-size: 0.98rem;
-                                    " onclick="return confirm('Reject this application?')">
+
+                    <button type="button" class="btn btn-danger btn-reject">
                         Reject Application
                     </button>
                 </form>
-            </div>
+
+                    </div>
             </div>
         @endif
     @endauth
 
-    {{-- Delete Section --}}
     @auth
         @if(auth()->user()->isAdmin())
-            <div class="card" style="
-                        margin-top: 20px;
-                        padding: 24px 28px;
-                        border: 1px solid rgba(255, 80, 80, 0.16);
-                        border-radius: 22px;
-                        background: linear-gradient(180deg, rgba(255,255,255,0.015) 0%, rgba(255,255,255,0.008) 100%);
-                    ">
-                <div style="
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            gap: 16px;
-                            flex-wrap: wrap;
-                        ">
+            <div class="card" style="margin-top:1.5rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                     <div>
-                        <h3 style="margin: 0 0 6px; color: #ff6b6b;">Danger Zone</h3>
-                        <p style="margin: 0; color: #aaa;">
-                            Permanently remove this application from the system.
-                        </p>
+                        <h3 style="margin:0; color:#ff5555;">Danger Zone</h3>
+                        <p style="color:#aaa; margin:4px 0 0;">Delete this application permanently</p>
                     </div>
 
-                    <form action="{{ route('trainer-applications.destroy', $application) }}" method="POST" style="margin: 0;">
+                    <form action="{{ route('trainer-applications.destroy', $application) }}" method="POST" class="delete-form">
                         @csrf
                         @method('DELETE')
 
-                        <button type="submit" class="btn btn-danger" style="
-                                    padding: 14px 22px;
-                                    border-radius: 14px;
-                                    font-weight: 700;
-                                " onclick="return confirm('This will permanently delete this application. Are you sure?')">
-                            Delete Application
+                        <button type="button" class="btn btn-danger btn-delete">
+                            Delete
                         </button>
                     </form>
                 </div>
             </div>
         @endif
     @endauth
+
 @endsection
+
+@push('scripts')
+<script>
+    document.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', function () {
+            const form = this.closest('form');
+            window.showModal({
+                type: 'warning',
+                title: 'Delete Application?',
+                message: 'This will permanently remove the application.',
+                confirmText: 'Delete',
+                onConfirm: () => form.submit()
+            });
+        });
+    });
+
+    document.querySelectorAll('.btn-approve').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            const form = this.closest('form');
+            window.showModal({
+                type: 'success',
+                title: 'Approve Application?',
+                message: 'This will create a trainer account.',
+                confirmText: 'Approve',
+                onConfirm: () => form.submit()
+            });
+        });
+    });
+
+    document.querySelectorAll('.btn-reject').forEach(button => {
+        button.addEventListener('click', function () {
+            const form = this.closest('form');
+            window.showModal({
+                type: 'warning',
+                title: 'Reject Application?',
+                message: 'This action cannot be undone.',
+                confirmText: 'Reject',
+                onConfirm: () => form.submit()
+            });
+        });
+    });
+</script>
+@endpush
