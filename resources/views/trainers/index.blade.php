@@ -44,19 +44,6 @@
 
                     <div class="actions" style="margin-top: 1rem;">
                         <a href="{{ route('trainers.show', $trainer) }}" class="btn btn-secondary">View</a>
-
-                        @auth
-                            @if(auth()->user()->isAdmin())
-                                <a href="{{ route('trainers.edit', $trainer) }}" class="btn btn-secondary">Edit</a>
-                                <form action="{{ route('trainers.destroy', $trainer) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">
-                                        Delete
-                                    </button>
-                                </form>
-                            @endif
-                        @endauth
                     </div>
                 </div>
             @endforeach

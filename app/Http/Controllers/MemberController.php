@@ -106,7 +106,23 @@ class MemberController extends Controller
      */
     public function destroy(Member $member)
     {
+        $user = $member->user;
+        $deletedUserId = $member->user_id;
+        $currentUserId = auth()->id();
+
         $member->delete();
-        return redirect()->route('members.index')->with('success', 'Member removed successfully');
+
+        if ($user && $user->role === 'member') {
+            $user->role = 'user'; // or whatever your default role is
+            $user->save();
+        }
+
+        if ($currentUserId === $deletedUserId) {
+            return redirect()->route('home')
+                ->with('success', 'Member profile deleted successfully.');
+        }
+
+        return redirect()->route('members.index')
+            ->with('success', 'Member removed successfully.');
     }
 }

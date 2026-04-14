@@ -39,6 +39,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::delete('trainer-applications/{trainerApplication}', [TrainerApplicationController::class, 'destroy'])
         ->name('trainer-applications.destroy');
+
+    Route::get('/trainers/{trainer}/edit', [TrainerController::class, 'edit'])->name('trainers.edit');
+    Route::put('/trainers/{trainer}', [TrainerController::class, 'update'])->name('trainers.update');
+    Route::delete('/trainers/{trainer}', [TrainerController::class, 'destroy'])->name('trainers.destroy');
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -46,7 +50,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::resource('plans', MembershipPlanController::class)->except(['index', 'show']);
     Route::resource('admins', AdminController::class)->except(['index', 'show']);
-    Route::resource('trainers', TrainerController::class)->except(['index', 'show']);
     Route::resource('subscriptions', SubscriptionController::class)->except(['store']);
     Route::resource('members', MemberController::class)->except(['index', 'show', 'create']);
 
@@ -63,7 +66,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
 Route::middleware(['auth', 'trainer'])->group(function () {
     Route::get('/trainer/dashboard', [TrainerDashboardController::class, 'index'])->name('trainer.dashboard');
     Route::resource('classes', GymClassController::class)->except(['index', 'show']);
-    Route::resource('trainers', TrainerController::class)->except(['index', 'show']);
 });
 
 Route::middleware(['auth', 'member'])->group(function () {

@@ -104,25 +104,33 @@ class TrainerController extends Controller
             ->with('success', 'Trainer updated successfully!');
     }
 
-
-    public static function createTrainer(array $data)
-    {
-        return Trainer::create([
-            'user_id' => $data['user_id'],
-            'specialty' => $data['specialty'],
-            'bio' => $data['bio'] ?? null,
-        ]);
-    }
-
-
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Trainer $trainer)
     {
+        $user = auth()->user();
+
+        if (!$user || (!$user->isAdmin() && $trainer->user_id !== $user->id)) {
+            abort(403);
+        }
+
+        $trainerUser = $trainer->user;
+        $currentUserId = $user->id;
+
         $trainer->delete();
 
+        if ($trainerUser && $trainerUser->role === 'trainer') {
+            $trainerUser->role = 'user';
+            $trainerUser->save();
+        }
+
+        if ($currentUserId === $trainerUser?->id) {
+            return redirect()->route('home')
+                ->with('success', 'Trainer profile deleted successfully.');
+        }
+
         return redirect()->route('trainers.index')
-            ->with('success', 'Trainer deleted successfully!');
+            ->with('success', 'Trainer deleted successfully.');
     }
 }

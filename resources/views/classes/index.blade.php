@@ -40,7 +40,7 @@
                         @endauth
 
                         @auth
-                            @if(auth()->user()->isAdmin() || auth()->user()->isTrainer())
+                            @if(auth()->user()->isTrainer())
 
                                 <a href="{{ route('classes.edit', $class) }}" class="btn btn-secondary">Edit</a>
                                 <form action="{{ route('classes.destroy', $class) }}" method="POST" style="display:inline;">

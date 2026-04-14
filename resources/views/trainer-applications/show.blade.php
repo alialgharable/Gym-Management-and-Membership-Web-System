@@ -12,7 +12,7 @@
         <div class="actions">
             @auth
                 @if(auth()->id() === $application->user_id)
-                    <a href="{{ route('trainer-applications.index') }}" class="btn btn-secondary">← Back</a>
+                    <a href="{{ route('home') }}" class="btn btn-secondary">← Back</a>
                     <a href="{{ route('trainer-applications.edit', $application) }}" class="btn btn-primary">
                         Edit
                     </a>

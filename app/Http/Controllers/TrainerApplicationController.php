@@ -144,11 +144,17 @@ class TrainerApplicationController extends Controller
         }
 
         DB::transaction(function () use ($trainerApplication, $validated, $admin) {
-            TrainerController::createTrainer([
+            Trainer::create([
                 'user_id' => $trainerApplication->user_id,
                 'specialty' => $validated['specialty'],
                 'bio' => $validated['bio'] ?? $trainerApplication->experience,
             ]);
+
+            if ($trainerApplication->user) {
+                $trainerApplication->user->update([
+                    'role' => 'trainer',
+                ]);
+            }
 
             $trainerApplication->update([
                 'status' => 'approved',
