@@ -10,6 +10,21 @@
         </div>
     </div>
 
+    <div style="margin-bottom:1rem; display:flex; gap:8px; align-items:center;">
+        <form id="trainers-filters" method="GET" action="{{ route('trainers.index') }}" style="display:flex; gap:8px; align-items:center;">
+            <input type="text" name="search" placeholder="Search trainers..." value="{{ request('search') }}" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+
+            <select name="specialty" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+                <option value="">All specialties</option>
+                @foreach(\App\Models\Trainer::SPECIALTIES as $key => $label)
+                    <option value="{{ $key }}" {{ request('specialty') === $key ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
+
+            <a href="{{ route('trainers.index') }}" class="btn btn-secondary">Reset</a>
+        </form>
+    </div>
+
     @if ($trainers->count())
         <div class="card-grid">
             @foreach ($trainers as $trainer)
@@ -53,4 +68,25 @@
             No trainers found. <a href="{{ route('trainers.create') }}" style="color: #ffd700; font-weight: bold;">Add one now</a>
         </div>
     @endif
+@push('scripts')
+    <script>
+        (function(){
+            const form = document.getElementById('trainers-filters');
+            if (!form) return;
+
+            let timer;
+            const submit = () => form.submit();
+
+            const search = form.querySelector('input[name="search"]');
+            if (search) {
+                search.addEventListener('input', function () {
+                    clearTimeout(timer);
+                    timer = setTimeout(submit, 500);
+                });
+            }
+
+            form.querySelectorAll('select').forEach(s => s.addEventListener('change', submit));
+        })();
+    </script>
+@endpush
 @endsection

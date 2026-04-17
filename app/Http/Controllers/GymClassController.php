@@ -20,18 +20,36 @@ class GymClassController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
 
+        $query = GymClass::with(['trainer.user', 'room', 'bookings']);
+
         if ($user && $user->isTrainer()) {
-            $classes = GymClass::with(['trainer.user', 'room', 'bookings'])
-                ->where('trainer_id', $user->trainer->id)
-                ->latest()
-                ->get();
-        } else {
-            $classes = GymClass::with(['trainer.user', 'room', 'bookings'])->latest()->get();
+            $query->where('trainer_id', $user->trainer->id);
         }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('trainer.user', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category', $request->input('category'));
+        }
+
+        if ($request->filled('room_id')) {
+            $query->where('room_id', $request->input('room_id'));
+        }
+
+        $classes = $query->latest()->get();
 
         return view('classes.index', compact('classes'));
     }

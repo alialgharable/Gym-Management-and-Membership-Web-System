@@ -20,6 +20,25 @@
     </div>
 
     @if (!$plans->count())
+
+    <div style="margin-bottom:1rem; display:flex; gap:8px; align-items:center;">
+        <form id="plans-filters" method="GET" action="{{ route('plans.index') }}" style="display:flex; gap:8px; align-items:center;">
+            <input type="text" name="search" placeholder="Search plans..." value="{{ request('search') }}" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+
+            <input type="number" name="min_price" placeholder="Min price" value="{{ request('min_price') }}" style="width:100px; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+            <input type="number" name="max_price" placeholder="Max price" value="{{ request('max_price') }}" style="width:100px; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+
+            <select name="duration_months" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+                <option value="">Any duration</option>
+                <option value="1" {{ request('duration_months') == '1' ? 'selected' : '' }}>1 month</option>
+                <option value="3" {{ request('duration_months') == '3' ? 'selected' : '' }}>3 months</option>
+                <option value="6" {{ request('duration_months') == '6' ? 'selected' : '' }}>6 months</option>
+                <option value="12" {{ request('duration_months') == '12' ? 'selected' : '' }}>12 months</option>
+            </select>
+
+            <a href="{{ route('plans.index') }}" class="btn btn-secondary">Reset</a>
+        </form>
+    </div>
         <div class="card" style="text-align:center; padding:40px;">
             <h3 style="color:#ffd700;">No Plans Available</h3>
             <p style="color:#aaa;">Start by creating your first membership plan.</p>
@@ -120,5 +139,27 @@
                 });
             });
         });
+    </script>
+@endpush
+
+@push('scripts')
+    <script>
+        (function(){
+            const form = document.getElementById('plans-filters');
+            if (!form) return;
+
+            let timer;
+            const submit = () => form.submit();
+
+            const search = form.querySelector('input[name="search"]');
+            if (search) {
+                search.addEventListener('input', function () {
+                    clearTimeout(timer);
+                    timer = setTimeout(submit, 500);
+                });
+            }
+
+            form.querySelectorAll('select, input[type="number"]').forEach(s => s.addEventListener('change', submit));
+        })();
     </script>
 @endpush

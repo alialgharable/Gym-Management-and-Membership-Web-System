@@ -11,9 +11,32 @@ class MemberController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $members = Member::with(['user', 'subscription'])->get();
+        $query = Member::with(['user', 'subscription']);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $status = $request->input('status');
+            if ($status === 'active') {
+                $query->whereHas('subscription', function ($q) {
+                    $q->where('status', 'active');
+                });
+            } elseif ($status === 'inactive') {
+                $query->whereDoesntHave('subscription', function ($q) {
+                    $q->where('status', 'active');
+                });
+            }
+        }
+
+        $members = $query->latest()->get();
 
         return view('admin.members.index', compact('members'));
     }

@@ -872,7 +872,71 @@
                 }
             }
         });
+
+        /**
+         * Global reusable modal helper used across the app views.
+         * Options: { type, title, message, confirmText, cancelText, onConfirm, onCancel }
+         */
+        window.showModal = function (options) {
+            const opts = Object.assign({
+                type: 'warning',
+                title: '',
+                message: '',
+                confirmText: 'OK',
+                cancelText: 'Cancel',
+                onConfirm: null,
+                onCancel: null,
+            }, options || {});
+
+            // Build modal
+            const modal = document.createElement('div');
+            modal.className = 'flash-modal show ' + (opts.type || '');
+            modal.setAttribute('role', 'dialog');
+
+            modal.innerHTML = `
+                <div class="flash-modal-card" role="document">
+                    <div class="flash-modal-header">
+                        <div class="flash-modal-icon"></div>
+                        <div>
+                            <h2 class="flash-modal-title">${opts.title || ''}</h2>
+                            <p class="flash-modal-subtitle">Gym Management System</p>
+                        </div>
+                    </div>
+                    <div class="flash-modal-body">${opts.message || ''}</div>
+                    <div class="flash-modal-actions" style="margin-top:1rem;">
+                        <button type="button" class="btn btn-secondary modal-cancel">${opts.cancelText}</button>
+                        <button type="button" class="btn btn-primary modal-confirm">${opts.confirmText}</button>
+                    </div>
+                </div>
+            `;
+
+            // Append and wire
+            document.body.appendChild(modal);
+
+            const remove = () => {
+                try { document.body.removeChild(modal); } catch (e) { /* ignore */ }
+            };
+
+            modal.querySelector('.modal-cancel').addEventListener('click', function () {
+                if (typeof opts.onCancel === 'function') opts.onCancel();
+                remove();
+            });
+
+            modal.querySelector('.modal-confirm').addEventListener('click', function () {
+                if (typeof opts.onConfirm === 'function') opts.onConfirm();
+                remove();
+            });
+
+            // close on backdrop click
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) {
+                    if (typeof opts.onCancel === 'function') opts.onCancel();
+                    remove();
+                }
+            });
+        };
     </script>
+    @stack('scripts')
 </body>
 
 </html>

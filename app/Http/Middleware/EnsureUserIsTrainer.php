@@ -15,7 +15,7 @@ class EnsureUserIsTrainer
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || !auth()->user()->isTrainer()) {
+        if (!auth()->check() || !(auth()->user()->isTrainer() || auth()->user()->isAdmin())) {
             abort(403, 'Unauthorized');
         }
         return $next($request);

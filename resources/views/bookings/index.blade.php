@@ -13,6 +13,28 @@
         @endif
     </div>
 
+    <div style="margin-bottom:1rem; display:flex; gap:8px; align-items:center;">
+        <form id="bookings-filters" method="GET" action="{{ route('bookings.index') }}" style="display:flex; gap:8px; align-items:center;">
+            <input type="text" name="search" placeholder="Search bookings (member or class)..." value="{{ request('search') }}" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+
+            <select name="status" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+                <option value="">Any status</option>
+                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
+                <option value="confirmed" {{ request('status') === 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+            </select>
+
+            <select name="class_id" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+                <option value="">All classes</option>
+                @foreach(\App\Models\GymClass::all() as $c)
+                    <option value="{{ $c->id }}" {{ request('class_id') == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
+                @endforeach
+            </select>
+
+            <a href="{{ route('bookings.index') }}" class="btn btn-secondary">Reset</a>
+        </form>
+    </div>
+
     @if ($bookings->count())
         <div style="overflow-x: auto;">
             <table>
@@ -59,4 +81,25 @@
             No bookings found. <a href="{{ route('bookings.create') }}" style="color: #ffd700; font-weight: bold;">Create one now</a>
         </div>
     @endif
+@push('scripts')
+    <script>
+        (function(){
+            const form = document.getElementById('bookings-filters');
+            if (!form) return;
+
+            let timer;
+            const submit = () => form.submit();
+
+            const search = form.querySelector('input[name="search"]');
+            if (search) {
+                search.addEventListener('input', function () {
+                    clearTimeout(timer);
+                    timer = setTimeout(submit, 500);
+                });
+            }
+
+            form.querySelectorAll('select').forEach(s => s.addEventListener('change', submit));
+        })();
+    </script>
+@endpush
 @endsection
