@@ -11,6 +11,28 @@
         <a href="{{ route('subscriptions.create') }}" class="btn btn-primary">+ New Subscription</a>
     </div>
 
+    <div style="margin-bottom:1rem; display:flex; gap:8px; align-items:center;">
+        <form id="subscriptions-filters" method="GET" action="{{ route('subscriptions.index') }}" style="display:flex; gap:8px; align-items:center;">
+            <input type="text" name="search" placeholder="Search subscriptions..." value="{{ request('search') }}" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+
+            <select name="plan_id" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+                <option value="">All plans</option>
+                @foreach(\App\Models\MembershipPlan::all() as $p)
+                    <option value="{{ $p->id }}" {{ request('plan_id') == $p->id ? 'selected' : '' }}>{{ $p->name }}</option>
+                @endforeach
+            </select>
+
+            <select name="status" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+                <option value="">Any status</option>
+                <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
+                <option value="expired" {{ request('status') === 'expired' ? 'selected' : '' }}>Expired</option>
+                <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+            </select>
+
+            <a href="{{ route('subscriptions.index') }}" class="btn btn-secondary">Reset</a>
+        </form>
+    </div>
+
     @if ($subscriptions->count())
         <div style="overflow-x: auto;">
             <table>
@@ -58,3 +80,25 @@
         </div>
     @endif
 @endsection
+
+@push('scripts')
+    <script>
+        (function(){
+            const form = document.getElementById('subscriptions-filters');
+            if (!form) return;
+
+            let timer;
+            const submit = () => form.submit();
+
+            const search = form.querySelector('input[name="search"]');
+            if (search) {
+                search.addEventListener('input', function () {
+                    clearTimeout(timer);
+                    timer = setTimeout(submit, 500);
+                });
+            }
+
+            form.querySelectorAll('select').forEach(s => s.addEventListener('change', submit));
+        })();
+    </script>
+@endpush

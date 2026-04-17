@@ -13,9 +13,23 @@ class TrainerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $trainers = Trainer::with(['user', 'gymClasses', 'reviews'])->latest()->get();
+        $query = Trainer::with(['user', 'gymClasses', 'reviews']);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('specialty')) {
+            $query->where('specialty', $request->input('specialty'));
+        }
+
+        $trainers = $query->latest()->get();
 
         return view('trainers.index', compact('trainers'));
     }

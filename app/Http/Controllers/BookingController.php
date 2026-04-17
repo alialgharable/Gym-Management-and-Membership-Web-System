@@ -12,25 +12,42 @@ class BookingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
+        $query = Booking::with(['gymClass.trainer.user', 'member.user']);
 
         if ($user && $user->isMember()) {
             $member = Member::where('user_id', $user->id)->first();
-            $bookings = Booking::with(['gymClass.trainer.user', 'member.user'])
-                ->where('member_id', $member->id)
-                ->get();
+            $query->where('member_id', $member->id);
         } elseif ($user && $user->isTrainer()) {
             $trainer = $user->trainer;
-            $bookings = Booking::with(['gymClass.trainer.user', 'member.user'])
-                ->whereHas('gymClass', function ($q) use ($trainer) {
-                    $q->where('trainer_id', $trainer->id);
-                })
-                ->get();
-        } else {
-            $bookings = Booking::with(['gymClass.trainer.user', 'member.user'])->get();
+            $query->whereHas('gymClass', function ($q) use ($trainer) {
+                $q->where('trainer_id', $trainer->id);
+            });
         }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        if ($request->filled('class_id')) {
+            $query->where('class_id', $request->input('class_id'));
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('member.user', function ($q2) use ($search) {
+                    $q2->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                })->orWhereHas('gymClass', function ($q3) use ($search) {
+                    $q3->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $bookings = $query->latest()->get();
 
         return view('bookings.index', compact('bookings'));
     }

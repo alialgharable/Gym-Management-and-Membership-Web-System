@@ -13,9 +13,29 @@ class SubscriptionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $subscriptions = Subscription::with(['member.user', 'plan'])->latest()->get();
+        $query = Subscription::with(['member.user', 'plan']);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->whereHas('member.user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            })->orWhereHas('plan', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('plan_id')) {
+            $query->where('membership_plan_id', $request->input('plan_id'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        $subscriptions = $query->latest()->get();
 
         return view('subscriptions.index', compact('subscriptions'));
     }

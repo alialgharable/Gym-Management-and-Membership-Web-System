@@ -19,6 +19,28 @@
         @endauth
     </div>
 
+    <div style="margin-bottom:1rem; display:flex; gap:8px; align-items:center;">
+        <form id="classes-filters" method="GET" action="{{ route('classes.index') }}" style="display:flex; gap:8px; align-items:center;">
+            <input type="text" name="search" placeholder="Search classes..." value="{{ request('search') }}" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+
+            <select name="category" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+                <option value="">All categories</option>
+                @foreach($categories ?? ['combat'=>'Combat Sports','yoga_pilates'=>'Yoga & Pilates','group_training'=>'Group Training','fitness_machines'=>'Fitness Machines'] as $key => $label)
+                    <option value="{{ $key }}" {{ request('category') === $key ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
+
+            <select name="room_id" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+                <option value="">All rooms</option>
+                @foreach(\App\Models\Room::all() as $r)
+                    <option value="{{ $r->id }}" {{ request('room_id') == $r->id ? 'selected' : '' }}>{{ $r->name }}</option>
+                @endforeach
+            </select>
+
+            <a href="{{ route('classes.index') }}" class="btn btn-secondary">Reset</a>
+        </form>
+    </div>
+
     @if ($classes->count())
         <div class="card-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
             @foreach ($classes as $class)
@@ -120,5 +142,27 @@
                 });
             });
         });
+    </script>
+@endpush
+
+@push('scripts')
+    <script>
+        (function(){
+            const form = document.getElementById('classes-filters');
+            if (!form) return;
+
+            let timer;
+            const submit = () => form.submit();
+
+            const search = form.querySelector('input[name="search"]');
+            if (search) {
+                search.addEventListener('input', function () {
+                    clearTimeout(timer);
+                    timer = setTimeout(submit, 500);
+                });
+            }
+
+            form.querySelectorAll('select').forEach(s => s.addEventListener('change', submit));
+        })();
     </script>
 @endpush
