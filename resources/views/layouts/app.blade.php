@@ -5,10 +5,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Gym Management System')</title>
-    <link rel="icon" type="image/png" href="{{ asset('favicon-nobg.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+                "three/examples/jsm/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/controls/OrbitControls.js",
+                "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/loaders/GLTFLoader.js",
+                "three/examples/jsm/environments/RoomEnvironment.js": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/environments/RoomEnvironment.js"
+            }
+        }
+    </script>
     <style>
         :root {
             color-scheme: dark;
@@ -61,6 +71,51 @@
             font-weight: 700;
             letter-spacing: -0.03em;
             color: #ffd54f;
+        }
+
+        .site-brand-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .site-brand-logo {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .site-header-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .nav-toggle {
+            display: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 209, 37, 0.35);
+            background: rgba(255, 209, 37, 0.08);
+            color: #f8f7ec;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .nav-toggle:hover {
+            background: rgba(255, 209, 37, 0.16);
+            border-color: rgba(255, 209, 37, 0.55);
+            transform: translateY(-1px);
+        }
+
+        .nav-toggle:focus-visible {
+            outline: 2px solid rgba(255, 209, 37, 0.8);
+            outline-offset: 2px;
         }
 
         .site-nav {
@@ -632,31 +687,116 @@
 
         @media (max-width: 760px) {
             .site-shell {
-                padding: 16px;
+                padding: 12px;
             }
 
             .site-header {
-                padding: 16px;
-                border-radius: 18px;
+                padding: 14px;
+                border-radius: 16px;
+                position: relative;
+                top: auto;
+                z-index: 2000;
+                gap: 0.85rem;
+                align-items: stretch;
+            }
+
+            .site-brand {
+                font-size: 1.05rem;
+            }
+
+            .site-brand-logo {
+                width: 30px;
+                height: 30px;
+            }
+
+            .site-header-main {
+                width: 100%;
+            }
+
+            .nav-toggle {
+                display: inline-flex;
+            }
+
+            .site-nav {
+                display: none;
+                width: 100%;
+                justify-content: stretch;
+                gap: 0.6rem;
+                margin-top: 0.65rem;
+                padding: 0.75rem;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 14px;
+                background: rgba(255, 255, 255, 0.03);
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .site-nav.is-open {
+                display: flex;
+            }
+
+            .nav-group {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.55rem;
             }
 
             .nav-link {
                 width: 100%;
                 justify-content: center;
+                text-align: center;
+                padding: 0.7rem 0.9rem;
+                font-size: 0.95rem;
             }
 
             .profile-menu {
                 width: 100%;
                 justify-content: flex-end;
+                margin-top: 0.3rem;
+                position: relative;
+                z-index: 2100;
+            }
+
+            .profile-dropdown {
+                z-index: 2200;
             }
 
             .panel {
-                padding: 20px;
+                padding: 16px;
+                border-radius: 18px;
             }
 
             .flash-modal-card {
                 padding: 1.2rem;
                 border-radius: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .site-shell {
+                padding: 10px;
+            }
+
+            .page-content {
+                margin-top: 14px;
+            }
+
+            .site-nav {
+                gap: 0.5rem;
+            }
+
+            .nav-group {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-link {
+                border-radius: 14px;
+            }
+
+            .panel {
+                padding: 12px;
+                border-radius: 14px;
             }
         }
     </style>
@@ -727,11 +867,27 @@
 
     <div class="site-shell">
         <header class="site-header">
-            <div class="site-brand">
-                <a href="/">Gym Management</a>
+            <div class="site-header-main">
+                <div class="site-brand">
+                    <a href="/" class="site-brand-link">
+                        <img src="{{ asset('logo.png') }}" alt="Gym Management logo" class="site-brand-logo">
+                        <span>Gym Management</span>
+                    </a>
+                </div>
+
+                <button
+                    id="mobileNavToggle"
+                    class="nav-toggle"
+                    type="button"
+                    aria-label="Toggle navigation menu"
+                    aria-expanded="false"
+                    aria-controls="siteNav"
+                >
+                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                </button>
             </div>
 
-            <nav class="site-nav" aria-label="Primary navigation">
+            <nav id="siteNav" class="site-nav" aria-label="Primary navigation">
                 <div class="nav-group">
                     <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
                     <a class="nav-link {{ request()->routeIs('plans.*') ? 'active' : '' }}" href="{{ route('plans.index') }}">Membership</a>
@@ -841,6 +997,31 @@
             }
         }
 
+        function closeMobileNav() {
+            const nav = document.getElementById('siteNav');
+            const toggle = document.getElementById('mobileNavToggle');
+
+            if (nav) {
+                nav.classList.remove('is-open');
+            }
+
+            if (toggle) {
+                toggle.setAttribute('aria-expanded', 'false');
+            }
+        }
+
+        function toggleMobileNav() {
+            const nav = document.getElementById('siteNav');
+            const toggle = document.getElementById('mobileNavToggle');
+
+            if (!nav || !toggle) {
+                return;
+            }
+
+            const isOpen = nav.classList.toggle('is-open');
+            toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        }
+
         function closeFlashModal() {
             const modal = document.getElementById('flashModal');
             if (modal) {
@@ -851,9 +1032,20 @@
         document.addEventListener('click', function (event) {
             const menu = document.querySelector('.profile-menu');
             const dropdown = document.getElementById('profileDropdown');
+            const nav = document.getElementById('siteNav');
+            const navToggle = document.getElementById('mobileNavToggle');
 
             if (menu && dropdown && !menu.contains(event.target)) {
                 dropdown.classList.remove('show');
+            }
+
+            if (nav && navToggle && nav.classList.contains('is-open')) {
+                const isClickInsideNav = nav.contains(event.target);
+                const isClickOnToggle = navToggle.contains(event.target);
+
+                if (!isClickInsideNav && !isClickOnToggle) {
+                    closeMobileNav();
+                }
             }
 
             const modal = document.getElementById('flashModal');
@@ -865,11 +1057,32 @@
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') {
                 closeFlashModal();
+                closeMobileNav();
 
                 const dropdown = document.getElementById('profileDropdown');
                 if (dropdown) {
                     dropdown.classList.remove('show');
                 }
+            }
+        });
+
+        const mobileNavToggle = document.getElementById('mobileNavToggle');
+        if (mobileNavToggle) {
+            mobileNavToggle.addEventListener('click', toggleMobileNav);
+        }
+
+        const navLinks = document.querySelectorAll('#siteNav .nav-link');
+        navLinks.forEach((link) => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 760) {
+                    closeMobileNav();
+                }
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 760) {
+                closeMobileNav();
             }
         });
     </script>

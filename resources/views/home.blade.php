@@ -208,17 +208,24 @@
         .icon-badge {
             display: inline-grid;
             place-items: center;
+            align-items: center;
+            justify-content: center;
             width: 2.75rem;
             height: 2.75rem;
             border-radius: 14px;
             background: rgba(255, 255, 255, 0.08);
             margin-bottom: 1rem;
+            line-height: 0;
         }
 
         .icon-badge svg {
+            display: block;
             width: 1.4rem;
             height: 1.4rem;
             fill: #ffd54f;
+            transform-box: fill-box;
+            transform-origin: center;
+            transform: translateY(1px) scale(1.02);
         }
 
         .hero-visual {
@@ -374,6 +381,30 @@
             color: #ffffff;
             font-size: 1.35rem;
             font-weight: 700;
+        }
+
+        .dumbbell-viewer-shell {
+            position: relative;
+            margin-bottom: 1.1rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: radial-gradient(circle at 30% 20%, rgba(80, 120, 255, 0.18), transparent 40%),
+                linear-gradient(160deg, rgba(8, 18, 36, 0.88), rgba(10, 10, 10, 0.94));
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .dumbbell-viewer-canvas {
+            width: 100%;
+            height: clamp(260px, 32vw, 360px);
+        }
+
+        .dumbbell-viewer-caption {
+            margin: 0;
+            padding: 0.7rem 1rem 0.95rem;
+            color: #cfd8ef;
+            font-size: 0.85rem;
+            letter-spacing: 0.02em;
         }
 
         .dashboard-section {
@@ -571,6 +602,139 @@
         @media (max-width: 760px) {
             .home-hero {
                 padding: 2rem 1.4rem;
+                border-radius: 24px;
+            }
+
+            .home-hero-inner {
+                gap: 1.35rem;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+
+            .hero-highlight {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.75rem;
+            }
+
+            .hero-spotlight {
+                display: block;
+                padding: 0.95rem;
+                border-radius: 16px;
+            }
+
+            .hero-spotlight strong {
+                margin: 0 0 0.2rem;
+                font-size: 1.5rem;
+            }
+
+            .hero-spotlight span {
+                font-size: 0.82rem;
+                line-height: 1.35;
+            }
+
+            .icon-badge {
+                width: 2.1rem;
+                height: 2.1rem;
+                border-radius: 12px;
+                margin-bottom: 0.6rem;
+            }
+
+            .icon-badge svg {
+                width: 1.18rem;
+                height: 1.18rem;
+                transform-box: fill-box;
+                transform-origin: center;
+                transform: translateY(0.75px) scale(1.03);
+            }
+
+            .hero-spotlight:nth-child(3) {
+                grid-column: 1 / -1;
+            }
+
+            .hero-visual-card {
+                padding: 1.2rem;
+                border-radius: 22px;
+            }
+
+            .visual-card-header {
+                margin-bottom: 1rem;
+            }
+
+            .visual-title {
+                font-size: 1.15rem;
+            }
+
+            .dumbbell-viewer-shell {
+                margin-bottom: 0.75rem;
+                border-radius: 16px;
+            }
+
+            .dumbbell-viewer-canvas {
+                height: 200px;
+            }
+
+            .preview-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.55rem;
+            }
+
+            .preview-status {
+                font-size: 0.85rem;
+            }
+
+            .preview-tile,
+            .preview-small-card {
+                border-radius: 14px;
+                padding: 0.95rem;
+            }
+
+            .preview-tile-large {
+                min-height: 0;
+            }
+
+            .preview-tile-meta {
+                font-size: 0.88rem;
+                line-height: 1.5;
+                overflow-wrap: anywhere;
+            }
+
+            .section-heading {
+                align-items: flex-start;
+                gap: 0.6rem;
+            }
+
+            .section-heading h2 {
+                font-size: 1.35rem;
+            }
+
+            .section-link {
+                font-size: 0.88rem;
+            }
+
+            .content-card,
+            .quick-action-card {
+                padding: 1.15rem;
+                border-radius: 18px;
+            }
+
+            .content-card-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .meta-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.3rem;
             }
 
             .preview-grid,
@@ -580,6 +744,53 @@
 
             .hero-copy h1 {
                 font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .home-stack {
+                gap: 1.2rem;
+            }
+
+            .home-hero {
+                padding: 1.25rem 1rem;
+                border-radius: 20px;
+            }
+
+            .hero-copy h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero-copy p {
+                font-size: 0.94rem;
+                line-height: 1.6;
+            }
+
+            .preview-chip,
+            .visual-badge {
+                font-size: 0.78rem;
+            }
+
+            .hero-highlight {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-spotlight:nth-child(3) {
+                grid-column: auto;
+            }
+
+            .hero-spotlight {
+                grid-template-columns: auto 1fr;
+                padding: 0.85rem;
+            }
+
+            .preview-tile-value,
+            .plan-price {
+                font-size: 1.65rem;
+            }
+
+            .dumbbell-viewer-canvas {
+                height: 180px;
             }
         }
     </style>
@@ -634,6 +845,10 @@
                                 <h2 class="visual-title">Today’s training flow</h2>
                             </div>
                             <span class="visual-badge">Live</span>
+                        </div>
+
+                        <div class="dumbbell-viewer-shell">
+                            <div id="dumbbellViewer" class="dumbbell-viewer-canvas" aria-label="3D dumbbell viewer"></div>
                         </div>
 
                         <div class="dashboard-preview">
@@ -859,4 +1074,256 @@
             @endif
         </section>
     </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+        import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+
+        let scene;
+        let camera;
+        let renderer;
+        let controls;
+        let model;
+        let shadowPlane;
+        let floorDisk;
+        let rafId;
+        let startTime = 0;
+        let currentRotation = 0;
+        let targetRotation = 0;
+        let pmremGenerator;
+        let modelBaseY = 0;
+        const MODEL_VERTICAL_OFFSET = 0.18;
+
+        const container = document.getElementById('dumbbellViewer');
+        const MODEL_CANDIDATES = [
+            '/models/hex_dumbbell_10kg.glb',
+        ];
+
+        function init() {
+            if (!container) {
+                return;
+            }
+
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+            camera.position.set(2.3, 3.2, 4.0);
+            camera.lookAt(0, 0.45, 0);
+
+            renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true,
+                powerPreference: 'high-performance',
+            });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.02;
+            renderer.physicallyCorrectLights = true;
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            pmremGenerator = new THREE.PMREMGenerator(renderer);
+            scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+            scene.background = null;
+
+            const hemiLight = new THREE.HemisphereLight(0xbcd6ff, 0x0a0d14, 0.2);
+            scene.add(hemiLight);
+
+            const keyLight = new THREE.DirectionalLight(0xfff0de, 1.8);
+            keyLight.position.set(4.8, 6.7, 2.7);
+            keyLight.castShadow = true;
+            keyLight.shadow.mapSize.set(1024, 1024);
+            keyLight.shadow.camera.near = 0.3;
+            keyLight.shadow.camera.far = 18;
+            keyLight.shadow.camera.left = -3.4;
+            keyLight.shadow.camera.right = 3.4;
+            keyLight.shadow.camera.top = 3.4;
+            keyLight.shadow.camera.bottom = -3.4;
+            keyLight.shadow.bias = -0.0002;
+            keyLight.shadow.normalBias = 0.02;
+            scene.add(keyLight);
+
+            const fillLight = new THREE.DirectionalLight(0x8db6ff, 0.5);
+            fillLight.position.set(-5.6, 3.2, -3.2);
+            scene.add(fillLight);
+
+            const rimLight = new THREE.DirectionalLight(0xb1d4ff, 0.75);
+            rimLight.position.set(-1.4, 2.8, 5.8);
+            scene.add(rimLight);
+
+            const planeGeometry = new THREE.CircleGeometry(1.25, 48);
+            const planeMaterial = new THREE.ShadowMaterial({ opacity: 0.42 });
+            shadowPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+            shadowPlane.rotation.x = -Math.PI / 2;
+            shadowPlane.position.y = -0.8;
+            shadowPlane.receiveShadow = true;
+            scene.add(shadowPlane);
+
+            const floorGeometry = new THREE.CircleGeometry(1.42, 64);
+            const floorMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x111827,
+                roughness: 0.62,
+                metalness: 0.06,
+                clearcoat: 0.24,
+                clearcoatRoughness: 0.68,
+                transparent: true,
+                opacity: 0.55,
+            });
+            floorDisk = new THREE.Mesh(floorGeometry, floorMaterial);
+            floorDisk.rotation.x = -Math.PI / 2;
+            floorDisk.position.y = -0.802;
+            floorDisk.receiveShadow = true;
+            scene.add(floorDisk);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = false;
+            controls.enablePan = false;
+            controls.minDistance = 3.4;
+            controls.maxDistance = 7.5;
+            controls.minPolarAngle = Math.PI / 3.2;
+            controls.maxPolarAngle = Math.PI / 1.8;
+            controls.target.set(0, 0.45, 0);
+            controls.update();
+
+            loadModel(0);
+            onWindowResize();
+            window.addEventListener('resize', onWindowResize);
+            animate(0);
+        }
+
+        function loadModel(index) {
+            const loader = new GLTFLoader();
+
+            if (index >= MODEL_CANDIDATES.length) {
+                return;
+            }
+
+            loader.load(
+                MODEL_CANDIDATES[index],
+                (gltf) => {
+                    model = gltf.scene;
+                    const anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+                    model.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            tuneMaterial(child.material, anisotropy);
+                        }
+                    });
+
+                    centerAndScaleModel(model);
+                    model.rotation.y = -0.45;
+                    modelBaseY = model.position.y;
+                    scene.add(model);
+                },
+                undefined,
+                () => loadModel(index + 1),
+            );
+        }
+
+        function tuneMaterial(material, anisotropy) {
+            const materials = Array.isArray(material) ? material : [material];
+
+            materials.forEach((mat) => {
+                if (!mat) {
+                    return;
+                }
+
+                if (mat.map) mat.map.anisotropy = anisotropy;
+                if (mat.normalMap) mat.normalMap.anisotropy = anisotropy;
+                if (mat.roughnessMap) mat.roughnessMap.anisotropy = anisotropy;
+                if (mat.metalnessMap) mat.metalnessMap.anisotropy = anisotropy;
+
+                if ('envMapIntensity' in mat) {
+                    mat.envMapIntensity = 1.35;
+                }
+
+                if ('metalness' in mat) {
+                    mat.metalness = THREE.MathUtils.clamp(mat.metalness + 0.1, 0, 1);
+                }
+
+                if ('roughness' in mat) {
+                    mat.roughness = THREE.MathUtils.clamp(mat.roughness * 0.82, 0.16, 0.95);
+                }
+
+                mat.needsUpdate = true;
+            });
+        }
+
+        function centerAndScaleModel(object3D) {
+            const box = new THREE.Box3().setFromObject(object3D);
+            const size = box.getSize(new THREE.Vector3());
+            const center = box.getCenter(new THREE.Vector3());
+            const maxAxis = Math.max(size.x, size.y, size.z) || 1;
+            const scale = 2.1 / maxAxis;
+
+            object3D.scale.setScalar(scale);
+            object3D.position.sub(center.multiplyScalar(scale));
+            object3D.position.y += 0.05;
+            object3D.position.y += MODEL_VERTICAL_OFFSET;
+        }
+
+        function animate(timestamp) {
+            rafId = requestAnimationFrame(animate);
+
+            if (!startTime) {
+                startTime = timestamp;
+            }
+
+            if (model) {
+                const elapsed = (timestamp - startTime) * 0.001;
+                targetRotation += 0.005 + Math.sin(elapsed * 0.65) * 0.00045;
+                currentRotation = THREE.MathUtils.lerp(currentRotation, targetRotation, 0.12);
+
+                model.rotation.y = currentRotation;
+                model.position.y = modelBaseY + Math.sin(elapsed * 0.9) * 0.015;
+
+                if (shadowPlane) {
+                    shadowPlane.scale.setScalar(1 + Math.sin(elapsed * 0.9) * 0.012);
+                    shadowPlane.material.opacity = 0.43 + Math.cos(elapsed * 0.9) * 0.015;
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            if (!container || !renderer || !camera) {
+                return;
+            }
+
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            if (!width || !height) {
+                return;
+            }
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+            }
+
+            if (controls) {
+                controls.dispose();
+            }
+
+            if (pmremGenerator) {
+                pmremGenerator.dispose();
+            }
+        });
+
+        init();
+    </script>
 @endsection
