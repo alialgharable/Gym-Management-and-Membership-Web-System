@@ -48,7 +48,8 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
-    Route::resource('plans', MembershipPlanController::class)->except(['index', 'show']);
+    // Only the page shells (create/edit) are served by the web controller.
+    Route::resource('plans', MembershipPlanController::class)->only(['create', 'edit']);
     Route::resource('admins', AdminController::class)->except(['index', 'show']);
     Route::resource('subscriptions', SubscriptionController::class)->except(['store']);
     Route::resource('members', MemberController::class)->except(['index', 'show', 'create']);

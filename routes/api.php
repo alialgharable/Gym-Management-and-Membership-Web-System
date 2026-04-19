@@ -4,16 +4,26 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\GymClassController;
 use App\Http\Controllers\Api\TrainerController;
 use App\Http\Controllers\Api\TrainerReviewController;
+use App\Http\Controllers\Api\MembershipPlanController;
 
 
 
 Route::get('classes', [GymClassController::class, 'index']);
 Route::get('classes/{gymClass}', [GymClassController::class, 'show']);
 
+Route::get('plans', [MembershipPlanController::class, 'index']);
+Route::get('plans/{plan}', [MembershipPlanController::class, 'show']);
+
 Route::middleware(['web', 'auth'])->group(function () {
     Route::post('classes', [GymClassController::class, 'store']);
     Route::put('classes/{gymClass}', [GymClassController::class, 'update']);
     Route::delete('classes/{gymClass}', [GymClassController::class, 'destroy']);
+});
+
+Route::middleware(['web', 'auth', 'admin'])->group(function () {
+    Route::post('plans', [MembershipPlanController::class, 'store']);
+    Route::put('plans/{plan}', [MembershipPlanController::class, 'update']);
+    Route::delete('plans/{plan}', [MembershipPlanController::class, 'destroy']);
 });
 
 

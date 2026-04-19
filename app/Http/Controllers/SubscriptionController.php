@@ -80,17 +80,27 @@ class SubscriptionController extends Controller
             ->where('status', 'active')
             ->exists();
 
+        $alreadyMessage = 'You already have an active subscription. Cancel it in your profile to subscribe to another plan.';
+
         if ($alreadySubscribed) {
-            return back()->with('error', 'You already have an active subscription.');
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $alreadyMessage], 422);
+            }
+
+            return back()->with('error', $alreadyMessage);
         }
 
-        Subscription::create([
+        $subscription = Subscription::create([
             'member_id' => $member->id,
             'membership_plan_id' => $request->plan_id,
             'start_date' => now(),
             'end_date' => now()->addMonth(), // later: dynamic based on plan
             'status' => 'active',
         ]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Subscription activated!', 'data' => ['subscription_id' => $subscription->id]], 201);
+        }
 
         return redirect()->route('home')
             ->with('success', 'Subscription activated!');
