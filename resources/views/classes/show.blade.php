@@ -4,15 +4,9 @@
 
 @section('content')
 
-    @php
-        $bookingsCount = $gymClass->bookings->count();
-        $capacity = $gymClass->capacity ?? 0;
-        $availableSpots = max($capacity - $bookingsCount, 0);
-    @endphp
-
     <div class="page-header">
         <div>
-            <h1 class="section-title">{{ $gymClass->name }}</h1>
+            <h1 id="class-title" class="section-title">Loading...</h1>
             <p class="section-subtitle">Class details and booking overview</p>
         </div>
 
@@ -21,68 +15,23 @@
 
             @auth
                 @if(auth()->user()->isTrainer() || auth()->user()->isAdmin())
-                    <a href="{{ route('classes.edit', $gymClass) }}" class="btn btn-primary">Edit</a>
+                    <a id="edit-class-btn" href="#" class="btn btn-primary" style="display:none;">Edit</a>
                 @endif
             @endauth
         </div>
     </div>
 
-    <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
-        <div class="card">
-            <h3>Class Information</h3>
-            <p><strong>Category:</strong> {{ str_replace('_', ' ', ucfirst($gymClass->category ?? 'N/A')) }}</p>
-            <p><strong>Trainer:</strong> {{ $gymClass->trainer->user->name ?? 'N/A' }}</p>
-            <p><strong>Room:</strong> {{ $gymClass->room->name ?? 'N/A' }}</p>
-            <p><strong>Schedule:</strong> {{ $gymClass->schedule ?? 'N/A' }}</p>
-            <p><strong>Capacity:</strong> {{ $gymClass->capacity ?? 'N/A' }} members</p>
-            <p><strong>Description:</strong> {{ $gymClass->description ?? 'No description available.' }}</p>
-        </div>
-
-        <div class="card">
-            <h3>Booking Overview</h3>
-            <p><strong>Total Bookings:</strong> {{ $bookingsCount }}</p>
-            <p><strong>Available Spots:</strong> {{ $availableSpots }}</p>
-            <p>
-                <strong>Status:</strong>
-                <span style="color: {{ $availableSpots > 0 ? '#5fd68f' : '#ff5555' }}; font-weight:600;">
-                    {{ $availableSpots > 0 ? 'Open for Booking' : 'Full' }}
-                </span>
-            </p>
+    <div id="class-details-container">
+        <div class="card" style="text-align:center; padding:40px;">
+            <h3 style="color:#ffd700;">Loading Class Details...</h3>
+            <p style="color:#aaa;">Please wait while class details are loaded.</p>
         </div>
     </div>
 
-    @if ($gymClass->bookings->count())
-        <div class="card" style="margin-top:1.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
-                <h3 style="margin:0;">Members Booked</h3>
-                <span style="color:#aaa;">{{ $bookingsCount }} total</span>
-            </div>
-
-            <ul style="list-style:none; padding:0; margin-top:1rem;">
-                @foreach ($gymClass->bookings as $booking)
-                    <li style="padding:12px 0; border-bottom:1px solid #2b2b2b;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
-                            <div>
-                                <strong>{{ $booking->member->user->name ?? 'N/A' }}</strong>
-                                <div style="color:#a9a89d; font-size:0.9rem;">
-                                    {{ $booking->created_at->format('M d, Y') }}
-                                </div>
-                            </div>
-
-                            <span style="color: {{ $booking->status === 'confirmed' ? '#5fd68f' : '#ffd700' }}; font-weight:600;">
-                                {{ ucfirst($booking->status) }}
-                            </span>
-                        </div>
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     @auth
         @if(auth()->user()->isTrainer() || auth()->user()->isAdmin())
-            <div style="margin-top:1.5rem;">
-                <form action="{{ route('classes.destroy', $gymClass) }}" method="POST" class="delete-form">
+            <div id="delete-class-wrap" style="margin-top:1.5rem; display:none;">
+                <form id="delete-class-form" action="" method="POST" class="delete-form">
                     @csrf
                     @method('DELETE')
 
@@ -98,18 +47,170 @@
 
 @push('scripts')
     <script>
-        document.querySelectorAll('.btn-delete').forEach(button => {
-            button.addEventListener('click', function () {
-                const form = this.closest('form');
+        const classId = @json(request()->route('class')->id);
+        const isTrainerOrAdmin = @json(auth()->check() && (auth()->user()->isTrainer() || auth()->user()->isAdmin()));
 
-                window.showModal({
-                    type: 'warning',
-                    title: 'Delete Class?',
-                    message: 'This class will be removed permanently.',
-                    confirmText: 'Yes, Delete',
-                    onConfirm: () => form.submit()
+        function formatCategory(category) {
+            if (!category) return 'N/A';
+
+            const labels = {
+                combat: 'Combat Sports',
+                yoga_pilates: 'Yoga & Pilates',
+                group_training: 'Group Training',
+                fitness_machines: 'Fitness Machines'
+            };
+
+            return labels[category] || category.replaceAll('_', ' ');
+        }
+
+        function formatSchedule(schedule) {
+            if (!schedule) return 'N/A';
+
+            const date = new Date(schedule);
+
+            if (Number.isNaN(date.getTime())) {
+                return schedule;
+            }
+
+            return date.toLocaleString();
+        }
+
+        function bookingStatusColor(status) {
+            if (status === 'confirmed') return '#5fd68f';
+            if (status === 'cancelled') return '#ff5555';
+            return '#ffd700';
+        }
+
+        async function loadClassDetails() {
+            const container = document.getElementById('class-details-container');
+            const title = document.getElementById('class-title');
+            const editBtn = document.getElementById('edit-class-btn');
+            const deleteWrap = document.getElementById('delete-class-wrap');
+            const deleteForm = document.getElementById('delete-class-form');
+
+            try {
+                const response = await fetch(`/api/classes/${classId}`, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch class details');
+                }
+
+                const result = await response.json();
+                const gymClass = result.data;
+
+                const bookings = gymClass.bookings || [];
+                const bookingsCount = bookings.length;
+                const capacity = gymClass.capacity ?? 0;
+                const availableSpots = Math.max(capacity - bookingsCount, 0);
+
+                title.textContent = gymClass.name ?? 'Class Details';
+
+                if (isTrainerOrAdmin && editBtn) {
+                    editBtn.href = `/classes/${gymClass.id}/edit`;
+                    editBtn.style.display = 'inline-flex';
+                }
+
+                if (isTrainerOrAdmin && deleteWrap && deleteForm) {
+                    deleteForm.action = `/classes/${gymClass.id}`;
+                    deleteWrap.style.display = 'block';
+                }
+
+                container.innerHTML = `
+                                <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                                    <div class="card">
+                                        <h3>Class Information</h3>
+                                        <p><strong>Category:</strong> ${formatCategory(gymClass.category)}</p>
+                                        <p><strong>Trainer:</strong> ${gymClass.trainer?.user?.name ?? 'N/A'}</p>
+                                        <p><strong>Room:</strong> ${gymClass.room?.name ?? 'N/A'}</p>
+                                        <p><strong>Schedule:</strong> ${formatSchedule(gymClass.schedule)}</p>
+                                        <p><strong>Capacity:</strong> ${gymClass.capacity ?? 'N/A'} members</p>
+                                        <p><strong>Description:</strong> ${gymClass.description ?? 'No description available.'}</p>
+                                    </div>
+
+                                    <div class="card">
+                                        <h3>Booking Overview</h3>
+                                        <p><strong>Total Bookings:</strong> ${bookingsCount}</p>
+                                        <p><strong>Available Spots:</strong> ${availableSpots}</p>
+                                        <p>
+                                            <strong>Status:</strong>
+                                            <span style="color: ${availableSpots > 0 ? '#5fd68f' : '#ff5555'}; font-weight:600;">
+                                                ${availableSpots > 0 ? 'Open for Booking' : 'Full'}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                ${bookingsCount
+                        ? `
+                                            <div class="card" style="margin-top:1.5rem;">
+                                                <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+                                                    <h3 style="margin:0;">Members Booked</h3>
+                                                    <span style="color:#aaa;">${bookingsCount} total</span>
+                                                </div>
+
+                                                <ul style="list-style:none; padding:0; margin-top:1rem;">
+                                                    ${bookings.map(booking => `
+                                                        <li style="padding:12px 0; border-bottom:1px solid #2b2b2b;">
+                                                            <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+                                                                <div>
+                                                                    <strong>${booking.member?.user?.name ?? 'N/A'}</strong>
+                                                                    <div style="color:#a9a89d; font-size:0.9rem;">
+                                                                        ${booking.created_at ? new Date(booking.created_at).toLocaleDateString() : 'N/A'}
+                                                                    </div>
+                                                                </div>
+
+                                                                <span style="color: ${bookingStatusColor(booking.status)}; font-weight:600;">
+                                                                    ${(booking.status ?? 'N/A').charAt(0).toUpperCase() + (booking.status ?? '').slice(1)}
+                                                                </span>
+                                                            </div>
+                                                        </li>
+                                                    `).join('')}
+                                                </ul>
+                                            </div>
+                                        `
+                        : ''
+                    }
+                            `;
+
+                attachDeleteEvent();
+            } catch (error) {
+                title.textContent = 'Class Details';
+
+                container.innerHTML = `
+                                <div class="card" style="text-align:center; padding:40px;">
+                                    <h3 style="color:#ff6b6b;">Failed to load class details</h3>
+                                    <p style="color:#aaa;">Please try again.</p>
+                                </div>
+                            `;
+            }
+        }
+
+        function attachDeleteEvent() {
+            document.querySelectorAll('.btn-delete').forEach(button => {
+                button.addEventListener('click', function () {
+                    const form = this.closest('form');
+
+                    if (window.showModal) {
+                        window.showModal({
+                            type: 'warning',
+                            title: 'Delete Class?',
+                            message: 'This class will be removed permanently.',
+                            confirmText: 'Yes, Delete',
+                            onConfirm: () => form.submit()
+                        });
+                    } else {
+                        if (confirm('Delete this class?')) {
+                            form.submit();
+                        }
+                    }
                 });
             });
-        });
+        }
+
+        loadClassDetails();
     </script>
 @endpush

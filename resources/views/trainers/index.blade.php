@@ -65,7 +65,7 @@
         </div>
     @else
         <div class="alert alert-warning">
-            No trainers found. <a href="{{ route('trainers.create') }}" style="color: #ffd700; font-weight: bold;">Add one now</a>
+            No trainers found.
         </div>
     @endif
 @push('scripts')

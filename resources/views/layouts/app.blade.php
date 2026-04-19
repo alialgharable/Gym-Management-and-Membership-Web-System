@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script type="importmap">
         {
             "imports": {
@@ -664,7 +665,7 @@
             color: #ffd2d2;
         }
 
-        .flash-modal-errors li + li {
+        .flash-modal-errors li+li {
             margin-top: 0.45rem;
         }
 
@@ -679,6 +680,7 @@
                 opacity: 0;
                 transform: translateY(10px) scale(0.98);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0) scale(1);
@@ -799,6 +801,40 @@
                 border-radius: 14px;
             }
         }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            width: 320px;
+            text-align: center;
+        }
+
+        .modal-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        w
     </style>
 </head>
 
@@ -875,27 +911,26 @@
                     </a>
                 </div>
 
-                <button
-                    id="mobileNavToggle"
-                    class="nav-toggle"
-                    type="button"
-                    aria-label="Toggle navigation menu"
-                    aria-expanded="false"
-                    aria-controls="siteNav"
-                >
+                <button id="mobileNavToggle" class="nav-toggle" type="button" aria-label="Toggle navigation menu"
+                    aria-expanded="false" aria-controls="siteNav">
                     <i class="fa-solid fa-bars" aria-hidden="true"></i>
                 </button>
             </div>
 
             <nav id="siteNav" class="site-nav" aria-label="Primary navigation">
                 <div class="nav-group">
-                    <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
-                    <a class="nav-link {{ request()->routeIs('plans.*') ? 'active' : '' }}" href="{{ route('plans.index') }}">Membership</a>
-                    <a class="nav-link {{ request()->routeIs('classes.*') ? 'active' : '' }}" href="{{ route('classes.index') }}">Classes</a>
-                    <a class="nav-link {{ request()->routeIs('trainers.*') ? 'active' : '' }}" href="{{ route('trainers.index') }}">Trainers</a>
+                    <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
+                        href="{{ route('home') }}">Home</a>
+                    <a class="nav-link {{ request()->routeIs('plans.*') ? 'active' : '' }}"
+                        href="{{ route('plans.index') }}">Membership</a>
+                    <a class="nav-link {{ request()->routeIs('classes.*') ? 'active' : '' }}"
+                        href="{{ route('classes.index') }}">Classes</a>
+                    <a class="nav-link {{ request()->routeIs('trainers.*') ? 'active' : '' }}"
+                        href="{{ route('trainers.index') }}">Trainers</a>
 
                     @if(auth()->check() && !auth()->user()->isAdmin() && !auth()->user()->isMember() && !auth()->user()->isTrainer())
-                        <a class="nav-link {{ request()->routeIs('trainer-applications.create') ? 'active' : '' }}" href="{{ route('trainer-applications.create') }}">
+                        <a class="nav-link {{ request()->routeIs('trainer-applications.create') ? 'active' : '' }}"
+                            href="{{ route('trainer-applications.create') }}">
                             Become a Trainer
                         </a>
                     @endif
@@ -905,7 +940,8 @@
                             $pendingCount = \App\Models\TrainerApplication::where('status', 'pending')->count();
                         @endphp
 
-                        <a href="{{ route('trainer-applications.index') }}" class="notification-bell" title="Trainer applications">
+                        <a href="{{ route('trainer-applications.index') }}" class="notification-bell"
+                            title="Trainer applications">
                             <i class="fa-solid fa-bell"></i>
 
                             @if($pendingCount > 0)
@@ -918,12 +954,9 @@
                 @auth
                     <div class="profile-menu">
                         <button class="profile-trigger" type="button" onclick="toggleProfileMenu()">
-                            <img
-                                src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('images/default-avatar.png') }}"
-                                alt="Profile"
-                                class="profile-avatar"
-                                onerror="this.onerror=null; this.src='{{ asset('images/default-avatar.png') }}';"
-                            >
+                            <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('images/default-avatar.png') }}"
+                                alt="Profile" class="profile-avatar"
+                                onerror="this.onerror=null; this.src='{{ asset('images/default-avatar.png') }}';">
                         </button>
 
                         <div class="profile-dropdown" id="profileDropdown">
@@ -950,13 +983,18 @@
 
                             @if($user->isAdmin() && $user->admin)
                                 <a href="{{ route('admins.show', $user->admin->id) }}" class="profile-dropdown-link">Profile</a>
-                                <a href="{{ route('admins.edit', $user->admin->id) }}" class="profile-dropdown-link">Edit Profile</a>
+                                <a href="{{ route('admins.edit', $user->admin->id) }}" class="profile-dropdown-link">Edit
+                                    Profile</a>
                             @elseif($user->trainer)
-                                <a href="{{ route('trainers.show', $user->trainer->id) }}" class="profile-dropdown-link">Profile</a>
-                                <a href="{{ route('trainers.edit', $user->trainer->id) }}" class="profile-dropdown-link">Edit Profile</a>
+                                <a href="{{ route('trainers.show', $user->trainer->id) }}"
+                                    class="profile-dropdown-link">Profile</a>
+                                <a href="{{ route('trainers.edit', $user->trainer->id) }}" class="profile-dropdown-link">Edit
+                                    Profile</a>
                             @elseif($user->member)
-                                <a href="{{ route('members.show', $user->member->id) }}" class="profile-dropdown-link">Profile</a>
-                                <a href="{{ route('members.edit', $user->member->id) }}" class="profile-dropdown-link">Edit Profile</a>
+                                <a href="{{ route('members.show', $user->member->id) }}"
+                                    class="profile-dropdown-link">Profile</a>
+                                <a href="{{ route('members.edit', $user->member->id) }}" class="profile-dropdown-link">Edit
+                                    Profile</a>
                             @endif
 
                             <div class="profile-dropdown-divider"></div>
@@ -971,8 +1009,10 @@
 
                 <div class="nav-group">
                     @guest
-                        <a class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}" href="{{ route('login') }}">Login</a>
-                        <a class="nav-link {{ request()->routeIs('register') ? 'active' : '' }}" href="{{ route('register') }}">Signup</a>
+                        <a class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}"
+                            href="{{ route('login') }}">Login</a>
+                        <a class="nav-link {{ request()->routeIs('register') ? 'active' : '' }}"
+                            href="{{ route('register') }}">Signup</a>
                     @endguest
                 </div>
             </nav>
@@ -988,6 +1028,57 @@
             </footer>
         </main>
     </div>
+
+    <div id="globalModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modalTitle">Title</h3>
+            <p id="modalMessage">Message</p>
+
+            <div class="modal-actions">
+                <button id="modalConfirmBtn" class="btn btn-primary">OK</button>
+                <button id="modalCancelBtn" class="btn btn-secondary" style="display:none;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.showModal = function ({
+            title = 'Message',
+            message = '',
+            confirmText = 'OK',
+            cancelText = null,
+            onConfirm = null
+        }) {
+            const modal = document.getElementById('globalModal');
+            const titleEl = document.getElementById('modalTitle');
+            const messageEl = document.getElementById('modalMessage');
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+            const cancelBtn = document.getElementById('modalCancelBtn');
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            confirmBtn.textContent = confirmText;
+
+            confirmBtn.onclick = () => {
+                hideModal();
+                if (onConfirm) onConfirm();
+            };
+
+            if (cancelText) {
+                cancelBtn.style.display = 'inline-block';
+                cancelBtn.textContent = cancelText;
+                cancelBtn.onclick = hideModal;
+            } else {
+                cancelBtn.style.display = 'none';
+            }
+
+            modal.classList.add('show');
+        };
+
+        window.hideModal = function () {
+            document.getElementById('globalModal').classList.remove('show');
+        };
+    </script>
 
     <script>
         function toggleProfileMenu() {

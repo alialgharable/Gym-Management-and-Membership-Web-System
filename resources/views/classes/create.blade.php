@@ -16,15 +16,12 @@
     </div>
 
     <div class="card" style="max-width:700px; margin:0 auto;">
-        <form action="{{ route('classes.store') }}" method="POST">
+        <form id="class-create-form">
             @csrf
 
             <div class="field-group">
                 <label class="field-label">Class Name</label>
-                <input type="text" name="name" class="field-input" value="{{ old('name') }}" required>
-                @error('name')
-                    <span style="color:#ff5555; font-size:0.9rem;">{{ $message }}</span>
-                @enderror
+                <input type="text" name="name" class="field-input" required>
             </div>
 
             @if ($isTrainer)
@@ -41,23 +38,17 @@
                     <select name="trainer_id" class="field-select" required>
                         <option value="">Select a trainer...</option>
                         @foreach ($trainers as $trainer)
-                            <option value="{{ $trainer->id }}" @selected(old('trainer_id') == $trainer->id)>
+                            <option value="{{ $trainer->id }}">
                                 {{ $trainer->user->name ?? 'N/A' }}
                             </option>
                         @endforeach
                     </select>
-                    @error('trainer_id')
-                        <span style="color:#ff5555; font-size:0.9rem;">{{ $message }}</span>
-                    @enderror
                 </div>
             @endif
 
             <div class="field-group">
                 <label class="field-label">Schedule</label>
-                <input type="datetime-local" name="schedule" class="field-input" value="{{ old('schedule') }}">
-                @error('schedule')
-                    <span style="color:#ff5555; font-size:0.9rem;">{{ $message }}</span>
-                @enderror
+                <input type="datetime-local" name="schedule" class="field-input">
             </div>
 
             <div class="field-group">
@@ -74,54 +65,29 @@
                     @else
                         <option value="">Select a category...</option>
                         @foreach ($categories as $value => $label)
-                            <option value="{{ $value }}" @selected(old('category') == $value)>
+                            <option value="{{ $value }}">
                                 {{ $label }}
                             </option>
                         @endforeach
                     @endif
                 </select>
-
-                <small style="color:#888; display:block; margin-top:4px;">
-                    @if ($isTrainer)
-                        You can only create classes in your specialty.
-                    @else
-                        Room is assigned automatically based on category.
-                    @endif
-                </small>
-
-                @error('category')
-                    <span style="color:#ff5555; font-size:0.9rem;">{{ $message }}</span>
-                @enderror
             </div>
 
             <div class="field-group">
                 <label class="field-label" style="display:flex; align-items:center; gap:0.6rem;">
-                    <input type="checkbox" name="create_full_month" value="1" {{ old('create_full_month') ? 'checked' : '' }}>
+                    <input type="checkbox" name="create_full_month" value="1">
                     Create full month schedule
                 </label>
-                <small style="color:#888; display:block; margin-top:4px;">
-                    Repeats every 7 days until the end of the month.
-                </small>
-                @error('create_full_month')
-                    <span style="color:#ff5555; font-size:0.9rem;">{{ $message }}</span>
-                @enderror
             </div>
 
             <div class="field-group">
                 <label class="field-label">Capacity</label>
-                <input type="number" name="capacity" class="field-input" value="{{ old('capacity') }}" min="1" max="30">
-                @error('capacity')
-                    <span style="color:#ff5555; font-size:0.9rem;">{{ $message }}</span>
-                @enderror
+                <input type="number" name="capacity" class="field-input" min="1" max="30">
             </div>
 
             <div class="field-group">
                 <label class="field-label">Description</label>
-                <textarea name="description" class="field-input" rows="4"
-                    style="resize:vertical;">{{ old('description') }}</textarea>
-                @error('description')
-                    <span style="color:#ff5555; font-size:0.9rem;">{{ $message }}</span>
-                @enderror
+                <textarea name="description" class="field-input" rows="4" style="resize:vertical;"></textarea>
             </div>
 
             <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:2rem;">
@@ -133,3 +99,59 @@
     </div>
 
 @endsection
+
+@push('scripts')
+    <script>
+        const form = document.getElementById('class-create-form');
+
+        if (form) {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+
+                try {
+                    const response = await fetch('/api/classes', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw result;
+                    }
+
+                    window.showModal({
+                        type: 'success',
+                        title: 'Success',
+                        message: result.message || 'Class created successfully!',
+                        confirmText: 'OK',
+                        onConfirm: () => {
+                            window.location.href = '/classes';
+                        }
+                    });
+                } catch (error) {
+                    let message = 'Failed to create class.';
+
+                    if (error.message) {
+                        message = error.message;
+                    } else if (error.errors) {
+                        message = Object.values(error.errors).flat().join('\n');
+                    }
+
+                    window.showModal({
+                        type: 'error',
+                        title: 'Error',
+                        message: message,
+                        confirmText: 'OK'
+                    });
+                }
+            });
+        }
+    </script>
+@endpush

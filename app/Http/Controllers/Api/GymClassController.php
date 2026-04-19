@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\GymClass;
 use App\Models\Room;
 use App\Models\Trainer;
@@ -17,50 +18,83 @@ class GymClassController extends Controller
         'fitness_machines' => 'Fitness Machines Hall',
     ];
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        return view('classes.index');
+        $user = auth()->user();
+
+        $query = GymClass::with(['trainer.user', 'room', 'bookings']);
+
+        if ($user && $user->isTrainer()) {
+            $query->where('trainer_id', $user->trainer->id);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('trainer.user', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category', $request->input('category'));
+        }
+
+        if ($request->filled('room_id')) {
+            $query->where('room_id', $request->input('room_id'));
+        }
+
+        $classes = $query->latest()->get();
+
+        return response()->json([
+            'message' => 'Classes retrieved successfully',
+            'data' => $classes,
+        ], 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $user = auth()->user();
 
         if (!$user || (!$user->isTrainer() && !$user->isAdmin())) {
-            abort(403);
+            return response()->json([
+                'message' => 'Forbidden',
+            ], 403);
         }
 
         $trainers = Trainer::with('user')->get();
-        $isTrainer = $user->isTrainer();
-        $categories = [
-            'combat' => 'Combat Sports',
-            'yoga_pilates' => 'Yoga & Pilates',
-            'group_training' => 'Group Training',
-            'fitness_machines' => 'Fitness Machines',
-        ];
+        $categories = $this->categories();
 
-        return view('classes.create', compact('trainers', 'categories', 'isTrainer'));
+        return response()->json([
+            'message' => 'Create class form data retrieved successfully',
+            'data' => [
+                'trainers' => $trainers,
+                'categories' => $categories,
+                'is_trainer' => $user->isTrainer(),
+            ],
+        ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $user = auth()->user();
+
+        if (!$user || (!$user->isTrainer() && !$user->isAdmin())) {
+            return response()->json([
+                'message' => 'Forbidden',
+            ], 403);
+        }
+
         $createFullMonth = $request->boolean('create_full_month');
         $scheduleRule = $createFullMonth
             ? 'required|date_format:Y-m-d\\TH:i'
             : 'nullable|date_format:Y-m-d\\TH:i';
 
-        // If trainer is creating, automatically set their trainer_id
-        if ($user && $user->isTrainer()) {
+        if ($user->isTrainer()) {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'category' => 'required|in:combat,yoga_pilates,group_training,fitness_machines',
@@ -69,6 +103,7 @@ class GymClassController extends Controller
                 'capacity' => 'nullable|integer|min:1|max:30',
                 'create_full_month' => 'nullable|boolean',
             ]);
+
             $validated['trainer_id'] = $user->trainer->id;
         } else {
             $validated = $request->validate([
@@ -85,7 +120,9 @@ class GymClassController extends Controller
         $validated['room_id'] = $this->resolveRoomIdByCategory($validated['category']);
 
         if (!$this->trainerCanHandleCategory($validated['trainer_id'], $validated['category'])) {
-            return back()->withInput()->with('error', 'Specialty mismatch: this trainer cannot teach the selected class category.');
+            return response()->json([
+                'message' => 'Specialty mismatch: this trainer cannot teach the selected class category.',
+            ], 422);
         }
 
         $schedule = !empty($validated['schedule'])
@@ -109,88 +146,89 @@ class GymClassController extends Controller
             }
 
             if ($conflictAt) {
-                return back()->withInput()->with('error', 'Conflict detected at ' . $conflictAt->format('Y-m-d H:i') . '. A trainer or room is already booked at that time.');
+                return response()->json([
+                    'message' => 'Conflict detected at ' . $conflictAt->format('Y-m-d H:i') . '. A trainer or room is already booked at that time.',
+                ], 422);
             }
 
-            $createdCount = 0;
+            $created = [];
             $slot = $schedule->copy();
 
             while ($slot->lessThanOrEqualTo($endOfMonth)) {
-                GymClass::create([
+                $created[] = GymClass::create([
                     ...$validated,
                     'schedule' => $slot->format('Y-m-d H:i:s'),
                 ]);
-                $createdCount++;
+
                 $slot->addWeek();
             }
 
-            $redirectRoute = $user && $user->isAdmin() ? 'classes.index' : 'trainer.dashboard';
-
-            return redirect()->route($redirectRoute)
-                ->with('success', "{$createdCount} classes created for this month successfully!");
+            return response()->json([
+                'message' => count($created) . ' classes created for this month successfully!',
+                'data' => $created,
+            ], 201);
         }
 
         if ($schedule) {
             if ($this->hasScheduleConflict($validated['trainer_id'], $validated['room_id'], $schedule)) {
-                return back()->withInput()->with('error', 'Conflict detected. This trainer or room already has a class at the selected time.');
+                return response()->json([
+                    'message' => 'Conflict detected. This trainer or room already has a class at the selected time.',
+                ], 422);
             }
 
             $validated['schedule'] = $schedule->format('Y-m-d H:i:s');
         }
 
-        GymClass::create($validated);
+        $gymClass = GymClass::create($validated);
+        $gymClass->load(['trainer.user', 'room']);
 
-        $redirectRoute = $user && $user->isAdmin() ? 'classes.index' : 'trainer.dashboard';
-
-        return redirect()->route($redirectRoute)
-            ->with('success', 'Class created successfully!');
+        return response()->json([
+            'message' => 'Class created successfully!',
+            'data' => $gymClass,
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(GymClass $gymClass)
     {
-        return view('classes.show', [
-            'classId' => $gymClass->id
-        ]);
+        $gymClass->load(['trainer.user', 'room', 'bookings.member.user']);
+
+        return response()->json([
+            'message' => 'Class retrieved successfully',
+            'data' => $gymClass,
+        ], 200);
     }
 
-    /**
-     * Show the form for editing the resource.
-     */
     public function edit(GymClass $gymClass)
     {
         $user = auth()->user();
 
         if (!$user || (!$user->isAdmin() && (!$user->isTrainer() || $gymClass->trainer_id !== $user->trainer->id))) {
-            abort(403);
+            return response()->json([
+                'message' => 'Forbidden',
+            ], 403);
         }
 
         $trainers = Trainer::with('user')->get();
-        $categories = [
-            'combat' => 'Combat Sports',
-            'yoga_pilates' => 'Yoga & Pilates',
-            'group_training' => 'Group Training',
-            'fitness_machines' => 'Fitness Machines',
-        ];
+        $categories = $this->categories();
 
-        return view('classes.edit', [
-            'trainers' => $trainers,
-            'categories' => $categories,
-            'classId' => $gymClass->id,
-        ]);
+        return response()->json([
+            'message' => 'Edit class form data retrieved successfully',
+            'data' => [
+                'class' => $gymClass->load(['trainer.user', 'room']),
+                'trainers' => $trainers,
+                'categories' => $categories,
+            ],
+        ], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, GymClass $gymClass)
     {
         $user = auth()->user();
 
         if (!$user || (!$user->isAdmin() && (!$user->isTrainer() || $gymClass->trainer_id !== $user->trainer->id))) {
-            abort(403);
+            return response()->json([
+                'message' => 'Forbidden',
+            ], 403);
         }
 
         $validated = $request->validate([
@@ -202,7 +240,6 @@ class GymClassController extends Controller
             'capacity' => 'nullable|integer|min:1|max:30',
         ]);
 
-        // Trainers should not reassign class to another trainer
         if ($user->isTrainer()) {
             unset($validated['trainer_id']);
         }
@@ -212,7 +249,9 @@ class GymClassController extends Controller
         $targetTrainerId = $validated['trainer_id'] ?? $gymClass->trainer_id;
 
         if (!$this->trainerCanHandleCategory($targetTrainerId, $validated['category'])) {
-            return back()->withInput()->with('error', 'Specialty mismatch: this trainer cannot teach the selected class category.');
+            return response()->json([
+                'message' => 'Specialty mismatch: this trainer cannot teach the selected class category.',
+            ], 422);
         }
 
         $targetRoomId = $validated['room_id'] ?? $gymClass->room_id;
@@ -221,7 +260,9 @@ class GymClassController extends Controller
             : Carbon::parse($gymClass->schedule);
 
         if ($this->hasScheduleConflict($targetTrainerId, $targetRoomId, $targetSchedule, $gymClass->id)) {
-            return back()->withInput()->with('error', 'Conflict detected. This trainer or room already has a class at the selected time.');
+            return response()->json([
+                'message' => 'Conflict detected. This trainer or room already has a class at the selected time.',
+            ], 422);
         }
 
         if (!empty($validated['schedule'])) {
@@ -229,26 +270,29 @@ class GymClassController extends Controller
         }
 
         $gymClass->update($validated);
+        $gymClass->load(['trainer.user', 'room', 'bookings.member.user']);
 
-        return redirect()->route('classes.show', $gymClass)
-            ->with('success', 'Class updated successfully!');
+        return response()->json([
+            'message' => 'Class updated successfully!',
+            'data' => $gymClass,
+        ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(GymClass $gymClass)
     {
         $user = auth()->user();
 
         if (!$user || (!$user->isAdmin() && (!$user->isTrainer() || $gymClass->trainer_id !== $user->trainer->id))) {
-            abort(403);
+            return response()->json([
+                'message' => 'Forbidden',
+            ], 403);
         }
 
         $gymClass->delete();
 
-        return redirect()->route('classes.index')
-            ->with('success', 'Class deleted successfully!');
+        return response()->json([
+            'message' => 'Class deleted successfully!',
+        ], 200);
     }
 
     private function hasScheduleConflict(int $trainerId, int $roomId, Carbon $schedule, ?int $ignoreClassId = null): bool
@@ -283,6 +327,7 @@ class GymClassController extends Controller
     private function resolveRoomIdByCategory(string $category): int
     {
         $roomName = self::CATEGORY_ROOM_MAP[$category] ?? self::CATEGORY_ROOM_MAP['group_training'];
+
         $room = Room::where('name', $roomName)->first();
 
         if (!$room) {
