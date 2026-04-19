@@ -15,24 +15,9 @@ class TrainerController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Trainer::with(['user', 'gymClasses', 'reviews']);
-
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->whereHas('user', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        if ($request->filled('specialty')) {
-            $query->where('specialty', $request->input('specialty'));
-        }
-
-        $trainers = $query->latest()->get();
-
-        return view('trainers.index', compact('trainers'));
+        return view('trainers.index');
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -67,18 +52,9 @@ class TrainerController extends Controller
      */
     public function show(Trainer $trainer)
     {
-        $trainer->load(['user', 'gymClasses', 'reviews.member.user']);
-
-        $memberReview = null;
-        if (auth()->check() && auth()->user()->isMember()) {
-            $memberReview = TrainerReview::where('trainer_id', $trainer->id)
-                ->whereHas('member', function ($query) {
-                    $query->where('user_id', auth()->id());
-                })
-                ->first();
-        }
-
-        return view('trainers.show', compact('trainer', 'memberReview'));
+        return view('trainers.show', [
+            'trainerId' => $trainer->id
+        ]);
     }
 
     /**
