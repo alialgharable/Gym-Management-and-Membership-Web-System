@@ -20,7 +20,8 @@
     </div>
 
     <div style="margin-bottom:1rem; display:flex; gap:8px; align-items:center;">
-        <form id="classes-filters" method="GET" action="{{ route('classes.index') }}" style="display:flex; gap:8px; align-items:center;">
+        <form id="classes-filters" method="GET" action="{{ route('classes.index') }}"
+            style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <input
                 type="text"
                 name="search"
@@ -42,18 +43,6 @@
                 ] as $key => $label)
                     <option value="{{ $key }}" {{ request('category') === $key ? 'selected' : '' }}>
                         {{ $label }}
-                    </option>
-                @endforeach
-            </select>
-
-            <select
-                name="room_id"
-                style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;"
-            >
-                <option value="">All rooms</option>
-                @foreach(\App\Models\Room::all() as $r)
-                    <option value="{{ $r->id }}" {{ request('room_id') == $r->id ? 'selected' : '' }}>
-                        {{ $r->name }}
                     </option>
                 @endforeach
             </select>
@@ -103,48 +92,43 @@
         return date.toLocaleString();
     }
 
-function buildActions(cls) {
-    let actions = `
-        <a href="/classes/${cls.id}" class="btn btn-secondary">View</a>
-    `;
-
-    if (isAuthenticated && isMember) {
-        actions += `
-            <form action="/bookings" method="POST">
-                <input type="hidden" name="_token" value="${csrfToken}">
-                <input type="hidden" name="class_id" value="${cls.id}">
-                <button type="submit" class="btn btn-primary">Book</button>
-            </form>
+    function buildActions(cls) {
+        let actions = `
+            <a href="/classes/${cls.id}" class="btn btn-secondary">View</a>
         `;
-    }
 
-    if (isAuthenticated && isTrainerOrAdmin) {
-        actions += `
-            <a href="/classes/${cls.id}/edit" class="btn btn-secondary">Edit</a>
-            <form action="/api/classes/${cls.id}" method="POST" class="delete-form">
-                <input type="hidden" name="_token" value="${csrfToken}">
-                <input type="hidden" name="_method" value="DELETE">
-                <button type="button" class="btn btn-danger btn-delete">Delete</button>
-            </form>
-        `;
-    }
+        if (isAuthenticated && isMember) {
+            actions += `
+                <form action="/bookings" method="POST">
+                    <input type="hidden" name="_token" value="${csrfToken}">
+                    <input type="hidden" name="class_id" value="${cls.id}">
+                    <button type="submit" class="btn btn-primary">Book</button>
+                </form>
+            `;
+        }
 
-    return actions;
-}
+        if (isAuthenticated && isTrainerOrAdmin) {
+            actions += `
+                <a href="/classes/${cls.id}/edit" class="btn btn-secondary">Edit</a>
+                <button type="button" class="btn btn-danger btn-delete" data-id="${cls.id}">Delete</button>
+            `;
+        }
+
+        return actions;
+    }
 
     function attachDeleteEvents() {
         document.querySelectorAll('.btn-delete').forEach(button => {
             button.addEventListener('click', function () {
-                const form = this.closest('form');
-                const action = form.getAttribute('action');
+                const id = this.dataset.id;
 
                 const runDelete = async () => {
                     try {
-                        const response = await fetch(action, {
+                        const response = await fetch(`/api/classes/${id}`, {
                             method: 'POST',
                             headers: {
                                 'Accept': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                'X-CSRF-TOKEN': csrfToken
                             },
                             body: (() => {
                                 const fd = new FormData();
