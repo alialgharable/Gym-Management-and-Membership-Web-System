@@ -9,7 +9,7 @@
             <h1 class="section-title">Edit Class</h1>
             <p class="section-subtitle">Update class information</p>
         </div>
-        <a href="{{ route('classes.show', $classId) }}" class="btn btn-secondary">Back</a>
+        <a href="{{ route('classes.show', $gymClass->id) }}" class="btn btn-secondary">Back</a>
     </div>
 
     <div class="card" style="max-width:700px; margin:0 auto;">
@@ -79,7 +79,7 @@
 
             <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:2rem;">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="{{ route('classes.show', $classId) }}" class="btn btn-secondary">Cancel</a>
+                <a href="{{ route('classes.show', $gymClass->id) }}" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
     </div>
@@ -87,8 +87,8 @@
 @endsection
 
 @push('scripts')
-<script>
-    const classId = @json($classId);
+    <script>
+    const classId = @json($gymClass->id);
     const isTrainer = @json(auth()->check() && auth()->user()->isTrainer());
 
     async function loadClassForEdit() {
