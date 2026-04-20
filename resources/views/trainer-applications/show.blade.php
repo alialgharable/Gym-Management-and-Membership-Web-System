@@ -38,7 +38,7 @@
 
             <p>
                 <strong>Status:</strong>
-                <span style="font-weight:600; color:
+                <span id="application-status" style="font-weight:600; color:
                     {{ $application->status === 'approved' ? '#5fd68f' :
                        ($application->status === 'rejected' ? '#ff5555' : '#ffd700') }};">
                     {{ ucfirst($application->status) }}
@@ -63,7 +63,7 @@
 
     @auth
         @if(auth()->user()->isAdmin() && $application->status === 'pending')
-            <div class="card" style="margin-top:1.5rem;">
+            <div id="review-card" class="card" style="margin-top:1.5rem;">
                 <div style="margin-bottom:1.5rem;">
                     <h3 style="margin:0;">Review Application</h3>
                     <p style="margin-top:6px; color:#aaa;">
@@ -71,7 +71,7 @@
                     </p>
                 </div>
 
-                <form action="{{ route('trainer-applications.accept', $application) }}" method="POST">
+                <form id="approve-form" style="margin:0;" action="#" method="POST">
                     @csrf
                     @method('PATCH')
 
@@ -107,22 +107,17 @@
 
                     </div>
 
-                    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:1.5rem;">
-                        <button type="submit" class="btn btn-success btn-approve">
+                    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:1.5rem; align-items:center;">
+                        <button type="button" id="btn-approve" class="btn btn-success">
                             Approve Application
                         </button>
-                </form>
 
-                <form action="{{ route('trainer-applications.reject', $application) }}" method="POST">
-                    @csrf
-                    @method('PATCH')
-
-                    <button type="button" class="btn btn-danger btn-reject">
-                        Reject Application
-                    </button>
-                </form>
-
+                        <button type="button" id="btn-reject" class="btn btn-danger">
+                            Reject Application
+                        </button>
                     </div>
+
+                </form>
             </div>
         @endif
     @endauth
@@ -136,7 +131,7 @@
                         <p style="color:#aaa; margin:4px 0 0;">Delete this application permanently</p>
                     </div>
 
-                    <form action="{{ route('trainer-applications.destroy', $application) }}" method="POST" class="delete-form">
+                                    <form action="#" method="POST" class="delete-form">
                         @csrf
                         @method('DELETE')
 
@@ -153,42 +148,106 @@
 
 @push('scripts')
 <script>
+    const applicationId = @json($application->id);
+    const csrfToken = @json(csrf_token());
+
+    function setStatus(status) {
+        const el = document.getElementById('application-status');
+        if (!el) return;
+        el.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        if (status === 'approved') el.style.color = '#5fd68f';
+        else if (status === 'rejected') el.style.color = '#ff5555';
+        else el.style.color = '#ffd700';
+    }
+
+    function hideReview() {
+        const card = document.getElementById('review-card');
+        if (card) card.remove();
+    }
+
+    document.getElementById('btn-approve')?.addEventListener('click', function () {
+        window.showModal({
+            type: 'success',
+            title: 'Approve Application?',
+            message: 'This will create a trainer account.',
+            confirmText: 'Approve',
+            onConfirm: async () => {
+                const form = document.getElementById('approve-form');
+                const formData = new FormData(form);
+
+                try {
+                    const resp = await fetch(`/api/trainer-applications/${applicationId}/accept`, {
+                        method: 'PATCH',
+                        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                        body: formData
+                    });
+                    const json = await resp.json();
+                    if (resp.ok) {
+                        window.showModal({ type: 'success', title: 'Success', message: json.message || 'Application approved.' , confirmText: 'OK', onConfirm: () => {
+                            setStatus('approved');
+                            hideReview();
+                        }});
+                    } else {
+                        window.showModal({ type: 'error', title: 'Error', message: json.message || 'Could not approve application.' });
+                    }
+                } catch (err) {
+                    window.showModal({ type: 'error', title: 'Error', message: 'Network error.' });
+                }
+            }
+        });
+    });
+
+    document.getElementById('btn-reject')?.addEventListener('click', function () {
+        window.showModal({
+            type: 'warning',
+            title: 'Reject Application?',
+            message: 'This action cannot be undone.',
+            confirmText: 'Reject',
+            onConfirm: async () => {
+                try {
+                    const resp = await fetch(`/api/trainer-applications/${applicationId}/reject`, {
+                        method: 'PATCH',
+                        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+                    });
+                    const json = await resp.json();
+                    if (resp.ok) {
+                        window.showModal({ type: 'success', title: 'Rejected', message: json.message || 'Application rejected.', confirmText: 'OK', onConfirm: () => {
+                            setStatus('rejected');
+                            hideReview();
+                        }});
+                    } else {
+                        window.showModal({ type: 'error', title: 'Error', message: json.message || 'Could not reject application.' });
+                    }
+                } catch (err) {
+                    window.showModal({ type: 'error', title: 'Error', message: 'Network error.' });
+                }
+            }
+        });
+    });
+
     document.querySelectorAll('.btn-delete').forEach(button => {
         button.addEventListener('click', function () {
-            const form = this.closest('form');
             window.showModal({
                 type: 'warning',
                 title: 'Delete Application?',
                 message: 'This will permanently remove the application.',
                 confirmText: 'Delete',
-                onConfirm: () => form.submit()
-            });
-        });
-    });
-
-    document.querySelectorAll('.btn-approve').forEach(button => {
-        button.addEventListener('click', function (e) {
-            e.preventDefault();
-            const form = this.closest('form');
-            window.showModal({
-                type: 'success',
-                title: 'Approve Application?',
-                message: 'This will create a trainer account.',
-                confirmText: 'Approve',
-                onConfirm: () => form.submit()
-            });
-        });
-    });
-
-    document.querySelectorAll('.btn-reject').forEach(button => {
-        button.addEventListener('click', function () {
-            const form = this.closest('form');
-            window.showModal({
-                type: 'warning',
-                title: 'Reject Application?',
-                message: 'This action cannot be undone.',
-                confirmText: 'Reject',
-                onConfirm: () => form.submit()
+                onConfirm: async () => {
+                    try {
+                        const resp = await fetch(`/api/trainer-applications/${applicationId}`, {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+                        });
+                        if (resp.ok) {
+                            window.location.href = '{{ route('trainer-applications.index') }}';
+                        } else {
+                            const json = await resp.json();
+                            window.showModal({ type: 'error', title: 'Error', message: json.message || 'Could not delete application.' });
+                        }
+                    } catch (err) {
+                        window.showModal({ type: 'error', title: 'Error', message: 'Network error.' });
+                    }
+                }
             });
         });
     });

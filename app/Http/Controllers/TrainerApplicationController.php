@@ -73,6 +73,7 @@ class TrainerApplicationController extends Controller
 
         return view('trainer-applications.show', [
             'application' => $trainerApplication,
+            'applicationId' => $trainerApplication->id,
         ]);
     }
 

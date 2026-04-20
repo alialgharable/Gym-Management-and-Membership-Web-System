@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\TrainerController;
 use App\Http\Controllers\Api\TrainerReviewController;
 use App\Http\Controllers\Api\MembershipPlanController;
 use App\Http\Controllers\Api\MemberDashboardController;
+use App\Http\Controllers\Api\TrainerApplicationController as ApiTrainerApplicationController;
 
 Route::middleware(['web'])->group(function () {
     Route::get('home', [HomeController::class, 'index']);
@@ -18,6 +19,8 @@ Route::get('classes', [GymClassController::class, 'index']);
 Route::get('plans', [MembershipPlanController::class, 'index']);
 Route::get('plans/{plan}', [MembershipPlanController::class, 'show']);
 Route::get('trainers', [TrainerController::class, 'index']);
+
+Route::get('trainer-applications/{trainerApplication}', [ApiTrainerApplicationController::class, 'show']);
 
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get('member/dashboard', [MemberDashboardController::class, 'index'])->name('api.member.dashboard');
@@ -35,4 +38,8 @@ Route::middleware(['web', 'auth', 'admin'])->group(function () {
     Route::post('plans', [MembershipPlanController::class, 'store']);
     Route::put('plans/{plan}', [MembershipPlanController::class, 'update']);
     Route::delete('plans/{plan}', [MembershipPlanController::class, 'destroy']);
+    
+    Route::patch('trainer-applications/{trainerApplication}/accept', [ApiTrainerApplicationController::class, 'accept']);
+    Route::patch('trainer-applications/{trainerApplication}/reject', [ApiTrainerApplicationController::class, 'reject']);
+    Route::delete('trainer-applications/{trainerApplication}', [ApiTrainerApplicationController::class, 'destroy']);
 });
