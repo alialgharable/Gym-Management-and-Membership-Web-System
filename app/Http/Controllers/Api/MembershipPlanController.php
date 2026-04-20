@@ -3,153 +3,394 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\MembershipPlan;
+use App\Models\GymClass;
+use App\Models\Room;
+use App\Models\Trainer;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 
-class MembershipPlanController extends Controller
+class GymClassController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    private const CATEGORY_ROOM_MAP = [
+        'combat' => 'Combat Sports Room',
+        'yoga_pilates' => 'Yoga & Pilates Studio',
+        'group_training' => 'Group Training Room',
+        'fitness_machines' => 'Fitness Machines Hall',
+    ];
+
+    public function index(Request $request)
     {
-        $query = MembershipPlan::withCount('subscriptions');
+        $query = GymClass::with([
+            'trainer.user',
+            'room',
+            'bookings.member.user',
+        ]);
 
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where('name', 'like', "%{$search}%");
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('trainer.user', function ($trainerQuery) use ($search) {
+                        $trainerQuery->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('room', function ($roomQuery) use ($search) {
+                        $roomQuery->where('name', 'like', "%{$search}%");
+                    });
+            });
         }
 
-        if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->input('min_price'));
+        if ($request->filled('category')) {
+            $query->where('category', $request->input('category'));
         }
 
-        if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->input('max_price'));
+        if ($request->filled('room_id')) {
+            $query->where('room_id', $request->input('room_id'));
         }
 
-        if ($request->filled('duration_months')) {
-            $months = (int) $request->input('duration_months');
-            $days = $months * 30;
-            $query->where('duration', $days);
-        }
-
-        $plans = $query->latest()->get();
-
-        $data = $plans->map(function (MembershipPlan $plan) {
+        $classes = $query->latest()->get()->map(function ($gymClass) {
             return [
-                'id' => $plan->id,
-                'name' => $plan->name,
-                'price' => (float) $plan->price,
-                'duration' => $plan->duration,
-                'duration_label' => $plan->durationLabel(),
-                'description' => $plan->description,
-                'subscriptions_count' => $plan->subscriptions_count ?? 0,
+                'id' => $gymClass->id,
+                'trainer_id' => $gymClass->trainer_id,
+                'room_id' => $gymClass->room_id,
+                'name' => $gymClass->name,
+                'description' => $gymClass->description,
+                'schedule' => $gymClass->schedule,
+                'capacity' => $gymClass->capacity,
+                'category' => $gymClass->category,
+                'created_at' => $gymClass->created_at,
+                'updated_at' => $gymClass->updated_at,
+                'trainer' => $gymClass->trainer ? [
+                    'id' => $gymClass->trainer->id,
+                    'specialty' => $gymClass->trainer->specialty,
+                    'specialty_label' => $gymClass->trainer->specialtyLabel(),
+                    'user' => $gymClass->trainer->user ? [
+                        'id' => $gymClass->trainer->user->id,
+                        'name' => $gymClass->trainer->user->name,
+                        'email' => $gymClass->trainer->user->email,
+                        'profile_picture' => $gymClass->trainer->user->profile_picture,
+                    ] : null,
+                ] : null,
+                'room' => $gymClass->room ? [
+                    'id' => $gymClass->room->id,
+                    'name' => $gymClass->room->name,
+                ] : null,
+                'bookings' => $gymClass->bookings->map(function ($booking) {
+                    return [
+                        'id' => $booking->id,
+                        'status' => $booking->status,
+                        'created_at' => $booking->created_at,
+                        'member' => $booking->member ? [
+                            'id' => $booking->member->id,
+                            'user' => $booking->member->user ? [
+                                'id' => $booking->member->user->id,
+                                'name' => $booking->member->user->name,
+                                'email' => $booking->member->user->email,
+                            ] : null,
+                        ] : null,
+                    ];
+                })->values(),
             ];
-        });
+        })->values();
 
         return response()->json([
-            'message' => 'Plans retrieved successfully',
-            'data' => $data,
-        ]);
+            'message' => 'Classes retrieved successfully',
+            'data' => $classes,
+            'categories' => Trainer::SPECIALTIES,
+        ], 200);
     }
 
-    public function show(MembershipPlan $plan): JsonResponse
+    public function show(GymClass $gymClass)
     {
-        $plan->load('subscriptions.member.user');
-
-        $active = $plan->subscriptions->where('status', 'active')->count();
-        $total = $plan->subscriptions->count();
-
-        $subscriptions = $plan->subscriptions->map(function ($s) {
-            return [
-                'id' => $s->id,
-                'status' => $s->status,
-                'member_id' => $s->member_id,
-                'member_name' => $s->member?->user?->name ?? null,
-            ];
-        });
-
-        $data = [
-            'id' => $plan->id,
-            'name' => $plan->name,
-            'price' => (float) $plan->price,
-            'duration' => $plan->duration,
-            'duration_label' => $plan->durationLabel(),
-            'description' => $plan->description,
-            'active_subscriptions' => $active,
-            'total_subscriptions' => $total,
-            'subscriptions' => $subscriptions,
-        ];
+        $gymClass->load([
+            'trainer.user',
+            'room',
+            'bookings.member.user',
+        ]);
 
         return response()->json([
-            'message' => 'Plan retrieved successfully',
-            'data' => $data,
-        ]);
+            'message' => 'Class retrieved successfully',
+            'data' => [
+                'id' => $gymClass->id,
+                'trainer_id' => $gymClass->trainer_id,
+                'room_id' => $gymClass->room_id,
+                'name' => $gymClass->name,
+                'description' => $gymClass->description,
+                'schedule' => $gymClass->schedule,
+                'capacity' => $gymClass->capacity,
+                'category' => $gymClass->category,
+                'created_at' => $gymClass->created_at,
+                'updated_at' => $gymClass->updated_at,
+                'trainer' => $gymClass->trainer ? [
+                    'id' => $gymClass->trainer->id,
+                    'specialty' => $gymClass->trainer->specialty,
+                    'specialty_label' => $gymClass->trainer->specialtyLabel(),
+                    'user' => $gymClass->trainer->user ? [
+                        'id' => $gymClass->trainer->user->id,
+                        'name' => $gymClass->trainer->user->name,
+                        'email' => $gymClass->trainer->user->email,
+                        'profile_picture' => $gymClass->trainer->user->profile_picture,
+                    ] : null,
+                ] : null,
+                'room' => $gymClass->room ? [
+                    'id' => $gymClass->room->id,
+                    'name' => $gymClass->room->name,
+                ] : null,
+                'bookings' => $gymClass->bookings->map(function ($booking) {
+                    return [
+                        'id' => $booking->id,
+                        'status' => $booking->status,
+                        'created_at' => $booking->created_at,
+                        'member' => $booking->member ? [
+                            'id' => $booking->member->id,
+                            'user' => $booking->member->user ? [
+                                'id' => $booking->member->user->id,
+                                'name' => $booking->member->user->name,
+                                'email' => $booking->member->user->email,
+                            ] : null,
+                        ] : null,
+                    ];
+                })->values(),
+            ],
+            'categories' => Trainer::SPECIALTIES,
+        ], 200);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'duration_months' => 'required|integer|in:1,3,6,12',
-        ]);
+        $user = auth()->user();
 
-        $validated['duration'] = $validated['duration_months'] * 30;
-        unset($validated['duration_months']);
+        if (!$user || (!$user->isTrainer() && !$user->isAdmin())) {
+            return response()->json([
+                'message' => 'Unauthorized.',
+            ], 403);
+        }
 
-        $plan = MembershipPlan::create($validated);
+        $allowedCategories = implode(',', array_keys(Trainer::SPECIALTIES));
 
-        $data = [
-            'id' => $plan->id,
-            'name' => $plan->name,
-            'price' => (float) $plan->price,
-            'duration' => $plan->duration,
-            'duration_label' => $plan->durationLabel(),
-            'description' => $plan->description,
-        ];
+        $createFullMonth = $request->boolean('create_full_month');
+        $scheduleRule = $createFullMonth
+            ? 'required|date_format:Y-m-d\TH:i'
+            : 'nullable|date_format:Y-m-d\TH:i';
+
+        if ($user->isTrainer()) {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'category' => 'required|in:' . $allowedCategories,
+                'description' => 'nullable|string',
+                'schedule' => $scheduleRule,
+                'capacity' => 'nullable|integer|min:1|max:30',
+                'create_full_month' => 'nullable|boolean',
+            ]);
+
+            $validated['trainer_id'] = $user->trainer->id;
+        } else {
+            $validated = $request->validate([
+                'trainer_id' => 'required|exists:trainers,id',
+                'name' => 'required|string|max:255',
+                'category' => 'required|in:' . $allowedCategories,
+                'description' => 'nullable|string',
+                'schedule' => $scheduleRule,
+                'capacity' => 'nullable|integer|min:1|max:30',
+                'create_full_month' => 'nullable|boolean',
+            ]);
+        }
+
+        $validated['room_id'] = $this->resolveRoomIdByCategory($validated['category']);
+
+        if (!$this->trainerCanHandleCategory($validated['trainer_id'], $validated['category'])) {
+            return response()->json([
+                'message' => 'Specialty mismatch: this trainer cannot teach the selected class category.',
+            ], 422);
+        }
+
+        $schedule = !empty($validated['schedule'])
+            ? Carbon::createFromFormat('Y-m-d\TH:i', $validated['schedule'])
+            : null;
+
+        unset($validated['create_full_month']);
+
+        if ($createFullMonth && $schedule) {
+            $conflictAt = null;
+            $slot = $schedule->copy();
+            $endOfMonth = $schedule->copy()->endOfMonth();
+
+            while ($slot->lessThanOrEqualTo($endOfMonth)) {
+                if ($this->hasScheduleConflict($validated['trainer_id'], $validated['room_id'], $slot)) {
+                    $conflictAt = $slot->copy();
+                    break;
+                }
+
+                $slot->addWeek();
+            }
+
+            if ($conflictAt) {
+                return response()->json([
+                    'message' => 'Conflict detected at ' . $conflictAt->format('Y-m-d H:i') . '. A trainer or room is already booked at that time.',
+                ], 422);
+            }
+
+            $createdCount = 0;
+            $slot = $schedule->copy();
+
+            while ($slot->lessThanOrEqualTo($endOfMonth)) {
+                GymClass::create([
+                    ...$validated,
+                    'schedule' => $slot->format('Y-m-d H:i:s'),
+                ]);
+
+                $createdCount++;
+                $slot->addWeek();
+            }
+
+            return response()->json([
+                'message' => "{$createdCount} classes created for this month successfully!",
+            ], 201);
+        }
+
+        if ($schedule) {
+            if ($this->hasScheduleConflict($validated['trainer_id'], $validated['room_id'], $schedule)) {
+                return response()->json([
+                    'message' => 'Conflict detected. This trainer or room already has a class at the selected time.',
+                ], 422);
+            }
+
+            $validated['schedule'] = $schedule->format('Y-m-d H:i:s');
+        }
+
+        $gymClass = GymClass::create($validated);
 
         return response()->json([
-            'message' => 'Membership plan created successfully',
-            'data' => $data,
+            'message' => 'Class created successfully!',
+            'data' => [
+                'id' => $gymClass->id,
+            ],
         ], 201);
     }
 
-    public function update(Request $request, MembershipPlan $plan): JsonResponse
+    public function update(Request $request, GymClass $gymClass)
     {
+        $user = auth()->user();
+
+        if (!$user || (!$user->isAdmin() && (!$user->isTrainer() || $gymClass->trainer_id !== $user->trainer->id))) {
+            return response()->json([
+                'message' => 'Unauthorized.',
+            ], 403);
+        }
+
+        $allowedCategories = implode(',', array_keys(Trainer::SPECIALTIES));
+
         $validated = $request->validate([
+            'trainer_id' => 'sometimes|exists:trainers,id',
+            'category' => 'required|in:' . $allowedCategories,
             'name' => 'sometimes|string|max:255',
-            'description' => 'required|string',
-            'price' => 'sometimes|numeric|min:0',
-            'duration_months' => 'required|integer|in:1,3,6,12',
+            'description' => 'nullable|string',
+            'schedule' => 'nullable|date_format:Y-m-d\TH:i',
+            'capacity' => 'nullable|integer|min:1|max:30',
         ]);
 
-        $validated['duration'] = $validated['duration_months'] * 30;
-        unset($validated['duration_months']);
+        if ($user->isTrainer()) {
+            unset($validated['trainer_id']);
+        }
 
-        $plan->update($validated);
+        $validated['room_id'] = $this->resolveRoomIdByCategory($validated['category']);
 
-        $data = [
-            'id' => $plan->id,
-            'name' => $plan->name,
-            'price' => (float) $plan->price,
-            'duration' => $plan->duration,
-            'duration_label' => $plan->durationLabel(),
-            'description' => $plan->description,
-        ];
+        $targetTrainerId = $validated['trainer_id'] ?? $gymClass->trainer_id;
+
+        if (!$this->trainerCanHandleCategory($targetTrainerId, $validated['category'])) {
+            return response()->json([
+                'message' => 'Specialty mismatch: this trainer cannot teach the selected class category.',
+            ], 422);
+        }
+
+        $targetRoomId = $validated['room_id'] ?? $gymClass->room_id;
+        $targetSchedule = !empty($validated['schedule'])
+            ? Carbon::createFromFormat('Y-m-d\TH:i', $validated['schedule'])
+            : Carbon::parse($gymClass->schedule);
+
+        if ($this->hasScheduleConflict($targetTrainerId, $targetRoomId, $targetSchedule, $gymClass->id)) {
+            return response()->json([
+                'message' => 'Conflict detected. This trainer or room already has a class at the selected time.',
+            ], 422);
+        }
+
+        if (!empty($validated['schedule'])) {
+            $validated['schedule'] = $targetSchedule->format('Y-m-d H:i:s');
+        }
+
+        $gymClass->update($validated);
 
         return response()->json([
-            'message' => 'Membership plan updated successfully',
-            'data' => $data,
-        ]);
+            'message' => 'Class updated successfully!',
+            'data' => [
+                'id' => $gymClass->id,
+            ],
+        ], 200);
     }
 
-    public function destroy(MembershipPlan $plan): JsonResponse
+    public function destroy(GymClass $gymClass)
     {
-        $plan->delete();
+        $user = auth()->user();
+
+        if (!$user || (!$user->isAdmin() && (!$user->isTrainer() || $gymClass->trainer_id !== $user->trainer->id))) {
+            return response()->json([
+                'message' => 'Unauthorized.',
+            ], 403);
+        }
+
+        $gymClass->delete();
 
         return response()->json([
-            'message' => 'Membership plan deleted successfully',
-        ]);
+            'message' => 'Class deleted successfully!',
+        ], 200);
+    }
+
+    private function hasScheduleConflict(int $trainerId, int $roomId, Carbon $schedule, ?int $ignoreClassId = null): bool
+    {
+        $scheduleAt = $schedule->format('Y-m-d H:i:s');
+
+        $roomConflict = GymClass::where('room_id', $roomId)
+            ->where('schedule', $scheduleAt)
+            ->when($ignoreClassId, fn($q) => $q->where('id', '!=', $ignoreClassId))
+            ->exists();
+
+        if ($roomConflict) {
+            return true;
+        }
+
+        return GymClass::where('trainer_id', $trainerId)
+            ->where('schedule', $scheduleAt)
+            ->when($ignoreClassId, fn($q) => $q->where('id', '!=', $ignoreClassId))
+            ->exists();
+    }
+
+    private function resolveRoomIdByCategory(string $category): int
+    {
+        $roomName = self::CATEGORY_ROOM_MAP[$category] ?? null;
+
+        if (!$roomName) {
+            abort(500, 'Room mapping is not configured for this category.');
+        }
+
+        $room = Room::where('name', $roomName)->first();
+
+        if (!$room) {
+            abort(500, 'Room mapping is not configured correctly.');
+        }
+
+        return $room->id;
+    }
+
+    private function trainerCanHandleCategory(int $trainerId, string $category): bool
+    {
+        $trainer = Trainer::find($trainerId);
+
+        if (!$trainer) {
+            return false;
+        }
+
+        return $trainer->specialty === $category;
     }
 }

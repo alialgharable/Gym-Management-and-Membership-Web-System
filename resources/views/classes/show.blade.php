@@ -48,13 +48,7 @@
 
     function formatCategory(category) {
         if (!category) return 'N/A';
-
-        const labels = {
-            combat: 'Combat Sports',
-            yoga_pilates: 'Yoga & Pilates',
-            group_training: 'Group Training',
-            fitness_machines: 'Fitness Machines'
-        };
+        const labels = @json(\App\Models\Trainer::SPECIALTIES);
 
         return labels[category] || category.replaceAll('_', ' ');
     }

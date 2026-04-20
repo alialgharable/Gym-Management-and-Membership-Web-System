@@ -8,6 +8,7 @@ use App\Models\Room;
 use App\Models\Trainer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class GymClassController extends Controller
 {
@@ -65,6 +66,9 @@ class GymClassController extends Controller
                 'trainer' => $gymClass->trainer ? [
                     'id' => $gymClass->trainer->id,
                     'specialty' => $gymClass->trainer->specialty,
+                    'specialty_label' => method_exists($gymClass->trainer, 'specialtyLabel')
+                        ? $gymClass->trainer->specialtyLabel()
+                        : $gymClass->trainer->specialty,
                     'user' => $gymClass->trainer->user ? [
                         'id' => $gymClass->trainer->user->id,
                         'name' => $gymClass->trainer->user->name,
@@ -124,6 +128,9 @@ class GymClassController extends Controller
                 'trainer' => $gymClass->trainer ? [
                     'id' => $gymClass->trainer->id,
                     'specialty' => $gymClass->trainer->specialty,
+                    'specialty_label' => method_exists($gymClass->trainer, 'specialtyLabel')
+                        ? $gymClass->trainer->specialtyLabel()
+                        : $gymClass->trainer->specialty,
                     'user' => $gymClass->trainer->user ? [
                         'id' => $gymClass->trainer->user->id,
                         'name' => $gymClass->trainer->user->name,
@@ -172,7 +179,7 @@ class GymClassController extends Controller
         if ($user->isTrainer()) {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'category' => 'required|in:combat,yoga_pilates,group_training,fitness_machines',
+                'category' => ['required', Rule::in(array_keys(Trainer::SPECIALTIES))],
                 'description' => 'nullable|string',
                 'schedule' => $scheduleRule,
                 'capacity' => 'nullable|integer|min:1|max:30',
@@ -184,7 +191,7 @@ class GymClassController extends Controller
             $validated = $request->validate([
                 'trainer_id' => 'required|exists:trainers,id',
                 'name' => 'required|string|max:255',
-                'category' => 'required|in:combat,yoga_pilates,group_training,fitness_machines',
+                'category' => ['required', Rule::in(array_keys(Trainer::SPECIALTIES))],
                 'description' => 'nullable|string',
                 'schedule' => $scheduleRule,
                 'capacity' => 'nullable|integer|min:1|max:30',
@@ -276,10 +283,10 @@ class GymClassController extends Controller
 
         $validated = $request->validate([
             'trainer_id' => 'sometimes|exists:trainers,id',
-            'category' => 'required|in:combat,yoga_pilates,group_training,fitness_machines',
+            'category' => ['required', Rule::in(array_keys(Trainer::SPECIALTIES))],
             'name' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
-            'schedule' => 'nullable|date_format:Y-m-d\TH:i',
+            'schedule' => 'nullable|date_format:Y-m-d\\TH:i',
             'capacity' => 'nullable|integer|min:1|max:30',
         ]);
 

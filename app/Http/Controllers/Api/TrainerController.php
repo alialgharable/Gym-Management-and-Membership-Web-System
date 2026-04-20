@@ -26,7 +26,11 @@ class TrainerController extends Controller
             $query->where('specialty', $request->input('specialty'));
         }
 
-        $trainers = $query->latest()->get()->map(function ($trainer) {
+        $perPage = 12;
+        $paginator = $query->latest()->paginate($perPage);
+
+        $items = collect($paginator->items())->map(function ($trainer) {
+            // $trainer is a model instance
             return [
                 'id' => $trainer->id,
                 'user_id' => $trainer->user_id,
@@ -70,7 +74,13 @@ class TrainerController extends Controller
 
         return response()->json([
             'message' => 'Trainers retrieved successfully',
-            'data' => $trainers,
+            'data' => $items,
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ],
         ], 200);
     }
 

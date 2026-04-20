@@ -35,12 +35,7 @@
                 style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;"
             >
                 <option value="">All categories</option>
-                @foreach([
-                    'combat' => 'Combat Sports',
-                    'yoga_pilates' => 'Yoga & Pilates',
-                    'group_training' => 'Group Training',
-                    'fitness_machines' => 'Fitness Machines'
-                ] as $key => $label)
+                @foreach(\App\Models\Trainer::SPECIALTIES as $key => $label)
                     <option value="{{ $key }}" {{ request('category') === $key ? 'selected' : '' }}>
                         {{ $label }}
                     </option>
@@ -70,12 +65,7 @@
     function formatCategory(category) {
         if (!category) return 'N/A';
 
-        const labels = {
-            combat: 'Combat Sports',
-            yoga_pilates: 'Yoga & Pilates',
-            group_training: 'Group Training',
-            fitness_machines: 'Fitness Machines'
-        };
+        const labels = @json(\App\Models\Trainer::SPECIALTIES);
 
         return labels[category] || category.replaceAll('_', ' ');
     }

@@ -27,7 +27,7 @@ class TrainerSeeder extends Seeder
         // Link user to admins table (avoid duplicates)
         Trainer::updateOrCreate([
             'user_id' => $user->id,
-            'specialty' => 'fighting',
+            'specialty' => 'combat',
         ]);
     }
 }

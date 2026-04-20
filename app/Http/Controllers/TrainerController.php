@@ -7,6 +7,7 @@ use App\Models\TrainerReview;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class TrainerController extends Controller
 {
@@ -37,7 +38,7 @@ class TrainerController extends Controller
     {
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
-            'specialty' => 'required|in:combat,yoga_pilates,group_training,fitness_machines',
+            'specialty' => ['required', Rule::in(array_keys(Trainer::SPECIALTIES))],
             'bio' => 'nullable|string',
         ]);
 
@@ -73,7 +74,7 @@ class TrainerController extends Controller
     public function update(Request $request, Trainer $trainer)
     {
         $validated = $request->validate([
-            'specialty' => 'required|in:combat,yoga_pilates,group_training,fitness_machines',
+            'specialty' => ['required', Rule::in(array_keys(Trainer::SPECIALTIES))],
             'bio' => 'nullable|string',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);

@@ -56,15 +56,15 @@
                 <select name="category" class="field-select" required>
                     @if ($isTrainer)
                         @php
-                            $trainerSpecialty = auth()->user()->trainer->specialty;
-                            $trainerSpecialtyLabel = $categories[$trainerSpecialty] ?? 'My Specialty';
+                            $trainerSpecialty = auth()->user()->trainer->specialty ?? null;
+                            $trainerSpecialtyLabel = auth()->user()->trainer ? auth()->user()->trainer->specialtyLabel() : ($trainerSpecialty ? (\App\Models\Trainer::SPECIALTIES[$trainerSpecialty] ?? \Illuminate\Support\Str::headline(str_replace('_', ' ', $trainerSpecialty))) : 'My Specialty');
                         @endphp
                         <option value="{{ $trainerSpecialty }}" selected>
                             {{ $trainerSpecialtyLabel }}
                         </option>
                     @else
                         <option value="">Select a category...</option>
-                        @foreach ($categories as $value => $label)
+                        @foreach (\App\Models\Trainer::SPECIALTIES as $value => $label)
                             <option value="{{ $value }}">
                                 {{ $label }}
                             </option>

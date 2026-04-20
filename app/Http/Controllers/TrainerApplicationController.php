@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\TrainerController;
 use Illuminate\Support\Facades\DB;
 use App\Models\Trainer;
+use Illuminate\Validation\Rule;
 class TrainerApplicationController extends Controller
 {
     /**
@@ -133,7 +134,7 @@ class TrainerApplicationController extends Controller
         }
 
         $validated = $request->validate([
-            'specialty' => 'required|in:combat,yoga_pilates,group_training,fitness_machines',
+            'specialty' => ['required', Rule::in(array_keys(Trainer::SPECIALTIES))],
             'bio' => 'nullable|string',
         ]);
 

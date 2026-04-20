@@ -993,7 +993,7 @@
                                 <div class="content-card-top">
                                     <div>
                                         <h3>{{ $trainer->user->name ?? 'Trainer' }}</h3>
-                                        <p>{{ \Illuminate\Support\Str::headline(str_replace('_', ' ', $trainer->specialty ?? 'General Training')) }}</p>
+                                        <p>{{ $trainer->specialtyLabel() ?? \Illuminate\Support\Str::headline(str_replace('_', ' ', $trainer->specialty ?? 'General Training')) }}</p>
                                     </div>
                                     <span class="mini-badge">Coach</span>
                                 </div>
@@ -1005,7 +1005,7 @@
                                 <div class="meta-list">
                                     <div class="meta-item">
                                         <span>Specialty</span>
-                                        <strong>{{ \Illuminate\Support\Str::headline(str_replace('_', ' ', $trainer->specialty ?? 'General Training')) }}</strong>
+                                        <strong>{{ $trainer->specialtyLabel() ?? \Illuminate\Support\Str::headline(str_replace('_', ' ', $trainer->specialty ?? 'General Training')) }}</strong>
                                     </div>
                                     <div class="meta-item">
                                         <span>Profile</span>

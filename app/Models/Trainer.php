@@ -38,6 +38,16 @@ class Trainer extends Model
 
     public function specialtyLabel(): string
     {
-        return self::SPECIALTIES[$this->specialty] ?? 'N/A';
+        $key = $this->specialty ?? null;
+
+        if ($key && isset(self::SPECIALTIES[$key])) {
+            return self::SPECIALTIES[$key];
+        }
+
+        if ($key) {
+            return \Illuminate\Support\Str::headline(str_replace('_', ' ', $key));
+        }
+
+        return 'N/A';
     }
 }
