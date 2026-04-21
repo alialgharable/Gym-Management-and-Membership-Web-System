@@ -4,6 +4,96 @@
 
 @section('content')
 
+    <style>
+        .classes-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .classes-filters {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .classes-filter-input,
+        .classes-filter-select {
+            min-width: 0;
+            height: 46px;
+            padding: 0 1rem;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+            font: inherit;
+            outline: none;
+        }
+
+        .classes-filter-input {
+            flex: 1 1 280px;
+        }
+
+        .classes-filter-select {
+            flex: 0 0 220px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-right: 2.6rem;
+            background-image: linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+                linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+            background-position: calc(100% - 18px) 18px, calc(100% - 12px) 18px;
+            background-size: 6px 6px, 6px 6px;
+            background-repeat: no-repeat;
+        }
+
+        .classes-filter-select option {
+            background: var(--bg-elevated);
+            color: var(--text-main);
+        }
+
+        .classes-filter-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .classes-filter-input:focus,
+        .classes-filter-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(247, 211, 74, 0.14);
+        }
+
+        .classes-filter-select::-ms-expand {
+            display: none;
+        }
+
+        .classes-filter-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-left: auto;
+        }
+
+        @media (max-width: 760px) {
+            .classes-filter-select,
+            .classes-filter-input {
+                flex: 1 1 100%;
+            }
+
+            .classes-filter-actions {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .classes-filter-actions .btn {
+                flex: 1 1 0;
+            }
+        }
+    </style>
+
     <div class="page-header">
         <div>
             <h1 class="section-title">Gym Classes</h1>
@@ -19,20 +109,19 @@
         @endauth
     </div>
 
-    <div style="margin-bottom:1rem; display:flex; gap:8px; align-items:center;">
-        <form id="classes-filters" method="GET" action="{{ route('classes.index') }}"
-            style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+    <div class="classes-toolbar">
+        <form id="classes-filters" method="GET" action="{{ route('classes.index') }}" class="classes-filters">
             <input
                 type="text"
                 name="search"
                 placeholder="Search classes..."
                 value="{{ request('search') }}"
-                style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;"
+                class="classes-filter-input"
             >
 
             <select
                 name="category"
-                style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;"
+                class="classes-filter-select"
             >
                 <option value="">All categories</option>
                 @foreach(\App\Models\Trainer::SPECIALTIES as $key => $label)
@@ -42,7 +131,9 @@
                 @endforeach
             </select>
 
-            <a href="{{ route('classes.index') }}" class="btn btn-secondary">Reset</a>
+            <div class="classes-filter-actions">
+                <a href="{{ route('classes.index') }}" class="btn btn-secondary">Reset</a>
+            </div>
         </form>
     </div>
 
@@ -59,7 +150,10 @@
 <script>
     const isAuthenticated = @json(auth()->check());
     const isMember = @json(auth()->check() && auth()->user()->isMember());
-    const isTrainerOrAdmin = @json(auth()->check() && (auth()->user()->isTrainer() || auth()->user()->isAdmin()));
+    const isTrainer = @json(auth()->check() && auth()->user()->isTrainer());
+    const isAdmin = @json(auth()->check() && auth()->user()->isAdmin());
+    const currentUserId = @json(auth()->id());
+    const canManageClasses = isTrainer || isAdmin;
     const csrfToken = @json(csrf_token());
 
     function formatCategory(category) {
@@ -97,7 +191,10 @@
             `;
         }
 
-        if (isAuthenticated && isTrainerOrAdmin) {
+        const classOwnerUserId = cls?.trainer?.user?.id ?? null;
+        const trainerOwnsClass = isTrainer && currentUserId && classOwnerUserId && Number(classOwnerUserId) === Number(currentUserId);
+
+        if (isAuthenticated && (isAdmin || trainerOwnsClass)) {
             actions += `
                 <a href="/classes/${cls.id}/edit" class="btn btn-secondary">Edit</a>
                 <button type="button" class="btn btn-danger btn-delete" data-id="${cls.id}">Delete</button>
@@ -203,7 +300,7 @@
                         <h3 style="color:#ffd700;">No Classes Found</h3>
                         <p style="color:#aaa;">There are no gym classes available right now.</p>
                         ${
-                            isAuthenticated && isTrainerOrAdmin
+                            isAuthenticated && canManageClasses
                                 ? `<a href="/classes/create" class="btn btn-primary">Create Class</a>`
                                 : ''
                         }

@@ -4,11 +4,137 @@
 
 @section('content')
 
+    <style>
+        .trainer-stats-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .trainer-stat-card {
+            padding: 1.2rem;
+            border-radius: 18px;
+            background: linear-gradient(160deg, rgba(20, 34, 54, 0.94), rgba(10, 18, 30, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 14px 38px rgba(0, 0, 0, 0.22);
+        }
+
+        .trainer-stat-card h3 {
+            margin: 0;
+            color: #f8f7ec;
+            font-size: 1.02rem;
+        }
+
+        .trainer-stat-value {
+            margin: 0.55rem 0 0.4rem;
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #ffd54f;
+            line-height: 1.1;
+        }
+
+        .trainer-stat-meta {
+            margin: 0;
+            color: #bdb89c;
+            font-size: 0.9rem;
+        }
+
+        .trainer-block {
+            margin-top: 1.5rem;
+        }
+
+        .trainer-block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+        }
+
+        .trainer-block-title {
+            margin: 0;
+            color: #f8f7ec;
+        }
+
+        .trainer-block-subtle {
+            color: #a9a89d;
+        }
+
+        .trainer-empty-text {
+            color: #b7b39c;
+            margin-top: 1rem;
+        }
+
+        .trainer-reviews-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        .trainer-review-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .trainer-review-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+            gap: 0.7rem;
+        }
+
+        .trainer-review-name {
+            margin: 0;
+            font-weight: 600;
+            color: #f3f1e8;
+        }
+
+        .trainer-review-date {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #a9a89d;
+        }
+
+        .trainer-review-rating {
+            background: #ffd54f;
+            color: #111;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .trainer-review-comment {
+            margin: 0;
+            color: #d7d2ad;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .trainer-profile-missing {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .trainer-profile-missing h3 {
+            color: #ff5555;
+        }
+
+        .trainer-profile-missing p {
+            color: #aaa;
+        }
+    </style>
+
     @if ($trainer)
         @php
             $totalClasses = $trainer->gymClasses->count();
             $totalBookings = $trainer->gymClasses->sum(fn($gymClass) => $gymClass->bookings->count());
             $avgRating = round($trainer->reviews->avg('rating') ?? 0, 1);
+            $salary = $trainer->salary;
         @endphp
 
         <div class="page-header">
@@ -18,31 +144,37 @@
             </div>
         </div>
 
-        <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+        <div class="trainer-stats-grid">
 
-            <div class="card" style="background: linear-gradient(135deg, #2e7d32, #1b5e20);">
-                <h3 style="color:#fff;">Classes</h3>
-                <p style="font-size:2.5rem; font-weight:700; color:#fff;">{{ $totalClasses }}</p>
-                <p style="color:#a8d5a8; font-size:0.9rem;">Assigned to you</p>
+            <div class="trainer-stat-card">
+                <h3>Classes</h3>
+                <p class="trainer-stat-value">{{ $totalClasses }}</p>
+                <p class="trainer-stat-meta">Assigned to you</p>
             </div>
 
-            <div class="card" style="background: linear-gradient(135deg, #1976d2, #0d47a1);">
-                <h3 style="color:#fff;">Bookings</h3>
-                <p style="font-size:2.5rem; font-weight:700; color:#fff;">{{ $totalBookings }}</p>
-                <p style="color:#90caf9; font-size:0.9rem;">Across all classes</p>
+            <div class="trainer-stat-card">
+                <h3>Bookings</h3>
+                <p class="trainer-stat-value">{{ $totalBookings }}</p>
+                <p class="trainer-stat-meta">Across all classes</p>
             </div>
 
-            <div class="card" style="background: linear-gradient(135deg, #f57c00, #bf360c);">
-                <h3 style="color:#fff;">Rating</h3>
-                <p style="font-size:2.5rem; font-weight:700; color:#fff;">⭐ {{ $avgRating }}</p>
-                <p style="color:#ffb74d; font-size:0.9rem;">{{ $trainer->reviews->count() }} reviews</p>
+            <div class="trainer-stat-card">
+                <h3>Rating</h3>
+                <p class="trainer-stat-value">⭐ {{ $avgRating }}</p>
+                <p class="trainer-stat-meta">{{ $trainer->reviews->count() }} reviews</p>
+            </div>
+
+            <div class="trainer-stat-card">
+                <h3>Salary</h3>
+                <p class="trainer-stat-value">${{ number_format((float) $salary, 2) }}</p>
+                <p class="trainer-stat-meta">Your monthly salary</p>
             </div>
 
         </div>
 
-        <div class="card" style="margin-top:1.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                <h3 style="margin:0;">My Classes</h3>
+        <div class="card trainer-block">
+            <div class="trainer-block-header">
+                <h3 class="trainer-block-title">My Classes</h3>
                 <a href="{{ route('classes.create') }}" class="btn btn-primary">
                     Create Class
                 </a>
@@ -83,37 +215,37 @@
                     </table>
                 </div>
             @else
-                <p style="color:#aaa; margin-top:1rem;">
+                <p class="trainer-empty-text">
                     No classes yet. Create your first one.
                 </p>
             @endif
         </div>
 
         @if ($trainer->reviews->count())
-            <div class="card" style="margin-top:1.5rem;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3 style="margin:0;">Reviews</h3>
-                    <span style="color:#aaa;">{{ $trainer->reviews->count() }} total</span>
+            <div class="card trainer-block">
+                <div class="trainer-block-header">
+                    <h3 class="trainer-block-title">Reviews</h3>
+                    <span class="trainer-block-subtle">{{ $trainer->reviews->count() }} total</span>
                 </div>
 
-                <div style="display:grid; gap:1rem; margin-top:1rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                <div class="trainer-reviews-grid">
                     @foreach ($trainer->reviews as $review)
-                        <div style="background:#0f0f0f; border:1px solid #2b2b2b; border-radius:12px; padding:1rem;">
-                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
+                        <div class="trainer-review-card">
+                            <div class="trainer-review-top">
                                 <div>
-                                    <p style="margin:0; font-weight:600;">
+                                    <p class="trainer-review-name">
                                         {{ $review->member->user->name }}
                                     </p>
-                                    <p style="margin:0; font-size:0.85rem; color:#a9a89d;">
+                                    <p class="trainer-review-date">
                                         {{ $review->created_at->format('M d, Y') }}
                                     </p>
                                 </div>
-                                <span style="background:#ffd54f; color:#111; padding:4px 10px; border-radius:8px; font-weight:700;">
+                                <span class="trainer-review-rating">
                                     ⭐ {{ $review->rating }}
                                 </span>
                             </div>
 
-                            <p style="margin:0; color:#d7d2ad; font-size:0.95rem;">
+                            <p class="trainer-review-comment">
                                 {{ $review->comment }}
                             </p>
                         </div>
@@ -123,9 +255,9 @@
         @endif
 
     @else
-        <div class="card" style="text-align:center; padding:40px;">
-            <h3 style="color:#ff5555;">Profile Not Found</h3>
-            <p style="color:#aaa;">Please contact support.</p>
+        <div class="card trainer-profile-missing">
+            <h3>Profile Not Found</h3>
+            <p>Please contact support.</p>
         </div>
     @endif
 

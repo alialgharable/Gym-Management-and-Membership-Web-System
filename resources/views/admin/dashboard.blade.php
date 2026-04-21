@@ -4,6 +4,65 @@
 
 @section('content')
 
+    <style>
+        .admin-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .admin-stat-card {
+            padding: 1.2rem;
+            border-radius: 18px;
+            background: linear-gradient(160deg, rgba(20, 34, 54, 0.94), rgba(10, 18, 30, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 14px 38px rgba(0, 0, 0, 0.22);
+        }
+
+        .admin-stat-card--wide {
+            grid-column: 1 / -1;
+        }
+
+        .admin-stat-title {
+            margin: 0;
+            color: #f8f7ec;
+            font-size: 1.02rem;
+        }
+
+        .admin-stat-value {
+            margin: 0.55rem 0 0.4rem;
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #ffd54f;
+            line-height: 1.1;
+        }
+
+        .admin-stat-link {
+            color: #d6c36f;
+            font-weight: 600;
+        }
+
+        .admin-stat-link:hover {
+            color: #ffe082;
+        }
+
+        .admin-empty-text {
+            color: #b7b39c;
+        }
+
+        .status-positive {
+            color: #5fd68f;
+        }
+
+        .status-inactive {
+            color: #ff6b6b;
+        }
+
+        .status-warning {
+            color: #ffd54f;
+        }
+    </style>
+
     <div class="page-header">
         <div>
             <h1 class="section-title">Admin Dashboard</h1>
@@ -11,36 +70,36 @@
         </div>
     </div>
 
-    <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+    <div class="admin-stats-grid">
 
-        <div class="card" style="background: linear-gradient(135deg, #2e7d32, #1b5e20);">
-            <h3 style="color:#fff;">Members</h3>
-            <p style="font-size:2.5rem; font-weight:700; color:#fff;">{{ $stats['total_members'] }}</p>
-            <a href="{{ route('members.index') }}" style="color:#a8d5a8;">View all →</a>
+        <div class="admin-stat-card">
+            <h3 class="admin-stat-title">Members</h3>
+            <p class="admin-stat-value">{{ $stats['total_members'] }}</p>
+            <a href="{{ route('members.index') }}" class="admin-stat-link">View all →</a>
         </div>
 
-        <div class="card" style="background: linear-gradient(135deg, #1976d2, #0d47a1);">
-            <h3 style="color:#fff;">Subscriptions</h3>
-            <p style="font-size:2.5rem; font-weight:700; color:#fff;">{{ $stats['active_subscriptions'] }}</p>
-            <a href="{{ route('subscriptions.index') }}" style="color:#90caf9;">View →</a>
+        <div class="admin-stat-card">
+            <h3 class="admin-stat-title">Subscriptions</h3>
+            <p class="admin-stat-value">{{ $stats['active_subscriptions'] }}</p>
+            <a href="{{ route('subscriptions.index') }}" class="admin-stat-link">View →</a>
         </div>
 
-        <div class="card" style="background: linear-gradient(135deg, #f57c00, #bf360c);">
-            <h3 style="color:#fff;">Classes</h3>
-            <p style="font-size:2.5rem; font-weight:700; color:#fff;">{{ $stats['total_classes'] }}</p>
-            <a href="{{ route('classes.index') }}" style="color:#ffb74d;">Manage →</a>
+        <div class="admin-stat-card">
+            <h3 class="admin-stat-title">Classes</h3>
+            <p class="admin-stat-value">{{ $stats['total_classes'] }}</p>
+            <a href="{{ route('classes.index') }}" class="admin-stat-link">Manage →</a>
         </div>
 
-        <div class="card" style="background: linear-gradient(135deg, #c2185b, #880e4f);">
-            <h3 style="color:#fff;">Trainers</h3>
-            <p style="font-size:2.5rem; font-weight:700; color:#fff;">{{ $stats['total_trainers'] }}</p>
-            <a href="{{ route('trainers.index') }}" style="color:#f48fb1;">View →</a>
+        <div class="admin-stat-card">
+            <h3 class="admin-stat-title">Trainers</h3>
+            <p class="admin-stat-value">{{ $stats['total_trainers'] }}</p>
+            <a href="{{ route('trainers.index') }}" class="admin-stat-link">View →</a>
         </div>
 
-        <div class="card" style="background: linear-gradient(135deg, #6a1b9a, #38006b); grid-column: 1 / -1;">
-            <h3 style="color:#fff;">Bookings</h3>
-            <p style="font-size:2.5rem; font-weight:700; color:#fff;">{{ $stats['total_bookings'] }}</p>
-            <a href="{{ route('bookings.index') }}" style="color:#ce93d8;">View all →</a>
+        <div class="admin-stat-card admin-stat-card--wide">
+            <h3 class="admin-stat-title">Bookings</h3>
+            <p class="admin-stat-value">{{ $stats['total_bookings'] }}</p>
+            <a href="{{ route('bookings.index') }}" class="admin-stat-link">View all →</a>
         </div>
 
     </div>
@@ -75,7 +134,7 @@
                                 <td>{{ $email }}</td>
                                 <td>{{ $member->created_at->format('M d, Y') }}</td>
                                 <td>
-                                    <span style="color: {{ $planName ? '#5fd68f' : '#ff5555' }};">
+                                    <span class="{{ $planName ? 'status-positive' : 'status-inactive' }}">
                                         {{ $planName ?? 'Inactive' }}
                                     </span>
                                 </td>
@@ -85,7 +144,7 @@
                 </table>
             </div>
         @else
-            <p style="color:#aaa;">No recent members.</p>
+            <p class="admin-empty-text">No recent members.</p>
         @endif
     </div>
 
@@ -116,7 +175,7 @@
                                 <td>{{ $memberName }}</td>
                                 <td>{{ $className }}</td>
                                 <td>
-                                    <span style="color: {{ $booking->status === 'confirmed' ? '#5fd68f' : '#ffd700' }};">
+                                    <span class="{{ $booking->status === 'confirmed' ? 'status-positive' : 'status-warning' }}">
                                         {{ ucfirst($booking->status) }}
                                     </span>
                                 </td>
@@ -127,7 +186,7 @@
                 </table>
             </div>
         @else
-            <p style="color:#aaa;">No recent bookings.</p>
+            <p class="admin-empty-text">No recent bookings.</p>
         @endif
     </div>
 

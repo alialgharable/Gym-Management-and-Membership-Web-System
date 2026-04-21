@@ -76,6 +76,23 @@
                 @enderror
             </div>
 
+            @if(auth()->check() && auth()->user()->isAdmin())
+                <div class="field-group">
+                    <label class="field-label">Salary</label>
+                    <input
+                        type="number"
+                        name="salary"
+                        class="field-input"
+                        min="0"
+                        step="0.01"
+                        value="{{ old('salary', $trainer->salary) }}"
+                        required>
+                    @error('salary')
+                        <span style="color: #ff5555; font-size: 0.9rem;">{{ $message }}</span>
+                    @enderror
+                </div>
+            @endif
+
             <div style="display: flex; gap: 1rem; margin-top: 2rem;">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
                 @if(auth()->check() && auth()->user()->trainer && auth()->user()->trainer->id === $trainer->id)

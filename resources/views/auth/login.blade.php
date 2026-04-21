@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Login - Gym Management')
+@section('title', 'Login - GYMRATS')
 
 @section('content')
     <div class="page-header">
@@ -20,7 +20,14 @@
 
         <div class="field-group">
             <label class="field-label" for="password">Password</label>
-            <input id="password" type="password" name="password" class="field-input" required autocomplete="current-password">
+            <div style="position: relative;">
+                <input id="password" type="password" name="password" class="field-input" required autocomplete="current-password" style="padding-right: 3.2rem;">
+                <button type="button" onclick="togglePasswordVisibility('password', this)"
+                    aria-label="Show password"
+                    style="position: absolute; right: 0.9rem; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #ffd54f; cursor: pointer; font-size: 1rem;">
+                    <i class="fa-solid fa-eye-slash"></i>
+                </button>
+            </div>
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -30,4 +37,27 @@
 
         <p>New user? <a href="{{ route('register') }}" style="color: #ffd54f;">Subscribe now</a></p>
     </form>
+
+    @push('scripts')
+        <script>
+            function togglePasswordVisibility(inputId, button) {
+                const input = document.getElementById(inputId);
+
+                if (!input || !button) {
+                    return;
+                }
+
+                const icon = button.querySelector('i');
+                const isHidden = input.type === 'password';
+
+                input.type = isHidden ? 'text' : 'password';
+
+                if (icon) {
+                    icon.className = isHidden ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+                }
+
+                button.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+            }
+        </script>
+    @endpush
 @endsection

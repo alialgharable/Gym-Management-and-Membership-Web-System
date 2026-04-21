@@ -129,6 +129,15 @@ class MemberController extends Controller
      */
     public function destroy(Member $member)
     {
+        $hasActiveSubscription = $member->subscription()
+            ->where('status', 'active')
+            ->exists();
+
+        if ($hasActiveSubscription) {
+            return redirect()->route('members.index')
+                ->with('error', 'Only inactive members can be deleted.');
+        }
+
         $user = $member->user;
         $deletedUserId = $member->user_id;
         $currentUserId = auth()->id();

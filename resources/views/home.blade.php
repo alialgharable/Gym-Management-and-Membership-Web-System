@@ -109,13 +109,13 @@
     <style>
         .home-stack {
             display: grid;
-            gap: 2rem;
+            gap: 1.1rem;
         }
 
         .home-hero {
             position: relative;
-            margin-bottom: 0.25rem;
-            padding: 3rem 2.5rem;
+            margin-bottom: 0;
+            padding: 1.55rem 2.1rem 2rem;
             border-radius: 30px;
             overflow: hidden;
             background:
@@ -138,9 +138,9 @@
             position: relative;
             z-index: 1;
             display: grid;
-            gap: 2rem;
+            gap: 1.2rem;
             grid-template-columns: minmax(0, 1.45fr) minmax(300px, 1fr);
-            align-items: center;
+            align-items: start;
         }
 
         .hero-copy h1 {
@@ -161,9 +161,9 @@
 
         .hero-actions {
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
             flex-wrap: wrap;
-            margin-bottom: 1.75rem;
+            margin-bottom: 1.1rem;
         }
 
         .hero-actions .btn {
@@ -172,7 +172,7 @@
 
         .hero-highlight {
             display: grid;
-            gap: 1rem;
+            gap: 0.75rem;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         }
 
@@ -181,7 +181,7 @@
             border: 1px solid rgba(255, 255, 255, 0.09);
             border-radius: 22px;
             backdrop-filter: blur(10px);
-            padding: 1.4rem 1.35rem;
+            padding: 1.1rem 1.1rem;
             transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
         }
 
@@ -210,22 +210,17 @@
             place-items: center;
             align-items: center;
             justify-content: center;
-            width: 2.75rem;
-            height: 2.75rem;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.08);
+            width: 3.1rem;
+            height: 3.1rem;
+            border-radius: 15px;
             margin-bottom: 1rem;
             line-height: 0;
         }
 
-        .icon-badge svg {
-            display: block;
-            width: 1.4rem;
-            height: 1.4rem;
-            fill: #ffd54f;
-            transform-box: fill-box;
-            transform-origin: center;
-            transform: translateY(1px) scale(1.02);
+        .icon-badge i {
+            color: #ffd54f;
+            font-size: 1.28rem;
+            line-height: 1;
         }
 
         .hero-visual {
@@ -235,8 +230,9 @@
 
         .hero-visual-card {
             width: 100%;
-            min-height: 460px;
-            padding: 1.8rem;
+            min-height: 0;
+            padding: 1.35rem;
+            margin-top: 4.3rem;
             border-radius: 32px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.09);
@@ -244,12 +240,22 @@
             backdrop-filter: blur(12px);
         }
 
+        .hero-stats-panel {
+            margin-top: 0.55rem;
+            padding: 0.95rem;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 18px 55px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
         .visual-card-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 1rem;
-            margin-bottom: 1.85rem;
+            margin-bottom: 1.15rem;
         }
 
         .visual-label {
@@ -281,7 +287,7 @@
 
         .dashboard-preview {
             display: grid;
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
         .preview-top {
@@ -311,12 +317,12 @@
 
         .preview-main-panel {
             display: grid;
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
         .preview-grid {
             display: grid;
-            gap: 1rem;
+            gap: 0.75rem;
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
@@ -324,12 +330,12 @@
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 22px;
-            padding: 1.2rem;
-            min-height: 120px;
+            padding: 1rem;
+            min-height: 106px;
         }
 
         .preview-tile-large {
-            min-height: 200px;
+            min-height: 160px;
         }
 
         .preview-tile-title {
@@ -358,7 +364,7 @@
 
         .preview-footer {
             display: grid;
-            gap: 0.85rem;
+            gap: 0.75rem;
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
@@ -385,7 +391,7 @@
 
         .dumbbell-viewer-shell {
             position: relative;
-            margin-bottom: 1.1rem;
+            margin-bottom: 0;
             border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             background: radial-gradient(circle at 30% 20%, rgba(80, 120, 255, 0.18), transparent 40%),
@@ -589,13 +595,115 @@
             font-size: 0.9rem;
         }
 
-        @media (max-width: 1080px) {
+        .about-grid {
+            display: grid;
+            gap: 1.2rem;
+            grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
+            align-items: start;
+        }
+
+        .about-panel {
+            position: relative;
+            height: 100%;
+        }
+
+        .about-intro {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .about-intro p {
+            margin: 0;
+            color: #d8d3bb;
+            line-height: 1.75;
+        }
+
+        .about-points {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .about-point {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            padding: 0.95rem 1rem;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .about-point-icon {
+            display: inline-grid;
+            place-items: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 12px;
+            background: rgba(247, 211, 74, 0.12);
+            color: #ffd54f;
+            flex-shrink: 0;
+        }
+
+        .about-point h3 {
+            margin: 0 0 0.3rem;
+            font-size: 1rem;
+            color: #f8f7ec;
+        }
+
+        .about-point p {
+            margin: 0;
+            color: #c8c3a8;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .developer-list {
+            display: grid;
+            gap: 0.65rem;
+            margin-top: 1rem;
+        }
+
+        .developer-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.85rem 1rem;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #f8f7ec;
+            font-weight: 600;
+        }
+
+        .developer-chip span {
+            display: inline-grid;
+            place-items: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 999px;
+            background: rgba(247, 211, 74, 0.14);
+            color: #ffd54f;
+            font-size: 0.85rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 1280px) {
             .home-hero-inner {
                 grid-template-columns: 1fr;
+                gap: 1.35rem;
             }
 
             .hero-visual-card {
                 min-height: unset;
+            }
+
+            .hero-stats-panel {
+                margin-top: 0.9rem;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -641,18 +749,14 @@
             }
 
             .icon-badge {
-                width: 2.1rem;
-                height: 2.1rem;
+                width: 2.35rem;
+                height: 2.35rem;
                 border-radius: 12px;
                 margin-bottom: 0.6rem;
             }
 
-            .icon-badge svg {
-                width: 1.18rem;
-                height: 1.18rem;
-                transform-box: fill-box;
-                transform-origin: center;
-                transform: translateY(0.75px) scale(1.03);
+            .icon-badge i {
+                font-size: 1.05rem;
             }
 
             .hero-spotlight:nth-child(3) {
@@ -664,6 +768,11 @@
                 border-radius: 22px;
             }
 
+            .hero-stats-panel {
+                padding: 1rem;
+                border-radius: 18px;
+            }
+
             .visual-card-header {
                 margin-bottom: 1rem;
             }
@@ -673,7 +782,7 @@
             }
 
             .dumbbell-viewer-shell {
-                margin-bottom: 0.75rem;
+                margin-bottom: 0;
                 border-radius: 16px;
             }
 
@@ -757,6 +866,11 @@
                 border-radius: 20px;
             }
 
+            .hero-stats-panel {
+                margin-top: 0.75rem;
+                padding: 0.85rem;
+            }
+
             .hero-copy h1 {
                 font-size: 1.8rem;
             }
@@ -789,6 +903,10 @@
                 font-size: 1.65rem;
             }
 
+            .developer-chip {
+                padding: 0.75rem 0.9rem;
+            }
+
             .dumbbell-viewer-canvas {
                 height: 180px;
             }
@@ -813,7 +931,7 @@
                     <div class="hero-highlight">
                         <div class="hero-spotlight">
                             <span class="icon-badge">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a2 2 0 0 1 2 2v2h3a1 1 0 0 1 1 1v4h-2V8h-2v3h-4V8H9v4H7V7a1 1 0 0 1 1-1h3V4a2 2 0 0 1 2-2Zm-7 11h2v7h2v-7h2v7h2V13h2v7h2v-7h2v7h2v-7h2v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-7Z"/></svg>
+                                <i class="fa-solid fa-dumbbell" aria-hidden="true"></i>
                             </span>
                             <strong>{{ $totalClasses }}</strong>
                             <span>Classes available now</span>
@@ -821,7 +939,7 @@
 
                         <div class="hero-spotlight">
                             <span class="icon-badge">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H7a1 1 0 0 0-1 1v6H3v2h3v6h2v-6h2v6h2v-6h3v-2h-3V4a1 1 0 0 0-1-1H9Zm2 8H9V5h2v6Zm5 0h-2V5h2v6Z"/></svg>
+                                <i class="fa-solid fa-user-group" aria-hidden="true"></i>
                             </span>
                             <strong>{{ $totalTrainers }}</strong>
                             <span>Trainers ready to coach</span>
@@ -829,7 +947,7 @@
 
                         <div class="hero-spotlight">
                             <span class="icon-badge">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 3h12a1 1 0 0 1 1 1v2H5V4a1 1 0 0 1 1-1Zm13 4v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7h14Zm-9 3H7v6h3V10Zm5 0h-3v6h3v-6Zm2 0h-1v6h1v-6Z"/></svg>
+                                <i class="fa-solid fa-id-card" aria-hidden="true"></i>
                             </span>
                             <strong>{{ $totalMembers }}</strong>
                             <span>Members already active</span>
@@ -850,51 +968,53 @@
                         <div class="dumbbell-viewer-shell">
                             <div id="dumbbellViewer" class="dumbbell-viewer-canvas" aria-label="3D dumbbell viewer"></div>
                         </div>
+                    </div>
+                </div>
+            </div>
 
-                        <div class="dashboard-preview">
-                            <div class="preview-top">
-                                <span class="preview-chip">
-                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M4 4h16v3H4V4Zm0 5h10v3H4V9Zm0 5h16v6H4v-6Z" fill="#ffd54f"/>
-                                    </svg>
-                                    Schedule
-                                </span>
-                                <span class="preview-status">{{ $bookedPercent }}% booked</span>
+            <div class="hero-stats-panel">
+                <div class="dashboard-preview">
+                    <div class="preview-top">
+                        <span class="preview-chip">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 4h16v3H4V4Zm0 5h10v3H4V9Zm0 5h16v6H4v-6Z" fill="#ffd54f"/>
+                            </svg>
+                            Schedule
+                        </span>
+                        <span class="preview-status">{{ $bookedPercent }}% booked</span>
+                    </div>
+
+                    <div class="preview-main-panel">
+                        <div class="preview-tile preview-tile-large">
+                            <div class="preview-tile-title">Upcoming sessions</div>
+                            <p class="preview-tile-value">{{ $upcomingSessions }}</p>
+                            <p class="preview-tile-meta">Strong classes, load balance, and trainer availability in one view.</p>
+                        </div>
+
+                        <div class="preview-grid">
+                            <div class="preview-tile">
+                                <div class="preview-tile-title">Open seats</div>
+                                <p class="preview-tile-value">{{ $openSeats }}</p>
+                                <p class="preview-tile-meta">Ready for new members to book now.</p>
                             </div>
 
-                            <div class="preview-main-panel">
-                                <div class="preview-tile preview-tile-large">
-                                    <div class="preview-tile-title">Upcoming sessions</div>
-                                    <p class="preview-tile-value">{{ $upcomingSessions }}</p>
-                                    <p class="preview-tile-meta">Strong classes, load balance, and trainer availability in one view.</p>
-                                </div>
-
-                                <div class="preview-grid">
-                                    <div class="preview-tile">
-                                        <div class="preview-tile-title">Open seats</div>
-                                        <p class="preview-tile-value">{{ $openSeats }}</p>
-                                        <p class="preview-tile-meta">Ready for new members to book now.</p>
-                                    </div>
-
-                                    <div class="preview-tile">
-                                        <div class="preview-tile-title">Active plans</div>
-                                        <p class="preview-tile-value">{{ $activePlans }}</p>
-                                        <p class="preview-tile-meta">Current member subscriptions and renewals.</p>
-                                    </div>
-                                </div>
+                            <div class="preview-tile">
+                                <div class="preview-tile-title">Active plans</div>
+                                <p class="preview-tile-value">{{ $activePlans }}</p>
+                                <p class="preview-tile-meta">Current member subscriptions and renewals.</p>
                             </div>
+                        </div>
+                    </div>
 
-                            <div class="preview-footer">
-                                <div class="preview-small-card">
-                                    <span>Trainer load</span>
-                                    <strong>{{ $trainersWithClasses }}/{{ $totalTrainers }}</strong>
-                                </div>
+                    <div class="preview-footer">
+                        <div class="preview-small-card">
+                            <span>Trainer load</span>
+                            <strong>{{ $trainersWithClasses }}/{{ $totalTrainers }}</strong>
+                        </div>
 
-                                <div class="preview-small-card">
-                                    <span>Classes today</span>
-                                    <strong>{{ $classesToday }}</strong>
-                                </div>
-                            </div>
+                        <div class="preview-small-card">
+                            <span>Classes today</span>
+                            <strong>{{ $classesToday }}</strong>
                         </div>
                     </div>
                 </div>
@@ -1073,6 +1193,7 @@
                 </div>
             @endif
         </section>
+
     </div>
 
     <script type="module">

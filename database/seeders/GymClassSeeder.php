@@ -19,37 +19,60 @@ class GymClassSeeder extends Seeder
         $trainers = Trainer::all();
         $rooms = Room::all();
 
+        $roomMap = [
+            'combat' => 'Combat Sports Room',
+            'yoga_pilates' => 'Yoga & Pilates Studio',
+            'group_training' => 'Group Training Room',
+            'fitness_machines' => 'Fitness Machines Hall',
+        ];
+
+        $classTemplates = [
+            'combat' => [
+                'Boxing Fundamentals',
+                'MMA Drill Session',
+                'Kickboxing Basics',
+            ],
+            'yoga_pilates' => [
+                'Yoga Session',
+                'Pilates Flow',
+                'Stretch & Mobility',
+            ],
+            'group_training' => [
+                'HIIT Workout',
+                'Circuit Blast',
+                'Core Conditioning',
+            ],
+            'fitness_machines' => [
+                'Machine Strength',
+                'Resistance Training',
+                'Weight Room Basics',
+            ],
+        ];
+
         if ($rooms->isEmpty()) {
             return;
         }
 
         foreach ($trainers as $trainer) {
-            foreach (range(1, 2) as $i) {
-                $category = fake()->randomElement([
-                    'combat',
-                    'yoga_pilates',
-                    'group_training',
-                    'fitness_machines',
-                ]);
+            $category = $trainer->specialty ?: 'group_training';
 
-                $roomId = match ($category) {
-                    'combat' => 1,
-                    'yoga_pilates' => 2,
-                    'group_training' => 3,
-                    'fitness_machines' => 4,
-                    default => 3,
-                };
+            if (!isset($classTemplates[$category])) {
+                $category = 'group_training';
+            }
 
+            $roomName = $roomMap[$category] ?? $roomMap['group_training'];
+            $roomId = $rooms->firstWhere('name', $roomName)?->id ?? $rooms->first()?->id;
+
+            $selectedClassNames = collect($classTemplates[$category])
+                ->shuffle()
+                ->take(2)
+                ->values();
+
+            foreach ($selectedClassNames as $className) {
                 GymClass::create([
                     'trainer_id' => $trainer->id,
-                    'room_id' => $rooms->firstWhere('id', $roomId)?->id ?? $rooms->first()->id,
-                    'name' => fake()->randomElement([
-                        'Yoga Session',
-                        'HIIT Workout',
-                        'Boxing Class',
-                        'Pilates',
-                        'CrossFit Training'
-                    ]),
+                    'room_id' => $roomId,
+                    'name' => $className,
                     'category' => $category,
                     'description' => fake()->sentence(),
                     'schedule' => fake()->dateTimeBetween('+1 day', '+1 month'),

@@ -43,7 +43,14 @@
 
         <div class="field-group">
             <label class="field-label" for="password">Password</label>
-            <input id="password" type="password" name="password" class="field-input" required autocomplete="new-password">
+            <div style="position: relative;">
+                <input id="password" type="password" name="password" class="field-input" required autocomplete="new-password" style="padding-right: 3.2rem;">
+                <button type="button" onclick="togglePasswordVisibility(this)"
+                    aria-label="Show password"
+                    style="position: absolute; right: 0.9rem; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #ffd54f; cursor: pointer; font-size: 1rem;">
+                    <i class="fa-solid fa-eye-slash"></i>
+                </button>
+            </div>
             @error('password')
                 <span style="color:#ff5555;">{{ $message }}</span>
             @enderror
@@ -60,4 +67,29 @@
 
         <button type="submit" class="btn btn-primary">Register</button>
     </form>
+
+    @push('scripts')
+        <script>
+            function togglePasswordVisibility(button) {
+                const passwordInput = document.getElementById('password');
+                const confirmInput = document.getElementById('password_confirmation');
+
+                if (!passwordInput || !confirmInput || !button) {
+                    return;
+                }
+
+                const icon = button.querySelector('i');
+                const isHidden = passwordInput.type === 'password';
+
+                passwordInput.type = isHidden ? 'text' : 'password';
+                confirmInput.type = isHidden ? 'text' : 'password';
+
+                if (icon) {
+                    icon.className = isHidden ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+                }
+
+                button.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+            }
+        </script>
+    @endpush
 @endsection

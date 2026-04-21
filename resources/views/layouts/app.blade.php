@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Gym Management System')</title>
+    <title>@yield('title', 'GYMRATS')</title>
     <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
@@ -24,8 +24,18 @@
         :root {
             color-scheme: dark;
             font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-            background: #070707;
-            color: #f8f7ec;
+            --bg-main: #090d12;
+            --bg-elevated: #111922;
+            --bg-soft: #162230;
+            --text-main: #edf2f7;
+            --text-muted: #aeb9c7;
+            --line: #273446;
+            --accent: #f7d34a;
+            --accent-strong: #e5c12c;
+            --danger: #ef476f;
+            --success: #2fbf71;
+            background: var(--bg-main);
+            color: var(--text-main);
         }
 
         * {
@@ -35,9 +45,9 @@
         body {
             margin: 0;
             min-height: 100vh;
-            background: radial-gradient(circle at top left, rgba(255, 221, 89, 0.08), transparent 30%),
-                linear-gradient(180deg, #070707 0%, #111111 100%);
-            color: #f8f7ec;
+            background: radial-gradient(circle at top left, rgba(247, 211, 74, 0.16), transparent 32%),
+                linear-gradient(180deg, #090d12 0%, #0e131b 100%);
+            color: var(--text-main);
         }
 
         a {
@@ -48,30 +58,31 @@
         .site-shell {
             max-width: 1180px;
             margin: 0 auto;
-            padding: 24px;
+            padding: 18px;
         }
 
         .site-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 1rem;
-            padding: 18px 24px;
-            background: rgba(18, 18, 18, 0.96);
-            color: #f8f7ec;
-            border-radius: 22px;
+            gap: 0.75rem;
+            padding: 14px 18px;
+            background: rgba(17, 25, 34, 0.94);
+            color: var(--text-main);
+            border-radius: 18px;
             box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
             position: sticky;
-            top: 18px;
+            top: 12px;
             z-index: 10;
             backdrop-filter: blur(12px);
+            border: 1px solid var(--line);
         }
 
         .site-brand {
             font-size: 1.15rem;
             font-weight: 700;
             letter-spacing: -0.03em;
-            color: #ffd54f;
+            color: var(--accent);
         }
 
         .site-brand-link {
@@ -87,11 +98,16 @@
             flex-shrink: 0;
         }
 
+        .site-brand-logo-home {
+            width: 48px;
+            height: 48px;
+        }
+
         .site-header-main {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 1rem;
+            gap: 0.8rem;
         }
 
         .nav-toggle {
@@ -99,9 +115,9 @@
             width: 44px;
             height: 44px;
             border-radius: 12px;
-            border: 1px solid rgba(255, 209, 37, 0.35);
-            background: rgba(255, 209, 37, 0.08);
-            color: #f8f7ec;
+            border: 1px solid rgba(247, 211, 74, 0.45);
+            background: rgba(247, 211, 74, 0.12);
+            color: var(--text-main);
             align-items: center;
             justify-content: center;
             cursor: pointer;
@@ -109,20 +125,20 @@
         }
 
         .nav-toggle:hover {
-            background: rgba(255, 209, 37, 0.16);
-            border-color: rgba(255, 209, 37, 0.55);
+            background: rgba(247, 211, 74, 0.22);
+            border-color: rgba(247, 211, 74, 0.7);
             transform: translateY(-1px);
         }
 
         .nav-toggle:focus-visible {
-            outline: 2px solid rgba(255, 209, 37, 0.8);
+            outline: 2px solid rgba(247, 211, 74, 0.8);
             outline-offset: 2px;
         }
 
         .site-nav {
             display: flex;
             flex-wrap: nowrap;
-            gap: 1.2rem;
+            gap: 0.8rem;
             align-items: center;
             justify-content: flex-end;
         }
@@ -130,32 +146,115 @@
         .nav-group {
             display: flex;
             align-items: center;
-            gap: 0.65rem;
+            gap: 0.45rem;
             flex-wrap: wrap;
+        }
+
+        .guest-menu {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .guest-menu-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.2rem 0.15rem;
+            border: none;
+            border-bottom: 2px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            line-height: 1.2;
+            transition: color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .guest-menu-trigger:hover,
+        .guest-menu-trigger[aria-expanded='true'] {
+            color: var(--text-main);
+            border-color: var(--accent);
+        }
+
+        .guest-menu-trigger i {
+            font-size: 0.8rem;
+            transition: transform 0.2s ease;
+        }
+
+        .guest-menu-trigger[aria-expanded='true'] i {
+            transform: rotate(180deg);
+        }
+
+        .guest-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            min-width: 240px;
+            padding: 0.35rem;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            background: rgba(17, 25, 34, 0.98);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+            display: none;
+            z-index: 60;
+        }
+
+        .guest-dropdown.show {
+            display: block;
+        }
+
+        .guest-dropdown-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0.55rem 0.75rem;
+            border-radius: 9px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .guest-dropdown-link:hover {
+            background: rgba(247, 211, 74, 0.14);
+            color: var(--accent);
+        }
+
+        .guest-dropdown-link.active {
+            background: rgba(247, 211, 74, 0.16);
+            color: var(--accent);
+        }
+
+        .guest-dropdown-link + .guest-dropdown-link {
+            margin-top: 0.15rem;
         }
 
         .nav-link {
             display: inline-flex;
             align-items: center;
-            padding: 0.85rem 1.2rem;
-            border-radius: 999px;
-            border: 1px solid rgba(255, 209, 37, 0.3);
-            transition: all 0.2s ease;
-            color: #f8f7ec;
-            background: rgba(255, 209, 37, 0.12);
+            padding: 0.28rem 0.2rem;
+            border-radius: 0;
+            border: none;
+            transition: color 0.2s ease, border-color 0.2s ease;
+            color: var(--text-muted);
+            background: transparent;
+            font-weight: 600;
+            border-bottom: 2px solid transparent;
+            line-height: 1.2;
         }
 
         .nav-link:hover {
-            transform: translateY(-1px);
-            background: rgba(255, 209, 37, 0.2);
-            border-color: rgba(255, 209, 37, 0.5);
+            color: var(--accent);
+            border-color: rgba(247, 211, 74, 0.6);
         }
 
         .nav-link.active {
-            background: rgba(255, 209, 37, 0.24);
-            border-color: rgba(255, 209, 37, 0.6);
-            color: #fff7cc;
-            box-shadow: 0 0 0 1px rgba(255, 209, 37, 0.14) inset;
+            border-color: var(--accent);
+            color: var(--text-main);
+            box-shadow: none;
         }
 
         @media (max-width: 1100px) {
@@ -174,19 +273,41 @@
             .nav-group {
                 width: 100%;
             }
+
+            .guest-menu {
+                width: 100%;
+            }
+
+            .guest-menu-trigger {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .guest-dropdown {
+                width: 100%;
+                left: 0;
+                right: auto;
+                min-width: 0;
+                padding: 0.3rem;
+            }
+
+            .guest-dropdown-link {
+                padding: 0.5rem 0.7rem;
+                font-size: 0.88rem;
+            }
         }
 
         .page-content {
-            margin-top: 24px;
+            margin-top: 16px;
             padding: 0;
         }
 
         .panel {
-            background: rgba(15, 15, 15, 0.82);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
+            background: rgba(17, 25, 34, 0.85);
+            border: 1px solid var(--line);
+            border-radius: 18px;
             box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
-            padding: 32px;
+            padding: 22px;
             backdrop-filter: blur(8px);
         }
 
@@ -199,7 +320,7 @@
 
         .section-subtitle {
             margin: 0 0 20px;
-            color: #f3f1d1;
+            color: var(--text-muted);
             line-height: 1.7;
             max-width: 780px;
         }
@@ -220,8 +341,8 @@
         }
 
         .card {
-            background: linear-gradient(180deg, #141414, #101010);
-            border: 1px solid #343434;
+            background: linear-gradient(180deg, #141d29, #101821);
+            border: 1px solid var(--line);
             border-radius: 20px;
             padding: 22px;
             box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
@@ -230,7 +351,7 @@
 
         .card:hover {
             transform: translateY(-4px);
-            border-color: rgba(255, 209, 37, 0.22);
+            border-color: rgba(247, 211, 74, 0.45);
             box-shadow: 0 20px 46px rgba(0, 0, 0, 0.42);
         }
 
@@ -238,12 +359,12 @@
         .card h3 {
             margin: 0 0 12px;
             font-size: 1.1rem;
-            color: #ffd54f;
+            color: var(--accent);
         }
 
         .card p {
             margin: 0 0 10px;
-            color: #d7d2ad;
+            color: var(--text-muted);
             line-height: 1.6;
         }
 
@@ -256,7 +377,7 @@
         .field-label {
             font-size: 0.95rem;
             font-weight: 600;
-            color: #f8f7ec;
+            color: var(--text-main);
         }
 
         .field-input,
@@ -264,42 +385,42 @@
         .field-button {
             width: 100%;
             border-radius: 16px;
-            border: 1px solid #3f3f3f;
+            border: 1px solid var(--line);
             padding: 0.95rem 1rem;
             font-size: 1rem;
-            color: #f8f7ec;
-            background: #101010;
+            color: var(--text-main);
+            background: #0f1722;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .field-input:focus,
         .field-select:focus {
             outline: none;
-            border-color: #f7d34a;
+            border-color: var(--accent);
             box-shadow: 0 0 0 4px rgba(247, 211, 74, 0.18);
         }
 
         .field-button {
             cursor: pointer;
-            background: #f7d34a;
-            color: #111111;
+            background: var(--accent);
+            color: #041014;
             border: none;
             font-weight: 700;
             letter-spacing: 0.01em;
         }
 
         .field-button:hover {
-            background: #e5c12c;
+            background: var(--accent-strong);
         }
 
         .button-secondary {
-            background: #141414;
-            color: #f8f7ec;
-            border: 1px solid #3f3f3f;
+            background: var(--bg-soft);
+            color: var(--text-main);
+            border: 1px solid var(--line);
         }
 
         .button-secondary:hover {
-            background: #1f1f1f;
+            background: #1a2a3b;
         }
 
         .grid-stack {
@@ -310,18 +431,72 @@
 
         .field-divider {
             height: 1px;
-            background: #2e2e2e;
-            margin: 26px 0;
+            background: var(--line);
+            margin: 20px 0;
             border: none;
         }
 
         .site-footer {
-            margin-top: 48px;
-            padding-top: 32px;
-            border-top: 1px solid #2b2b2b;
-            text-align: center;
-            color: #a9a89d;
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid var(--line);
+            color: var(--text-muted);
             font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .site-footer p {
+            margin: 0;
+        }
+
+        .footer-inner {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+            align-items: start;
+        }
+
+        .footer-brand {
+            display: grid;
+            gap: 0.4rem;
+        }
+
+        .footer-brand strong {
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        .footer-brand p {
+            margin: 0;
+            line-height: 1.7;
+        }
+
+        .footer-keyinfo {
+            display: grid;
+            gap: 0.75rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        .footer-keyinfo-item {
+            padding: 0.85rem 1rem;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .footer-keyinfo-item span {
+            display: block;
+            margin-bottom: 0.2rem;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .footer-keyinfo-item a {
+            color: var(--accent);
+        }
+
+        .footer-keyinfo-item a:hover {
+            text-decoration: underline;
         }
 
         .btn {
@@ -339,41 +514,41 @@
         }
 
         .btn-primary {
-            background: #f7d34a;
-            color: #111111;
+            background: var(--accent);
+            color: #041014;
         }
 
         .btn-primary:hover {
-            background: #e5c12c;
+            background: var(--accent-strong);
             transform: translateY(-2px);
         }
 
         .btn-secondary {
-            background: #141414;
-            color: #f8f7ec;
-            border: 1px solid #3f3f3f;
+            background: var(--bg-soft);
+            color: var(--text-main);
+            border: 1px solid var(--line);
         }
 
         .btn-secondary:hover {
-            background: #1f1f1f;
+            background: #1a2a3b;
         }
 
         .btn-danger {
-            background: #d32f2f;
+            background: var(--danger);
             color: #fff;
         }
 
         .btn-danger:hover {
-            background: #b71c1c;
+            background: #cf355c;
         }
 
         .btn-success {
-            background: #2e7d32;
+            background: var(--success);
             color: #fff;
         }
 
         .btn-success:hover {
-            background: #1b5e20;
+            background: #279f5f;
         }
 
         .breadcrumb {
@@ -384,7 +559,7 @@
         }
 
         .breadcrumb a {
-            color: #f7d34a;
+            color: var(--accent);
         }
 
         .breadcrumb a:hover {
@@ -401,21 +576,21 @@
         }
 
         table thead {
-            background: #141414;
+            background: #111a26;
         }
 
         table th {
             padding: 1rem;
             text-align: left;
             font-weight: 700;
-            color: #f7d34a;
-            border-bottom: 2px solid #2b2b2b;
+            color: var(--accent);
+            border-bottom: 2px solid var(--line);
             vertical-align: middle;
         }
 
         table td {
             padding: 1rem;
-            border-bottom: 1px solid #2b2b2b;
+            border-bottom: 1px solid var(--line);
             vertical-align: middle;
         }
 
@@ -448,7 +623,7 @@
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            border: 2px solid rgba(255, 209, 37, 0.35);
+            border: 2px solid rgba(247, 211, 74, 0.35);
             background: transparent;
             padding: 0;
             cursor: pointer;
@@ -458,7 +633,7 @@
 
         .profile-trigger:hover {
             transform: translateY(-2px);
-            border-color: rgba(255, 209, 37, 0.7);
+            border-color: rgba(247, 211, 74, 0.7);
         }
 
         .profile-avatar {
@@ -472,8 +647,8 @@
             top: calc(100% + 10px);
             right: 0;
             min-width: 220px;
-            background: #141414;
-            border: 1px solid #343434;
+            background: #111a26;
+            border: 1px solid var(--line);
             border-radius: 14px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
             padding: 0.5rem;
@@ -491,14 +666,14 @@
 
         .profile-dropdown-user strong {
             display: block;
-            color: #f8f7ec;
+            color: var(--text-main);
             font-size: 0.95rem;
             margin-bottom: 0.2rem;
         }
 
         .profile-dropdown-user span {
             display: block;
-            color: #bdb89c;
+            color: var(--text-muted);
             font-size: 0.82rem;
             letter-spacing: 0.03em;
         }
@@ -508,7 +683,7 @@
             width: 100%;
             padding: 0.7rem 0.9rem;
             border-radius: 10px;
-            color: #f8f7ec;
+            color: var(--text-main);
             background: transparent;
             border: none;
             text-align: left;
@@ -518,13 +693,13 @@
         }
 
         .profile-dropdown-link:hover {
-            background: rgba(255, 209, 37, 0.15);
+            background: rgba(247, 211, 74, 0.15);
         }
 
         .profile-dropdown-divider {
             height: 1px;
             margin: 0.4rem 0.25rem;
-            background: #2b2b2b;
+            background: var(--line);
         }
 
         .profile-logout {
@@ -540,21 +715,21 @@
             height: 100px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid #ffd54a;
+            border: 3px solid var(--accent);
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
         }
 
         .notification-bell {
             position: relative;
             font-size: 1.4rem;
-            color: #ffffff;
+            color: var(--text-muted);
             text-decoration: none;
-            margin-left: 15px;
+            margin-left: 6px;
             transition: 0.2s ease;
         }
 
         .notification-bell:hover {
-            color: #ffd700;
+            color: var(--accent);
             transform: scale(1.1);
         }
 
@@ -605,7 +780,7 @@
         }
 
         .flash-modal.warning .flash-modal-card {
-            border-color: rgba(255, 215, 0, 0.35);
+            border-color: rgba(247, 211, 74, 0.35);
         }
 
         .flash-modal-header {
@@ -636,24 +811,24 @@
         }
 
         .flash-modal.warning .flash-modal-icon {
-            background: rgba(255, 215, 0, 0.14);
-            color: #ffd700;
+            background: rgba(247, 211, 74, 0.14);
+            color: var(--accent);
         }
 
         .flash-modal-title {
             margin: 0;
             font-size: 1.2rem;
-            color: #f8f7ec;
+            color: var(--text-main);
         }
 
         .flash-modal-subtitle {
             margin: 0.25rem 0 0;
-            color: #bfb99c;
+            color: var(--text-muted);
             font-size: 0.92rem;
         }
 
         .flash-modal-body {
-            color: #ddd8bc;
+            color: var(--text-main);
             line-height: 1.75;
             font-size: 0.98rem;
             margin-bottom: 1.2rem;
@@ -698,7 +873,7 @@
                 position: relative;
                 top: auto;
                 z-index: 2000;
-                gap: 0.85rem;
+                gap: 0.6rem;
                 align-items: stretch;
             }
 
@@ -709,6 +884,11 @@
             .site-brand-logo {
                 width: 30px;
                 height: 30px;
+            }
+
+            .site-brand-logo-home {
+                width: 40px;
+                height: 40px;
             }
 
             .site-header-main {
@@ -723,12 +903,12 @@
                 display: none;
                 width: 100%;
                 justify-content: stretch;
-                gap: 0.6rem;
-                margin-top: 0.65rem;
-                padding: 0.75rem;
-                border: 1px solid rgba(255, 255, 255, 0.08);
+                gap: 0.4rem;
+                margin-top: 0.5rem;
+                padding: 0.6rem;
+                border: 1px solid var(--line);
                 border-radius: 14px;
-                background: rgba(255, 255, 255, 0.03);
+                background: rgba(16, 24, 33, 0.96);
                 flex-direction: column;
                 align-items: stretch;
             }
@@ -739,16 +919,17 @@
 
             .nav-group {
                 width: 100%;
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 0.55rem;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.15rem;
             }
 
             .nav-link {
                 width: 100%;
-                justify-content: center;
-                text-align: center;
-                padding: 0.7rem 0.9rem;
+                justify-content: flex-start;
+                text-align: left;
+                padding: 0.45rem 0.1rem;
                 font-size: 0.95rem;
             }
 
@@ -773,6 +954,10 @@
                 padding: 1.2rem;
                 border-radius: 20px;
             }
+
+            .footer-inner {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 480px) {
@@ -785,15 +970,15 @@
             }
 
             .site-nav {
-                gap: 0.5rem;
+                gap: 0.3rem;
             }
 
             .nav-group {
-                grid-template-columns: 1fr;
+                gap: 0.1rem;
             }
 
             .nav-link {
-                border-radius: 14px;
+                border-radius: 0;
             }
 
             .panel {
@@ -834,7 +1019,6 @@
             justify-content: center;
         }
 
-        w
     </style>
 </head>
 
@@ -878,7 +1062,7 @@
 
                     <div>
                         <h2 id="flashModalTitle" class="flash-modal-title">{{ $flashTitle }}</h2>
-                        <p class="flash-modal-subtitle">Gym Management System</p>
+                        <p class="flash-modal-subtitle">GYMRATS</p>
                     </div>
                 </div>
 
@@ -906,8 +1090,8 @@
             <div class="site-header-main">
                 <div class="site-brand">
                     <a href="/" class="site-brand-link">
-                        <img src="{{ asset('logo.png') }}" alt="Gym Management logo" class="site-brand-logo">
-                        <span>Gym Management</span>
+                        <img src="{{ asset('logo.png') }}" alt="GYMRATS logo" class="site-brand-logo {{ request()->routeIs('home') ? 'site-brand-logo-home' : '' }}">
+                        <span>GYMRATS</span>
                     </a>
                 </div>
 
@@ -927,6 +1111,8 @@
                         href="{{ route('classes.index') }}">Classes</a>
                     <a class="nav-link {{ request()->routeIs('trainers.*') ? 'active' : '' }}"
                         href="{{ route('trainers.index') }}">Trainers</a>
+                    <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}"
+                        href="{{ route('about') }}">About Us</a>
 
                     @if(auth()->check() && !auth()->user()->isAdmin() && !auth()->user()->isMember() && !auth()->user()->isTrainer())
                         <a class="nav-link {{ request()->routeIs('trainer-applications.create') ? 'active' : '' }}"
@@ -936,6 +1122,9 @@
                     @endif
 
                     @if(auth()->check() && auth()->user()->isAdmin())
+                        <a class="nav-link {{ request()->routeIs('admin.finance') ? 'active' : '' }}"
+                            href="{{ route('admin.finance') }}">Finance</a>
+
                         @php
                             $pendingCount = \App\Models\TrainerApplication::where('status', 'pending')->count();
                         @endphp
@@ -1009,10 +1198,31 @@
 
                 <div class="nav-group">
                     @guest
-                        <a class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}"
-                            href="{{ route('login') }}">Login</a>
-                        <a class="nav-link {{ request()->routeIs('register') ? 'active' : '' }}"
-                            href="{{ route('register') }}">Signup</a>
+                        <div class="guest-menu" id="guestMenu">
+                            <button
+                                id="guestMenuTrigger"
+                                class="guest-menu-trigger"
+                                type="button"
+                                aria-haspopup="true"
+                                aria-expanded="{{ request()->routeIs('login', 'register') ? 'true' : 'false' }}"
+                            >
+                                <span>Account</span>
+                                <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                            </button>
+
+                            <div class="guest-dropdown {{ request()->routeIs('login', 'register') ? 'show' : '' }}" id="guestDropdown">
+                                <a class="guest-dropdown-link {{ request()->routeIs('login') ? 'active' : '' }}"
+                                    href="{{ route('login') }}">
+                                    <span>Login</span>
+                                    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+                                </a>
+                                <a class="guest-dropdown-link {{ request()->routeIs('register') ? 'active' : '' }}"
+                                    href="{{ route('register') }}">
+                                    <span>Signup</span>
+                                    <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
                     @endguest
                 </div>
             </nav>
@@ -1024,7 +1234,7 @@
             </section>
 
             <footer class="site-footer">
-                <p>&copy; 2026 Gym Management and Membership System. All rights reserved.</p>
+                <p>GYMRATS | Beirut, Lebanon | +961 70 000 000 | support@gymrats.com | &copy; 2026 GYMRATS. All rights reserved.</p>
             </footer>
         </main>
     </div>
@@ -1088,6 +1298,31 @@
             }
         }
 
+        function toggleGuestMenu() {
+            const trigger = document.getElementById('guestMenuTrigger');
+            const dropdown = document.getElementById('guestDropdown');
+
+            if (!trigger || !dropdown) {
+                return;
+            }
+
+            const isOpen = dropdown.classList.toggle('show');
+            trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        }
+
+        function closeGuestMenu() {
+            const trigger = document.getElementById('guestMenuTrigger');
+            const dropdown = document.getElementById('guestDropdown');
+
+            if (dropdown) {
+                dropdown.classList.remove('show');
+            }
+
+            if (trigger) {
+                trigger.setAttribute('aria-expanded', 'false');
+            }
+        }
+
         function closeMobileNav() {
             const nav = document.getElementById('siteNav');
             const toggle = document.getElementById('mobileNavToggle');
@@ -1123,11 +1358,19 @@
         document.addEventListener('click', function (event) {
             const menu = document.querySelector('.profile-menu');
             const dropdown = document.getElementById('profileDropdown');
+            const guestMenu = document.getElementById('guestMenu');
+            const guestDropdown = document.getElementById('guestDropdown');
+            const guestTrigger = document.getElementById('guestMenuTrigger');
             const nav = document.getElementById('siteNav');
             const navToggle = document.getElementById('mobileNavToggle');
 
             if (menu && dropdown && !menu.contains(event.target)) {
                 dropdown.classList.remove('show');
+            }
+
+            if (guestMenu && guestDropdown && guestTrigger && !guestMenu.contains(event.target)) {
+                guestDropdown.classList.remove('show');
+                guestTrigger.setAttribute('aria-expanded', 'false');
             }
 
             if (nav && navToggle && nav.classList.contains('is-open')) {
@@ -1149,6 +1392,7 @@
             if (event.key === 'Escape') {
                 closeFlashModal();
                 closeMobileNav();
+                closeGuestMenu();
 
                 const dropdown = document.getElementById('profileDropdown');
                 if (dropdown) {
@@ -1162,11 +1406,17 @@
             mobileNavToggle.addEventListener('click', toggleMobileNav);
         }
 
+        const guestMenuTrigger = document.getElementById('guestMenuTrigger');
+        if (guestMenuTrigger) {
+            guestMenuTrigger.addEventListener('click', toggleGuestMenu);
+        }
+
         const navLinks = document.querySelectorAll('#siteNav .nav-link');
         navLinks.forEach((link) => {
             link.addEventListener('click', () => {
                 if (window.innerWidth <= 760) {
                     closeMobileNav();
+                    closeGuestMenu();
                 }
             });
         });
@@ -1175,6 +1425,8 @@
             if (window.innerWidth > 760) {
                 closeMobileNav();
             }
+
+            closeGuestMenu();
         });
     </script>
     @stack('scripts')

@@ -33,6 +33,14 @@ class GymClassController extends Controller
         $user = auth()->user();
         $isTrainer = $user && $user->isTrainer();
 
+        if ($isTrainer) {
+            $trainerId = optional($user->trainer)->id;
+
+            if (!$trainerId || $gymClass->trainer_id !== $trainerId) {
+                abort(403);
+            }
+        }
+
         $trainers = Trainer::with('user')->get();
         $categories = Trainer::SPECIALTIES;
 

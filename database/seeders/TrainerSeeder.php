@@ -28,6 +28,8 @@ class TrainerSeeder extends Seeder
         Trainer::updateOrCreate([
             'user_id' => $user->id,
             'specialty' => 'combat',
+        ], [
+            'salary' => fake()->numberBetween(1200, 2600),
         ]);
     }
 }

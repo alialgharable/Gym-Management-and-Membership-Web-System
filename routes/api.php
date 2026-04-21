@@ -12,13 +12,13 @@ use App\Http\Controllers\Api\TrainerApplicationController as ApiTrainerApplicati
 Route::middleware(['web'])->group(function () {
     Route::get('home', [HomeController::class, 'index']);
     Route::get('classes/{gymClass}', [GymClassController::class, 'show']);
+    Route::get('trainers', [TrainerController::class, 'index']);
     Route::get('trainers/{trainer}', [TrainerController::class, 'show']);
 });
 
 Route::get('classes', [GymClassController::class, 'index']);
 Route::get('plans', [MembershipPlanController::class, 'index']);
 Route::get('plans/{plan}', [MembershipPlanController::class, 'show']);
-Route::get('trainers', [TrainerController::class, 'index']);
 
 Route::get('trainer-applications/{trainerApplication}', [ApiTrainerApplicationController::class, 'show']);
 

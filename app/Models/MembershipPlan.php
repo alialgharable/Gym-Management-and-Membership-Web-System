@@ -19,6 +19,10 @@ class MembershipPlan extends Model
 
     public function durationLabel(): string
     {
+        if ($this->duration >= 365) {
+            return '12 months';
+        }
+
         if ($this->duration % 30 === 0) {
             $months = (int) ($this->duration / 30);
             return $months . ' month' . ($months === 1 ? '' : 's');

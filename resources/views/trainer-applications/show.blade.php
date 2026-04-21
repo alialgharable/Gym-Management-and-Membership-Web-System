@@ -105,6 +105,22 @@
                             @enderror
                         </div>
 
+                        <div>
+                            <label class="field-label">Monthly Salary</label>
+                            <input
+                                type="number"
+                                name="salary"
+                                class="field-input"
+                                min="0"
+                                step="0.01"
+                                required
+                                value="{{ old('salary') }}"
+                                placeholder="e.g. 1500">
+                            @error('salary')
+                                <span style="color:#ff5555; font-size:0.9rem;">{{ $message }}</span>
+                            @enderror
+                        </div>
+
                     </div>
 
                     <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:1.5rem; align-items:center;">

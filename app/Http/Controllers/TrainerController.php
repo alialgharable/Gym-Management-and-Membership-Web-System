@@ -63,6 +63,12 @@ class TrainerController extends Controller
      */
     public function edit(Trainer $trainer)
     {
+        $user = auth()->user();
+
+        if (!$user || (!$user->isAdmin() && $trainer->user_id !== $user->id)) {
+            abort(403);
+        }
+
         $specialties = Trainer::SPECIALTIES;
 
         return view('trainers.edit', compact('trainer', 'specialties'));
@@ -73,10 +79,17 @@ class TrainerController extends Controller
      */
     public function update(Request $request, Trainer $trainer)
     {
+        $user = auth()->user();
+
+        if (!$user || (!$user->isAdmin() && $trainer->user_id !== $user->id)) {
+            abort(403);
+        }
+
         $validated = $request->validate([
             'specialty' => ['required', Rule::in(array_keys(Trainer::SPECIALTIES))],
             'bio' => 'nullable|string',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'salary' => 'sometimes|nullable|numeric|min:0|max:999999.99',
         ]);
 
         if ($request->hasFile('profile_picture')) {
@@ -87,6 +100,10 @@ class TrainerController extends Controller
             $path = $request->file('profile_picture')->store('profile-pictures', 'public');
             $trainer->user->profile_picture = $path;
             $trainer->user->save();
+        }
+
+        if (!$user->isAdmin()) {
+            unset($validated['salary']);
         }
 
         $trainer->update($validated);

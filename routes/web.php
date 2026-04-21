@@ -13,8 +13,10 @@ use App\Http\Controllers\TrainerDashboardController;
 use App\Http\Controllers\TrainerApplicationController;
 use App\Http\Controllers\TrainerReviewController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\FinanceController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::view('/about-us', 'about')->name('about');
 
 Route::middleware(['auth'])->group(function () {
     Route::post('subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
@@ -47,6 +49,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/admin/finance', [FinanceController::class, 'index'])->name('admin.finance');
     Route::resource('plans', MembershipPlanController::class)->only(['create', 'edit']);
     Route::resource('admins', AdminController::class)->except(['index', 'show']);
     Route::resource('subscriptions', SubscriptionController::class)->except(['store']);

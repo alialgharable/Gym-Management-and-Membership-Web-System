@@ -3,6 +3,96 @@
 @section('title', 'Trainers')
 
 @section('content')
+
+    <style>
+        .trainers-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .trainers-filters {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .trainers-filter-input,
+        .trainers-filter-select {
+            min-width: 0;
+            height: 46px;
+            padding: 0 1rem;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+            font: inherit;
+            outline: none;
+        }
+
+        .trainers-filter-input {
+            flex: 1 1 280px;
+        }
+
+        .trainers-filter-select {
+            flex: 0 0 220px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-right: 2.6rem;
+            background-image: linear-gradient(45deg, transparent 50%, var(--accent) 50%),
+                linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+            background-position: calc(100% - 18px) 18px, calc(100% - 12px) 18px;
+            background-size: 6px 6px, 6px 6px;
+            background-repeat: no-repeat;
+        }
+
+        .trainers-filter-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .trainers-filter-input:focus,
+        .trainers-filter-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(247, 211, 74, 0.14);
+        }
+
+        .trainers-filter-select option {
+            background: var(--bg-elevated);
+            color: var(--text-main);
+        }
+
+        .trainers-filter-select::-ms-expand {
+            display: none;
+        }
+
+        .trainers-filter-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-left: auto;
+        }
+
+        @media (max-width: 760px) {
+            .trainers-filter-input,
+            .trainers-filter-select {
+                flex: 1 1 100%;
+            }
+
+            .trainers-filter-actions {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .trainers-filter-actions .btn {
+                flex: 1 1 0;
+            }
+        }
+    </style>
     <div class="page-header">
         <div>
             <h1 class="section-title">Trainers</h1>
@@ -10,14 +100,12 @@
         </div>
     </div>
 
-    <div style="margin-bottom:1rem; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <form id="trainers-filters" method="GET" action="{{ route('trainers.index') }}"
-            style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; width:100%;">
+    <div class="trainers-toolbar">
+        <form id="trainers-filters" method="GET" action="{{ route('trainers.index') }}" class="trainers-filters">
             <input type="text" name="search" placeholder="Search trainers..." value="{{ request('search') }}"
-                style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
+                class="trainers-filter-input">
 
-            <select name="specialty"
-                style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:#111; color:inherit;">
+            <select name="specialty" class="trainers-filter-select">
                 <option value="">All specialties</option>
                 @foreach(\App\Models\Trainer::SPECIALTIES as $key => $label)
                     <option value="{{ $key }}" {{ request('specialty') === $key ? 'selected' : '' }}>
@@ -26,7 +114,9 @@
                 @endforeach
             </select>
 
-            <a href="{{ route('trainers.index') }}" class="btn btn-secondary">Reset</a>
+            <div class="trainers-filter-actions">
+                <a href="{{ route('trainers.index') }}" class="btn btn-secondary">Reset</a>
+            </div>
         </form>
     </div>
 
@@ -48,6 +138,11 @@
 @push('scripts')
     <script>
         (function () {
+            const isAdmin = @json(auth()->check() && auth()->user()->isAdmin());
+            const isTrainer = @json(auth()->check() && auth()->user()->isTrainer());
+            const currentUserId = @json(auth()->id());
+            const csrfToken = @json(csrf_token());
+
             const form = document.getElementById('trainers-filters');
             const container = document.getElementById('trainers-container');
             const loadingBox = document.getElementById('trainers-loading');
@@ -95,6 +190,62 @@
                 emptyBox.style.display = 'none';
             }
 
+            function attachDeleteEvents() {
+                document.querySelectorAll('.btn-delete-trainer').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const trainerId = this.dataset.id;
+
+                        const runDelete = async () => {
+                            try {
+                                const response = await fetch(`/trainers/${trainerId}`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': csrfToken
+                                    },
+                                    body: (() => {
+                                        const fd = new FormData();
+                                        fd.append('_method', 'DELETE');
+                                        return fd;
+                                    })()
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Failed to delete trainer.');
+                                }
+
+                                loadTrainers();
+                            } catch (error) {
+                                console.error(error);
+
+                                if (window.showModal) {
+                                    window.showModal({
+                                        type: 'error',
+                                        title: 'Error',
+                                        message: 'Failed to delete trainer.',
+                                        confirmText: 'OK'
+                                    });
+                                } else {
+                                    alert('Failed to delete trainer.');
+                                }
+                            }
+                        };
+
+                        if (window.showModal) {
+                            window.showModal({
+                                type: 'warning',
+                                title: 'Delete Trainer?',
+                                message: 'This trainer profile will be removed permanently.',
+                                confirmText: 'Delete',
+                                onConfirm: runDelete
+                            });
+                        } else if (confirm('Delete this trainer?')) {
+                            runDelete();
+                        }
+                    });
+                });
+            }
+
             async function loadTrainers() {
                 showLoading();
                 hideMessages();
@@ -126,6 +277,18 @@
                         const user = trainer.user || {};
                         const gymClasses = trainer.gym_classes || [];
                         const reviews = trainer.reviews || [];
+                        const trainerUserId = user.id ?? null;
+                        const canManageTrainer = isAdmin || (isTrainer && trainerUserId && currentUserId && Number(trainerUserId) === Number(currentUserId));
+                        const canSeeSalary = trainer.salary !== null && trainer.salary !== undefined;
+                        const salaryLine = canSeeSalary
+                            ? `<p><strong>Salary:</strong> $${Number(trainer.salary).toLocaleString()}</p>`
+                            : '';
+                        const manageActions = canManageTrainer
+                            ? `
+                                <a href="/trainers/${trainer.id}/edit" class="btn btn-primary">Edit</a>
+                                <button type="button" class="btn btn-danger btn-delete-trainer" data-id="${trainer.id}">Delete</button>
+                            `
+                            : '';
                         const profileImage = user.profile_picture
                             ? `/storage/${user.profile_picture}`
                             : `/images/default-avatar.png`;
@@ -149,16 +312,20 @@
 
                                     <p><strong>Email:</strong> ${escapeHtml(user.email || 'N/A')}</p>
                                    <p><strong>Specialization:</strong> ${escapeHtml(trainer.specialty_label || trainer.specialty || 'N/A')}</p>
+                                    ${salaryLine}
                                     <p style="font-size:0.9rem; color:#a9a89d;">
                                         Classes: ${gymClasses.length} | Reviews: ${reviews.length}
                                     </p>
 
                                     <div class="actions" style="margin-top:1rem;">
                                         <a href="/trainers/${trainer.id}" class="btn btn-secondary">View</a>
+                                        ${manageActions}
                                     </div>
                                 </div>
                             `;
                     });
+
+                    attachDeleteEvents();
                 } catch (error) {
                     hideLoading();
                     container.innerHTML = '';

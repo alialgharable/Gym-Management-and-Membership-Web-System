@@ -6,11 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Models\Trainer;
 use App\Models\TrainerReview;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class TrainerController extends Controller
 {
     public function index(Request $request)
     {
+        if (Schema::hasColumn('trainers', 'salary')) {
+            Trainer::whereNull('salary')
+                ->get()
+                ->each(function (Trainer $trainer) {
+                    $trainer->salary = random_int(1200, 3000);
+                    $trainer->save();
+                });
+        }
+
         $query = Trainer::with(['user', 'gymClasses', 'reviews.member.user']);
 
         if ($request->filled('search')) {
@@ -29,7 +39,11 @@ class TrainerController extends Controller
         $perPage = 12;
         $paginator = $query->latest()->paginate($perPage);
 
-        $items = collect($paginator->items())->map(function ($trainer) {
+        $viewer = auth()->user();
+
+        $items = collect($paginator->items())->map(function ($trainer) use ($viewer) {
+            $canSeeSalary = $viewer && ($viewer->isAdmin() || ($viewer->isTrainer() && $viewer->id === $trainer->user_id));
+
             // $trainer is a model instance
             return [
                 'id' => $trainer->id,
@@ -39,6 +53,7 @@ class TrainerController extends Controller
                     ? $trainer->specialtyLabel()
                     : $trainer->specialty,
                 'bio' => $trainer->bio,
+                'salary' => $canSeeSalary ? $trainer->salary : null,
                 'created_at' => $trainer->created_at,
                 'updated_at' => $trainer->updated_at,
 
@@ -86,7 +101,16 @@ class TrainerController extends Controller
 
     public function show(Trainer $trainer)
     {
+        if (Schema::hasColumn('trainers', 'salary') && is_null($trainer->salary)) {
+            $trainer->salary = random_int(1200, 3000);
+            $trainer->save();
+            $trainer->refresh();
+        }
+
         $trainer->load(['user', 'gymClasses', 'reviews.member.user']);
+
+        $viewer = auth()->user();
+        $canSeeSalary = $viewer && ($viewer->isAdmin() || ($viewer->isTrainer() && $viewer->id === $trainer->user_id));
 
         $memberReview = null;
 
@@ -108,6 +132,7 @@ class TrainerController extends Controller
                     ? $trainer->specialtyLabel()
                     : $trainer->specialty,
                 'bio' => $trainer->bio,
+                'salary' => $canSeeSalary ? $trainer->salary : null,
                 'created_at' => $trainer->created_at,
                 'updated_at' => $trainer->updated_at,
 

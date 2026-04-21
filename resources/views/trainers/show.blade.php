@@ -6,7 +6,7 @@
     <div class="page-header">
         <div id="trainer-header" style="display:flex; align-items:center; gap:1rem;"></div>
 
-        <div class="actions">
+        <div class="actions" id="trainer-actions">
             <a href="{{ route('trainers.index') }}" class="btn btn-secondary">← Back</a>
         </div>
     </div>
@@ -22,6 +22,9 @@
 <script>
     const trainerId = {{ $trainerId }};
     const csrfToken = '{{ csrf_token() }}';
+    const isAdmin = @json(auth()->check() && auth()->user()->isAdmin());
+    const isTrainer = @json(auth()->check() && auth()->user()->isTrainer());
+    const currentUserId = @json(auth()->id());
 
     function escapeHtml(value) {
         return String(value ?? '')
@@ -173,10 +176,16 @@
             const user = trainer.user || {};
             const classes = trainer.gym_classes || [];
             const reviews = trainer.reviews || [];
+            const canSeeSalary = trainer.salary !== null && trainer.salary !== undefined;
+            const salaryLine = canSeeSalary
+                ? `<p><strong>Salary:</strong> $${Number(trainer.salary).toLocaleString()}</p>`
+                : '';
 
             const profileImage = user.profile_picture
                 ? `/storage/${user.profile_picture}`
                 : `/images/default-avatar.png`;
+            const trainerUserId = user.id ?? null;
+            const canManageTrainer = isAdmin || (isTrainer && trainerUserId && currentUserId && Number(trainerUserId) === Number(currentUserId));
 
             document.getElementById('trainer-header').innerHTML = `
                 <img
@@ -191,6 +200,60 @@
                 </div>
             `;
 
+            if (canManageTrainer) {
+                const actions = document.getElementById('trainer-actions');
+
+                if (actions) {
+                    actions.innerHTML = `
+                        <a href="{{ route('trainers.index') }}" class="btn btn-secondary">← Back</a>
+                        <a href="/trainers/${trainer.id}/edit" class="btn btn-primary">Edit</a>
+                        <button type="button" class="btn btn-danger" id="delete-trainer-btn">Delete</button>
+                    `;
+
+                    const deleteBtn = document.getElementById('delete-trainer-btn');
+                    if (deleteBtn) {
+                        deleteBtn.addEventListener('click', function () {
+                            const runDelete = async () => {
+                                try {
+                                    const response = await fetch(`/trainers/${trainer.id}`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Accept': 'application/json',
+                                            'X-CSRF-TOKEN': csrfToken
+                                        },
+                                        body: (() => {
+                                            const fd = new FormData();
+                                            fd.append('_method', 'DELETE');
+                                            return fd;
+                                        })()
+                                    });
+
+                                    if (!response.ok) {
+                                        throw new Error('Failed to delete trainer.');
+                                    }
+
+                                    window.location.href = '/trainers';
+                                } catch (error) {
+                                    showMessage(error.message || 'Failed to delete trainer.', 'error');
+                                }
+                            };
+
+                            if (window.showModal) {
+                                window.showModal({
+                                    type: 'warning',
+                                    title: 'Delete Trainer?',
+                                    message: 'This trainer profile will be removed permanently.',
+                                    confirmText: 'Delete',
+                                    onConfirm: runDelete
+                                });
+                            } else if (confirm('Delete this trainer?')) {
+                                runDelete();
+                            }
+                        });
+                    }
+                }
+            }
+
             document.getElementById('trainer-content').innerHTML = `
                 <div class="card-grid" style="grid-template-columns:1fr 1fr;">
                     <div class="card">
@@ -198,6 +261,7 @@
                         <p><strong>Name:</strong> ${escapeHtml(user.name || 'N/A')}</p>
                         <p><strong>Email:</strong> ${escapeHtml(user.email || 'N/A')}</p>
                         <p><strong>Specialization:</strong> ${escapeHtml(trainer.specialty_label || trainer.specialty || 'N/A')}</p>
+                        ${salaryLine}
                     </div>
 
                     <div class="card">

@@ -19,25 +19,6 @@
         @endauth
     </div>
 
-    <div style="margin-bottom:1rem; display:flex; gap:8px; align-items:center;">
-        <form id="plans-filters" method="GET" action="#" style="display:flex; gap:8px; align-items:center;">
-            <input type="text" name="search" placeholder="Search plans..." value="{{ request('search') }}" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
-
-            <input type="number" name="min_price" placeholder="Min price" value="{{ request('min_price') }}" style="width:100px; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
-            <input type="number" name="max_price" placeholder="Max price" value="{{ request('max_price') }}" style="width:100px; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
-
-            <select name="duration_months" style="padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit;">
-                <option value="">Any duration</option>
-                <option value="1" {{ request('duration_months') == '1' ? 'selected' : '' }}>1 month</option>
-                <option value="3" {{ request('duration_months') == '3' ? 'selected' : '' }}>3 months</option>
-                <option value="6" {{ request('duration_months') == '6' ? 'selected' : '' }}>6 months</option>
-                <option value="12" {{ request('duration_months') == '12' ? 'selected' : '' }}>12 months</option>
-            </select>
-
-            <a href="{{ route('plans.index') }}" class="btn btn-secondary">Reset</a>
-        </form>
-    </div>
-
     <div id="plans-list-container">
         <div id="plans-list" class="card-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
             <!-- Plans will be rendered here by JS -->
@@ -51,7 +32,6 @@
         (function () {
             const apiBase = '/api/plans';
             const container = document.getElementById('plans-list');
-            const form = document.getElementById('plans-filters');
             const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
             @php
@@ -248,20 +228,10 @@
                 }
             }
 
-            function buildQuery() {
-                const params = new URLSearchParams();
-                const f = new FormData(form);
-                for (const [k, v] of f.entries()) {
-                    if (v) params.append(k, v);
-                }
-                return params.toString() ? ('?' + params.toString()) : '';
-            }
-
             async function load() {
                 container.innerHTML = '';
-                const qs = buildQuery();
                 try {
-                    const res = await fetch(apiBase + qs, { headers: { 'Accept': 'application/json' } });
+                    const res = await fetch(apiBase, { headers: { 'Accept': 'application/json' } });
                     if (!res.ok) throw new Error('Failed to load plans');
                     const json = await res.json();
                     const plans = json.data || [];
@@ -289,19 +259,6 @@
                     container.textContent = 'Error loading plans.';
                 }
             }
-
-            let timer;
-            const search = form.querySelector('input[name="search"]');
-            if (search) {
-                search.addEventListener('input', function () {
-                    clearTimeout(timer);
-                    timer = setTimeout(load, 500);
-                });
-            }
-
-            form.querySelectorAll('select, input[type="number"]').forEach(s => s.addEventListener('change', load));
-
-            form.addEventListener('submit', function (e) { e.preventDefault(); load(); });
 
             // initial load
             load();

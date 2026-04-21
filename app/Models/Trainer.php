@@ -18,6 +18,7 @@ class Trainer extends Model
         'specialty',
         'bio',
         'profile_image',
+        'salary',
     ];
 
 

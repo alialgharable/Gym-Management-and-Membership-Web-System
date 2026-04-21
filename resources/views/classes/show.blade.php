@@ -43,7 +43,9 @@
 @push('scripts')
 <script>
     const classId = @json($classId);
-    const isTrainerOrAdmin = @json(auth()->check() && (auth()->user()->isTrainer() || auth()->user()->isAdmin()));
+    const isTrainer = @json(auth()->check() && auth()->user()->isTrainer());
+    const isAdmin = @json(auth()->check() && auth()->user()->isAdmin());
+    const currentUserId = @json(auth()->id());
     const csrfToken = @json(csrf_token());
 
     function formatCategory(category) {
@@ -99,12 +101,16 @@
 
             title.textContent = gymClass.name ?? 'Class Details';
 
-            if (isTrainerOrAdmin && editBtn) {
+            const classOwnerUserId = gymClass?.trainer?.user?.id ?? null;
+            const trainerOwnsClass = isTrainer && currentUserId && classOwnerUserId && Number(classOwnerUserId) === Number(currentUserId);
+            const canManageThisClass = isAdmin || trainerOwnsClass;
+
+            if (canManageThisClass && editBtn) {
                 editBtn.href = `/classes/${gymClass.id}/edit`;
                 editBtn.style.display = 'inline-flex';
             }
 
-            if (isTrainerOrAdmin && deleteWrap && deleteBtn) {
+            if (canManageThisClass && deleteWrap && deleteBtn) {
                 deleteWrap.style.display = 'block';
 
                 deleteBtn.onclick = async () => {

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Reset Password - Gym Management')
+@section('title', 'Reset Password - GYMRATS')
 
 @section('content')
     <div class="page-header">

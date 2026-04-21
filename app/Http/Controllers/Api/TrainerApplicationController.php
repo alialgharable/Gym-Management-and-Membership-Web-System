@@ -197,6 +197,7 @@ class TrainerApplicationController extends Controller
         $validated = $request->validate([
             'specialty' => ['required', Rule::in(array_keys(Trainer::SPECIALTIES))],
             'bio' => 'nullable|string',
+            'salary' => 'required|numeric|min:0|max:999999.99',
         ]);
 
         $admin = $user->admin;
@@ -212,6 +213,7 @@ class TrainerApplicationController extends Controller
                 'user_id' => $trainerApplication->user_id,
                 'specialty' => $validated['specialty'],
                 'bio' => $validated['bio'] ?? $trainerApplication->experience,
+                'salary' => $validated['salary'],
             ]);
 
             if ($trainerApplication->user) {

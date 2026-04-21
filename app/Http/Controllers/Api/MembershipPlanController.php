@@ -20,6 +20,21 @@ class MembershipPlanController extends Controller
             });
         }
 
+        if ($request->filled('duration_months')) {
+            $durationMonths = (int) $request->input('duration_months');
+
+            $durationMap = [
+                1 => 30,
+                3 => 90,
+                6 => 180,
+                12 => 365,
+            ];
+
+            if (isset($durationMap[$durationMonths])) {
+                $query->where('duration', $durationMap[$durationMonths]);
+            }
+        }
+
         $perPage = 12;
         $paginator = $query->latest()->paginate($perPage);
 
