@@ -15,8 +15,17 @@ return new class extends Migration
 
         DB::statement("\n            UPDATE classes\n            SET category = CASE\n                WHEN room_id = 1 THEN 'combat'\n                WHEN room_id = 2 THEN 'yoga_pilates'\n                WHEN room_id = 3 THEN 'group_training'\n                WHEN room_id = 4 THEN 'fitness_machines'\n                ELSE 'group_training'\n            END\n            WHERE category IS NULL\n        ");
 
-        DB::statement("ALTER TABLE classes MODIFY category VARCHAR(255) NOT NULL");
-        DB::statement("CREATE INDEX classes_category_index ON classes (category)");
+        $driver = \Illuminate\Support\Facades\Schema::getConnection()->getDriverName();
+        if ($driver === 'mysql') {
+            DB::statement("ALTER TABLE classes MODIFY category VARCHAR(255) NOT NULL");
+        } else {
+            DB::statement("ALTER TABLE classes ALTER COLUMN category TYPE VARCHAR(255)");
+            DB::statement("ALTER TABLE classes ALTER COLUMN category SET NOT NULL");
+        }
+
+        Schema::table('classes', function (Blueprint $table) {
+            $table->index('category', 'classes_category_index');
+        });
     }
 
     public function down(): void

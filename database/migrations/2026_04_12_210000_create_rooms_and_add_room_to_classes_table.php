@@ -47,9 +47,24 @@ return new class extends Migration
             $table->unsignedBigInteger('room_id')->nullable()->after('trainer_id');
         });
 
-        DB::statement("\n            UPDATE classes\n            SET room_id = CASE\n                WHEN LOWER(name) REGEXP 'boxing|combat|mma|martial|kickboxing' THEN 1\n                WHEN LOWER(name) REGEXP 'yoga|pilates' THEN 2\n                WHEN LOWER(name) REGEXP 'crossfit|hiit|fitness|workout' THEN 4\n                ELSE 3\n            END\n            WHERE room_id IS NULL\n        ");
+        $driver = Schema::getConnection()->getDriverName();
 
-        DB::statement('ALTER TABLE classes MODIFY room_id BIGINT UNSIGNED NOT NULL');
+        if ($driver === 'mysql') {
+            DB::statement("\n                UPDATE classes\n                SET room_id = CASE\n                    WHEN LOWER(name) REGEXP 'boxing|combat|mma|martial|kickboxing' THEN 1\n                    WHEN LOWER(name) REGEXP 'yoga|pilates' THEN 2\n                    WHEN LOWER(name) REGEXP 'crossfit|hiit|fitness|workout' THEN 4\n                    ELSE 3\n                END\n                WHERE room_id IS NULL\n            ");
+
+            DB::statement('ALTER TABLE classes MODIFY room_id BIGINT UNSIGNED NOT NULL');
+        } else {
+            // PostgreSQL and other drivers: use POSIX regex (~*) for case-insensitive match
+            DB::statement("\n                UPDATE classes\n                SET room_id = CASE\n                    WHEN LOWER(name) ~* 'boxing|combat|mma|martial|kickboxing' THEN 1\n                    WHEN LOWER(name) ~* 'yoga|pilates' THEN 2\n                    WHEN LOWER(name) ~* 'crossfit|hiit|fitness|workout' THEN 4\n                    ELSE 3\n                END\n                WHERE room_id IS NULL\n            ");
+
+            // Alter column to bigint and set NOT NULL in a Postgres-compatible way
+            try {
+                DB::statement('ALTER TABLE classes ALTER COLUMN room_id TYPE bigint USING room_id::bigint');
+                DB::statement('ALTER TABLE classes ALTER COLUMN room_id SET NOT NULL');
+            } catch (\Throwable $e) {
+                // If altering fails (e.g., column already correct), continue silently
+            }
+        }
 
         Schema::table('classes', function (Blueprint $table) {
             $table->foreign('room_id')->references('id')->on('rooms')->restrictOnDelete();
