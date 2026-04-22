@@ -153,7 +153,7 @@ class MemberController extends Controller
         $member->delete();
 
         if ($user && $user->role === 'member') {
-            $user->role = 'user'; // or whatever your default role is
+            $user->role = 'guest';
             $user->save();
         }
 

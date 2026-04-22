@@ -1023,67 +1023,36 @@
 </head>
 
 <body>
-    @php
-        $flashType = null;
-        $flashTitle = null;
-        $flashMessage = null;
-
-        if (session('success')) {
-            $flashType = 'success';
-            $flashTitle = 'Success';
-            $flashMessage = session('success');
-        } elseif (session('error')) {
-            $flashType = 'error';
-            $flashTitle = 'Something went wrong';
-            $flashMessage = session('error');
-        } elseif (session('warning')) {
-            $flashType = 'warning';
-            $flashTitle = 'Warning';
-            $flashMessage = session('warning');
-        } elseif ($errors->any()) {
-            $flashType = 'error';
-            $flashTitle = 'Please fix the following';
-        }
-    @endphp
-
-    @if($flashType)
-        <div id="flashModal" class="flash-modal {{ $flashType }} show">
-            <div class="flash-modal-card" role="dialog" aria-modal="true" aria-labelledby="flashModalTitle">
-                <div class="flash-modal-header">
-                    <div class="flash-modal-icon">
-                        @if($flashType === 'success')
-                            <i class="fa-solid fa-check"></i>
-                        @elseif($flashType === 'warning')
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                        @else
-                            <i class="fa-solid fa-circle-exclamation"></i>
-                        @endif
-                    </div>
-
-                    <div>
-                        <h2 id="flashModalTitle" class="flash-modal-title">{{ $flashTitle }}</h2>
-                        <p class="flash-modal-subtitle">GYMRATS</p>
-                    </div>
-                </div>
-
-                <div class="flash-modal-body">
-                    @if($errors->any())
-                        <ul class="flash-modal-errors">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    @else
-                        {{ $flashMessage }}
-                    @endif
-                </div>
-
-                <div class="flash-modal-actions">
-                    <button type="button" class="btn btn-primary" onclick="closeFlashModal()">Okay</button>
-                </div>
+    {{-- Inline flash messages (replaces modal) --}}
+    <div id="flashInline" style="position:fixed; top:16px; right:16px; z-index:9999; max-width:420px;">
+        @if (session('success'))
+            <div style="margin-bottom:0.75rem; padding:0.85rem 1rem; border-radius:10px; background: rgba(47, 191, 113, 0.12); border:1px solid rgba(47,191,113,0.35); color:#9ef0bf; font-weight:600;">
+                {{ session('success') }}
             </div>
-        </div>
-    @endif
+        @endif
+
+        @if (session('error'))
+            <div style="margin-bottom:0.75rem; padding:0.85rem 1rem; border-radius:10px; background: rgba(239,71,111,0.08); border:1px solid rgba(239,71,111,0.25); color:#ffb3c4; font-weight:600;">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if (session('warning'))
+            <div style="margin-bottom:0.75rem; padding:0.85rem 1rem; border-radius:10px; background: rgba(247,211,74,0.08); border:1px solid rgba(247,211,74,0.25); color:#f7d34a; font-weight:600;">
+                {{ session('warning') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div style="margin-bottom:0.75rem; padding:0.85rem 1rem; border-radius:10px; background: rgba(239,71,111,0.08); border:1px solid rgba(239,71,111,0.25); color:#ffb3c4;">
+                <ul style="margin:0; padding-left:1rem;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+    </div>
 
     <div class="site-shell">
         <header class="site-header">

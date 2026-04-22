@@ -156,7 +156,15 @@ class SubscriptionController extends Controller
         }
 
         if ($request->expectsJson()) {
-            return response()->json(['message' => $message, 'data' => ['subscription_id' => $subscription->id]], 201);
+            return response()->json([
+                'message' => $message,
+                'data' => [
+                    'subscription_id' => $subscription->id,
+                    'member_id' => $member->id,
+                    'start_date' => $subscription->start_date,
+                    'end_date' => $subscription->end_date,
+                ],
+            ], 201);
         }
 
         return redirect()->route('home')

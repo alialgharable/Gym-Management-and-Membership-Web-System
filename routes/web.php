@@ -7,6 +7,7 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\MemberDashboardController;
 use App\Http\Controllers\GymClassController;
 use App\Http\Controllers\MembershipPlanController;
+use App\Http\Controllers\Api\MembershipPlanController as ApiMembershipPlanController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\TrainerDashboardController;
@@ -22,6 +23,7 @@ Route::view('/about-us', 'about')->name('about');
 
 Route::middleware(['auth'])->group(function () {
     Route::post('subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
+    Route::get('subscriptions/create', [SubscriptionController::class, 'create'])->name('subscriptions.create');
     Route::post('subscriptions/cancel-active', [SubscriptionController::class, 'cancelActive'])->name('subscriptions.cancel-active');
 
     Route::get('trainer-applications/create', [TrainerApplicationController::class, 'create'])
@@ -56,6 +58,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/finance', [FinanceController::class, 'index'])->name('admin.finance');
     Route::resource('plans', MembershipPlanController::class)->only(['create', 'edit']);
+    // POST route for creating plans is handled by API controller; expose a named web route
+    Route::post('plans', [ApiMembershipPlanController::class, 'store'])->name('plans.store');
     Route::resource('admins', AdminController::class)->except(['index', 'show']);
     Route::resource('subscriptions', SubscriptionController::class)->except(['store']);
     Route::resource('members', MemberController::class)->except(['index', 'show', 'create']);

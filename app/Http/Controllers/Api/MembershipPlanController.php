@@ -91,22 +91,39 @@ class MembershipPlanController extends Controller
 
     public function store(Request $request)
     {
+
         $this->authorizeAdmin();
 
+        // Accept duration either as days ('duration') or months via 'duration_months' from web form.
+        if ($request->filled('duration_months')) {
+            $months = (int) $request->input('duration_months');
+            $map = [1 => 30, 3 => 90, 6 => 180];
+            if (!isset($map[$months])) {
+                return response()->json(['message' => 'Invalid duration selected.'], 422);
+            }
+            // merge computed duration into request so validation passes
+            $request->merge(['duration' => $map[$months]]);
+        }
+
+        // price column is decimal(8,2) in DB so max allowed is 999999.99
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'tier' => 'required|in:basic,premium',
-            'price' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0|max:999999.99',
             'duration' => 'required|integer|in:30,90,180',
             'description' => 'nullable|string',
         ]);
 
         $plan = MembershipPlan::create($validated);
 
-        return response()->json([
-            'message' => 'Plan created successfully',
-            'data' => ['id' => $plan->id],
-        ], 201);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Plan created successfully',
+                'data' => ['id' => $plan->id],
+            ], 201);
+        }
+
+        return redirect()->route('plans.index')->with('success', 'Plan created successfully!');
     }
 
     public function update(Request $request, MembershipPlan $plan)

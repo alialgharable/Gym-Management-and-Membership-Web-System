@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GymClass;
 use App\Models\Member;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 
@@ -71,8 +72,15 @@ class BookingController extends Controller
         }
 
         if ($isMember) {
-            $member = Member::with('subscription')->where('user_id', $user->id)->first();
-            $hasActiveSubscription = $member && $member->subscription && $member->subscription->status === 'active';
+            $member = Member::where('user_id', $user->id)->first();
+            $activeSubscription = $member ? Subscription::where('member_id', $member->id)
+                ->where('status', 'active')
+                ->whereDate('end_date', '>=', now()->toDateString())
+                ->latest('end_date')
+                ->first()
+                : null;
+
+            $hasActiveSubscription = (bool) $activeSubscription;
 
             if (!$hasActiveSubscription) {
                 return redirect()->route('member.dashboard')
@@ -107,8 +115,13 @@ class BookingController extends Controller
         if ($user && $user->isMember()) {
             $member = Member::where('user_id', $user->id)->firstOrFail();
 
-            $hasActiveSubscription = $member->subscription && $member->subscription->status === 'active';
-            if (!$hasActiveSubscription) {
+            $activeSubscription = Subscription::where('member_id', $member->id)
+                ->where('status', 'active')
+                ->whereDate('end_date', '>=', now()->toDateString())
+                ->latest('end_date')
+                ->first();
+
+            if (!$activeSubscription) {
                 return back()->withInput()->with('error', 'You need an active subscription to book classes.');
             }
 

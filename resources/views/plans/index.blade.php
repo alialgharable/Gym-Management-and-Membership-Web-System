@@ -55,7 +55,7 @@
     </div>
 
     @auth
-        @if(auth()->user()->isMember())
+        @if(!auth()->user()->isAdmin() && !auth()->user()->isTrainer())
             <div id="premium-coach-section" class="card" style="margin-top:1.5rem; display:none;">
                 <h3 style="margin-bottom:10px;">Premium Coach Selection</h3>
                 <p style="margin-bottom:14px; color:#c8c5b4;">Choose a trainer for your premium plan request. The trainer will receive a notification and must approve.</p>
@@ -235,7 +235,7 @@
                 view.textContent = 'View';
                 actions.appendChild(view);
 
-                if (user.isMember && !user.isAdmin && !user.isTrainer) {
+                if (user.isAuth && !user.isAdmin && !user.isTrainer) {
                     const btn = document.createElement('button');
                     btn.className = 'btn btn-primary';
                     btn.textContent = 'Subscribe';
@@ -271,7 +271,11 @@
 
                             const json = await res.json().catch(() => ({}));
                             const msg = json.message || (res.ok ? 'Subscribed successfully' : 'Subscribe failed');
-                            showAppModal({ title: res.ok ? 'Subscribed' : 'Subscription', message: msg, confirmText: 'OK' });
+                            if (res.ok) {
+                                showAppModal({ title: 'Subscribed', message: msg, confirmText: 'OK', onConfirm: () => { window.location.href = '/member/dashboard'; } });
+                            } else {
+                                showAppModal({ title: 'Subscription', message: msg, confirmText: 'OK' });
+                            }
                         } catch (err) {
                             console.error(err);
                             const msg = err.message || 'Subscribe failed';
@@ -393,8 +397,8 @@
                 }
 
                 if (premiumSection) {
-                    if (currentTier === 'premium' && user.isMember) {
-                        premiumSection.style.display = premiumPlanId && premiumPlanId.value ? 'block' : 'none';
+                    if (currentTier === 'premium' && user.isAuth && !user.isAdmin && !user.isTrainer) {
+                        premiumSection.style.display = 'block';
                     } else {
                         premiumSection.style.display = 'none';
                     }
@@ -491,14 +495,15 @@
 
                     const json = await res.json().catch(() => ({}));
                     const msg = json.message || (res.ok ? 'Premium request submitted.' : 'Subscription failed');
-                    showAppModal({ title: res.ok ? 'Premium Submitted' : 'Subscription', message: msg, confirmText: 'OK' });
-
                     if (res.ok) {
+                        showAppModal({ title: 'Premium Submitted', message: msg, confirmText: 'OK', onConfirm: () => { window.location.href = '/member/dashboard'; } });
                         premiumForm.reset();
                         if (premiumPlanId) premiumPlanId.value = '';
                         if (premiumPlanLabel) premiumPlanLabel.value = '';
                         if (premiumSection) premiumSection.style.display = 'none';
                         load();
+                    } else {
+                        showAppModal({ title: 'Subscription', message: msg, confirmText: 'OK' });
                     }
                 } catch (err) {
                     console.error(err);

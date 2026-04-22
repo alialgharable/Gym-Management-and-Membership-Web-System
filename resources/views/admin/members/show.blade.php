@@ -74,6 +74,11 @@
                     <p><strong>Price:</strong> ${{ $activeSub->plan->price ?? 'N/A' }}</p>
                     <p><strong>Expires:</strong> {{ $activeSub->end_date->format('M d, Y') }}</p>
                 </div>
+                @if(auth()->id() === $member->user_id)
+                    <div style="margin-top:12px;">
+                        <button id="cancel-subscription-btn" type="button" class="btn btn-danger">Cancel Subscription</button>
+                    </div>
+                @endif
             @else
                 <p style="color:#ff5555;">No active subscription</p>
             @endif
@@ -149,5 +154,34 @@
             });
         });
     });
+
+    const cancelBtn = document.getElementById('cancel-subscription-btn');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function () {
+            window.showModal({
+                title: 'Cancel Subscription?',
+                message: 'This will cancel your active subscription. You can delete your membership afterwards.',
+                confirmText: 'Yes, Cancel',
+                onConfirm: async () => {
+                    try {
+                        const res = await fetch('{{ route('subscriptions.cancel-active') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        const json = await res.json().catch(() => ({}));
+                        const msg = json.message || (res.ok ? 'Cancelled' : 'Could not cancel');
+                        window.showModal({ title: res.ok ? 'Cancelled' : 'Subscription', message: msg, confirmText: 'OK', onConfirm: () => { if (res.ok) { window.location.reload(); } } });
+                    } catch (err) {
+                        console.error(err);
+                        window.showModal({ title: 'Subscription', message: err.message || 'Could not cancel subscription', confirmText: 'OK' });
+                    }
+                }
+            });
+        });
+    }
 </script>
 @endpush

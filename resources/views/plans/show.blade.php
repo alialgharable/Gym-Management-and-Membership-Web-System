@@ -131,17 +131,18 @@
                                 const json = await res.json().catch(() => ({}));
                                 if (!res.ok) {
                                     const msg = json.message || 'Subscribe failed';
-                                        if (window.showModal) {
-                                            window.showModal({ title: 'Subscription', message: msg, confirmText: 'OK' });
-                                        } else {
-                                            alert(msg);
-                                        }
+                                    if (window.showModal) {
+                                        window.showModal({ title: 'Subscription', message: msg, confirmText: 'OK' });
+                                    } else {
+                                        alert(msg);
+                                    }
                                 } else {
                                     const msg = json.message || 'Subscribed successfully';
                                     if (window.showModal) {
-                                        window.showModal({ title: 'Subscribed', message: msg, confirmText: 'OK' });
+                                        window.showModal({ title: 'Subscribed', message: msg, confirmText: 'OK', onConfirm: () => { window.location.href = '/member/dashboard'; } });
                                     } else {
                                         alert(msg);
+                                        window.location.href = '/member/dashboard';
                                     }
                                 }
                             } catch (err) {
