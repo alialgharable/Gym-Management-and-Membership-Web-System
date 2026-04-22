@@ -20,12 +20,18 @@ class ReviewSeeder extends Seeder
         $trainers = Trainer::all();
 
         foreach ($members as $member) {
-            TrainerReview::create([
-                'member_id' => $member->id,
-                'trainer_id' => $trainers->random()->id,
-                'rating' => fake()->numberBetween(1, 5),
-                'comment' => fake()->optional()->sentence(),
-            ]);
+            $trainer = $trainers->random();
+
+            TrainerReview::updateOrCreate(
+                [
+                    'member_id' => $member->id,
+                    'trainer_id' => $trainer->id,
+                ],
+                [
+                    'rating' => fake()->numberBetween(1, 5),
+                    'comment' => fake()->optional()->sentence(),
+                ]
+            );
         }
     }
 }

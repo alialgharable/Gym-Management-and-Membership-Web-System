@@ -172,6 +172,57 @@
 
         </div>
 
+        <div class="card trainer-block" id="premium-requests">
+            <div class="trainer-block-header">
+                <h3 class="trainer-block-title">Premium Coach Requests</h3>
+                <span class="trainer-block-subtle">{{ $pendingPremiumRequests->count() }} pending</span>
+            </div>
+
+            @if ($pendingPremiumRequests->count())
+                <div style="overflow-x:auto; margin-top:1rem;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Plan</th>
+                                <th>Requested</th>
+                                <th>Note</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($pendingPremiumRequests as $coachRequest)
+                                <tr>
+                                    <td>{{ $coachRequest->member->user->name ?? 'Member #' . $coachRequest->member_id }}</td>
+                                    <td>
+                                        {{ $coachRequest->subscription?->plan?->tierLabel() ?? 'Premium' }}
+                                        ({{ $coachRequest->subscription?->plan?->durationLabel() ?? 'N/A' }})
+                                    </td>
+                                    <td>{{ $coachRequest->created_at?->format('Y-m-d H:i') }}</td>
+                                    <td>{{ $coachRequest->member_note ?: 'No note' }}</td>
+                                    <td>
+                                        <div class="actions" style="display:flex; gap:8px; flex-wrap:wrap;">
+                                            <form action="{{ route('premium-coach-requests.approve', $coachRequest) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                <button class="btn btn-success" type="submit">Approve</button>
+                                            </form>
+
+                                            <form action="{{ route('premium-coach-requests.reject', $coachRequest) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                <button class="btn btn-danger" type="submit">Reject</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <p class="trainer-empty-text">No pending premium requests right now.</p>
+            @endif
+        </div>
+
         <div class="card trainer-block">
             <div class="trainer-block-header">
                 <h3 class="trainer-block-title">My Classes</h3>

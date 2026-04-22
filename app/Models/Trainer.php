@@ -37,6 +37,21 @@ class Trainer extends Model
         return $this->hasMany(TrainerReview::class);
     }
 
+    public function members()
+    {
+        return $this->hasMany(Member::class);
+    }
+
+    public function programs()
+    {
+        return $this->hasMany(Program::class);
+    }
+
+    public function premiumCoachRequests()
+    {
+        return $this->hasMany(PremiumCoachRequest::class);
+    }
+
     public function specialtyLabel(): string
     {
         $key = $this->specialty ?? null;

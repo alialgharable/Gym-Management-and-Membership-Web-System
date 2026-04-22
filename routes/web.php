@@ -14,12 +14,15 @@ use App\Http\Controllers\TrainerApplicationController;
 use App\Http\Controllers\TrainerReviewController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FinanceController;
+use App\Http\Controllers\ProgramController;
+use App\Http\Controllers\PremiumCoachRequestController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::view('/about-us', 'about')->name('about');
 
 Route::middleware(['auth'])->group(function () {
     Route::post('subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
+    Route::post('subscriptions/cancel-active', [SubscriptionController::class, 'cancelActive'])->name('subscriptions.cancel-active');
 
     Route::get('trainer-applications/create', [TrainerApplicationController::class, 'create'])
         ->name('trainer-applications.create');
@@ -45,6 +48,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/trainers/{trainer}/edit', [TrainerController::class, 'edit'])->name('trainers.edit');
     Route::put('/trainers/{trainer}', [TrainerController::class, 'update'])->name('trainers.update');
     Route::delete('/trainers/{trainer}', [TrainerController::class, 'destroy'])->name('trainers.destroy');
+
+    Route::resource('programs', ProgramController::class)->except(['index', 'show']);
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -68,6 +73,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
 Route::middleware(['auth', 'trainer'])->group(function () {
     Route::get('/trainer/dashboard', [TrainerDashboardController::class, 'index'])->name('trainer.dashboard');
     Route::resource('classes', GymClassController::class)->except(['index', 'show']);
+    Route::post('/premium-coach-requests/{premiumCoachRequest}/approve', [PremiumCoachRequestController::class, 'approve'])
+        ->name('premium-coach-requests.approve');
+    Route::post('/premium-coach-requests/{premiumCoachRequest}/reject', [PremiumCoachRequestController::class, 'reject'])
+        ->name('premium-coach-requests.reject');
 });
 
 Route::middleware(['auth', 'member'])->group(function () {
@@ -76,6 +85,7 @@ Route::middleware(['auth', 'member'])->group(function () {
 });
 
 Route::resource('bookings', BookingController::class);
+Route::resource('programs', ProgramController::class)->only(['index', 'show'])->middleware('auth');
 Route::resource('members', MemberController::class)->only(['index', 'show']);
 Route::resource('classes', GymClassController::class)->only(['index', 'show']);
 Route::resource('plans', MembershipPlanController::class)->only(['index', 'show']);

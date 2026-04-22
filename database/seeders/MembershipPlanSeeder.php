@@ -15,35 +15,55 @@ class MembershipPlanSeeder extends Seeder
     {
         $plans = [
             [
-                'name' => 'Basic Plan',
+                'name' => '1 Month',
+                'tier' => 'basic',
                 'price' => 29.99,
                 'duration' => 30,
-                'description' => 'Great starter plan for consistent monthly training.',
+                'description' => 'Basic one-month membership.',
             ],
             [
-                'name' => 'Standard Plan',
+                'name' => '3 Months',
+                'tier' => 'basic',
                 'price' => 79.99,
                 'duration' => 90,
-                'description' => 'Balanced 3-month plan for building routine and momentum.',
+                'description' => 'Basic three-month membership.',
             ],
             [
-                'name' => 'Premium Plan',
+                'name' => '6 Months',
+                'tier' => 'basic',
                 'price' => 149.99,
                 'duration' => 180,
-                'description' => '6-month plan for long-term progress and class consistency.',
+                'description' => 'Basic six-month membership.',
             ],
             [
-                'name' => 'Annual Plan',
-                'price' => 269.99,
-                'duration' => 365,
-                'description' => 'Best value yearly plan for committed members.',
+                'name' => '1 Month',
+                'tier' => 'premium',
+                'price' => 39.99,
+                'duration' => 30,
+                'description' => 'Premium one-month membership with trainer request flow.',
+            ],
+            [
+                'name' => '3 Months',
+                'tier' => 'premium',
+                'price' => 99.99,
+                'duration' => 90,
+                'description' => 'Premium three-month membership with trainer request flow.',
+            ],
+            [
+                'name' => '6 Months',
+                'tier' => 'premium',
+                'price' => 179.99,
+                'duration' => 180,
+                'description' => 'Premium six-month membership with trainer request flow.',
             ],
         ];
 
         foreach ($plans as $plan) {
             MembershipPlan::updateOrCreate(
-                ['name' => $plan['name']],
+                ['tier' => $plan['tier'], 'duration' => $plan['duration']],
                 [
+                    'name' => $plan['name'],
+                    'tier' => $plan['tier'],
                     'price' => $plan['price'],
                     'duration' => $plan['duration'],
                     'description' => $plan['description'],

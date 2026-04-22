@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Member;
+use App\Models\Trainer;
 use Illuminate\Support\Facades\Storage;
 
 class MemberController extends Controller
@@ -80,7 +81,9 @@ class MemberController extends Controller
             abort(403);
         }
 
-        return view('admin.members.edit', compact('member'));
+        $trainers = Trainer::with('user')->orderBy('id')->get();
+
+        return view('admin.members.edit', compact('member', 'trainers'));
     }
 
     /**
@@ -98,6 +101,7 @@ class MemberController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $member->user->id,
             'user_id' => 'sometimes|exists:users,id',
+            'trainer_id' => 'nullable|exists:trainers,id',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
@@ -106,6 +110,10 @@ class MemberController extends Controller
 
         if ($request->filled('user_id') && $user->isAdmin()) {
             $member->user_id = $request->user_id;
+        }
+
+        if ($user->isAdmin()) {
+            $member->trainer_id = $request->input('trainer_id');
         }
 
         if ($request->hasFile('profile_picture')) {

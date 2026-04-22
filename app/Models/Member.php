@@ -9,7 +9,14 @@ class Member extends Model
 
     protected $fillable = [
         'user_id',
+        'trainer_id',
     ];
+
+    public function trainer()
+    {
+        return $this->belongsTo(Trainer::class);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -28,5 +35,15 @@ class Member extends Model
     public function reviews()
     {
         return $this->hasMany(TrainerReview::class);
+    }
+
+    public function programs()
+    {
+        return $this->hasMany(Program::class);
+    }
+
+    public function premiumCoachRequests()
+    {
+        return $this->hasMany(PremiumCoachRequest::class);
     }
 }

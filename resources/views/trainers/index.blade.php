@@ -279,6 +279,7 @@
                         const reviews = trainer.reviews || [];
                         const trainerUserId = user.id ?? null;
                         const canManageTrainer = isAdmin || (isTrainer && trainerUserId && currentUserId && Number(trainerUserId) === Number(currentUserId));
+                        const canDeleteTrainer = isAdmin || (isTrainer && trainerUserId && currentUserId && Number(trainerUserId) !== Number(currentUserId));
                         const canSeeSalary = trainer.salary !== null && trainer.salary !== undefined;
                         const salaryLine = canSeeSalary
                             ? `<p><strong>Salary:</strong> $${Number(trainer.salary).toLocaleString()}</p>`
@@ -286,7 +287,7 @@
                         const manageActions = canManageTrainer
                             ? `
                                 <a href="/trainers/${trainer.id}/edit" class="btn btn-primary">Edit</a>
-                                <button type="button" class="btn btn-danger btn-delete-trainer" data-id="${trainer.id}">Delete</button>
+                                ${canDeleteTrainer ? `<button type="button" class="btn btn-danger btn-delete-trainer" data-id="${trainer.id}">Delete</button>` : ''}
                             `
                             : '';
                         const profileImage = user.profile_picture

@@ -99,8 +99,8 @@
         }
 
         .site-brand-logo-home {
-            width: 48px;
-            height: 48px;
+            width: 34px;
+            height: 34px;
         }
 
         .site-header-main {
@@ -887,8 +887,8 @@
             }
 
             .site-brand-logo-home {
-                width: 40px;
-                height: 40px;
+                width: 30px;
+                height: 30px;
             }
 
             .site-header-main {
@@ -1103,7 +1103,11 @@
 
             <nav id="siteNav" class="site-nav" aria-label="Primary navigation">
                 <div class="nav-group">
-                    <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
+                    @php
+                        $homeIsActive = request()->routeIs('home', 'admin.dashboard', 'trainer.dashboard', 'member.dashboard');
+                    @endphp
+
+                    <a class="nav-link {{ $homeIsActive ? 'active' : '' }}"
                         href="{{ route('home') }}">Home</a>
                     <a class="nav-link {{ request()->routeIs('plans.*') ? 'active' : '' }}"
                         href="{{ route('plans.index') }}">Membership</a>
@@ -1111,6 +1115,31 @@
                         href="{{ route('classes.index') }}">Classes</a>
                     <a class="nav-link {{ request()->routeIs('trainers.*') ? 'active' : '' }}"
                         href="{{ route('trainers.index') }}">Trainers</a>
+                    @php
+                        $showProgramsNav = false;
+
+                        if (auth()->check()) {
+                            $navUser = auth()->user();
+
+                            if ($navUser->isAdmin() || $navUser->isTrainer()) {
+                                $showProgramsNav = true;
+                            } elseif ($navUser->isMember() && $navUser->member) {
+                                $activeSub = $navUser->member->subscription()
+                                    ->with('plan')
+                                    ->where('status', 'active')
+                                    ->whereDate('end_date', '>=', now()->toDateString())
+                                    ->latest('end_date')
+                                    ->first();
+
+                                $showProgramsNav = strtolower((string) ($activeSub?->plan?->tier ?? '')) === 'premium';
+                            }
+                        }
+                    @endphp
+
+                    @if($showProgramsNav)
+                        <a class="nav-link {{ request()->routeIs('programs.*') ? 'active' : '' }}"
+                            href="{{ route('programs.index') }}">Programs</a>
+                    @endif
                     <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}"
                         href="{{ route('about') }}">About Us</a>
 
@@ -1135,6 +1164,23 @@
 
                             @if($pendingCount > 0)
                                 <span class="badge">{{ $pendingCount }}</span>
+                            @endif
+                        </a>
+                    @endif
+
+                    @if(auth()->check() && auth()->user()->isTrainer() && auth()->user()->trainer)
+                        @php
+                            $trainerRequestCount = \App\Models\PremiumCoachRequest::where('trainer_id', auth()->user()->trainer->id)
+                                ->where('status', 'pending')
+                                ->count();
+                        @endphp
+
+                        <a href="{{ route('trainer.dashboard') }}#premium-requests" class="notification-bell"
+                            title="Premium coach requests">
+                            <i class="fa-solid fa-bell"></i>
+
+                            @if($trainerRequestCount > 0)
+                                <span class="badge">{{ $trainerRequestCount }}</span>
                             @endif
                         </a>
                     @endif

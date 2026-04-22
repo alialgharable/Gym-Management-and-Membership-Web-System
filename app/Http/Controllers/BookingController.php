@@ -70,6 +70,16 @@ class BookingController extends Controller
             return redirect('subscriptions/create');
         }
 
+        if ($isMember) {
+            $member = Member::with('subscription')->where('user_id', $user->id)->first();
+            $hasActiveSubscription = $member && $member->subscription && $member->subscription->status === 'active';
+
+            if (!$hasActiveSubscription) {
+                return redirect()->route('member.dashboard')
+                    ->with('error', 'You need an active subscription to book classes.');
+            }
+        }
+
         $classes = GymClass::with(['trainer.user', 'room'])->get();
         $members = $isMember ? Member::where('user_id', $user->id)->get() : Member::all();
 
@@ -96,6 +106,11 @@ class BookingController extends Controller
 
         if ($user && $user->isMember()) {
             $member = Member::where('user_id', $user->id)->firstOrFail();
+
+            $hasActiveSubscription = $member->subscription && $member->subscription->status === 'active';
+            if (!$hasActiveSubscription) {
+                return back()->withInput()->with('error', 'You need an active subscription to book classes.');
+            }
 
             $request->validate([
                 'class_id' => 'required|exists:classes,id',

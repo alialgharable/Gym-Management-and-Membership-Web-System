@@ -123,6 +123,10 @@ class TrainerController extends Controller
             abort(403);
         }
 
+        if (!$user->isAdmin() && $trainer->user_id === $user->id) {
+            abort(403, 'Trainers cannot delete their own profile.');
+        }
+
         $trainerUser = $trainer->user;
         $currentUserId = $user->id;
 

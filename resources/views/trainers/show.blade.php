@@ -186,6 +186,7 @@
                 : `/images/default-avatar.png`;
             const trainerUserId = user.id ?? null;
             const canManageTrainer = isAdmin || (isTrainer && trainerUserId && currentUserId && Number(trainerUserId) === Number(currentUserId));
+            const canDeleteTrainer = isAdmin || (isTrainer && trainerUserId && currentUserId && Number(trainerUserId) !== Number(currentUserId));
 
             document.getElementById('trainer-header').innerHTML = `
                 <img
@@ -207,7 +208,7 @@
                     actions.innerHTML = `
                         <a href="{{ route('trainers.index') }}" class="btn btn-secondary">← Back</a>
                         <a href="/trainers/${trainer.id}/edit" class="btn btn-primary">Edit</a>
-                        <button type="button" class="btn btn-danger" id="delete-trainer-btn">Delete</button>
+                        ${canDeleteTrainer ? '<button type="button" class="btn btn-danger" id="delete-trainer-btn">Delete</button>' : ''}
                     `;
 
                     const deleteBtn = document.getElementById('delete-trainer-btn');

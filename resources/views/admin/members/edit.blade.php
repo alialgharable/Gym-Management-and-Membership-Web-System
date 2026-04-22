@@ -91,6 +91,24 @@
                 >
             </div>
 
+            @if(auth()->user()->isAdmin())
+                <div class="field-group">
+                    <label class="field-label" for="trainer_id">Assigned Coach</label>
+                    <select id="trainer_id" name="trainer_id" class="field-select">
+                        <option value="">No coach assigned</option>
+                        @foreach($trainers as $trainer)
+                            <option value="{{ $trainer->id }}"
+                                {{ (string) old('trainer_id', $member->trainer_id) === (string) $trainer->id ? 'selected' : '' }}>
+                                {{ $trainer->user->name ?? 'Coach #' . $trainer->id }} - {{ $trainer->specialtyLabel() }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('trainer_id')
+                        <span style="color:#ff5555; font-size:0.9rem;">{{ $message }}</span>
+                    @enderror
+                </div>
+            @endif
+
             <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:2rem; padding-top:1.5rem; border-top:1px solid #2b2b2b;">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
                 <a href="{{ route('members.show', $member) }}" class="btn btn-secondary">Cancel</a>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trainer;
+use App\Models\PremiumCoachRequest;
 
 class TrainerDashboardController extends Controller
 {
@@ -18,6 +19,16 @@ class TrainerDashboardController extends Controller
             ->where('user_id', $user->id)
             ->first();
 
-        return view('trainer.dashboard', compact('trainer'));
+        $pendingPremiumRequests = collect();
+
+        if ($trainer) {
+            $pendingPremiumRequests = PremiumCoachRequest::with(['member.user', 'subscription.plan'])
+                ->where('trainer_id', $trainer->id)
+                ->where('status', 'pending')
+                ->latest()
+                ->get();
+        }
+
+        return view('trainer.dashboard', compact('trainer', 'pendingPremiumRequests'));
     }
 }

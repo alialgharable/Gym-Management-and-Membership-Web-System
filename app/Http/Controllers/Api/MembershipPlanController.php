@@ -10,7 +10,14 @@ class MembershipPlanController extends Controller
 {
     public function index(Request $request)
     {
-        $query = MembershipPlan::query();
+        $query = MembershipPlan::query()->whereIn('duration', [30, 90, 180]);
+
+        if ($request->filled('tier')) {
+            $tier = strtolower((string) $request->input('tier'));
+            if (in_array($tier, ['basic', 'premium'], true)) {
+                $query->where('tier', $tier);
+            }
+        }
 
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -36,12 +43,13 @@ class MembershipPlanController extends Controller
         }
 
         $perPage = 12;
-        $paginator = $query->latest()->paginate($perPage);
+        $paginator = $query->orderBy('tier')->orderBy('duration')->paginate($perPage);
 
         $items = collect($paginator->items())->map(function ($plan) {
             return [
                 'id' => $plan->id,
                 'name' => $plan->name,
+                'tier' => $plan->tier,
                 'price' => $plan->price,
                 'duration' => $plan->duration,
                 'duration_label' => method_exists($plan, 'durationLabel') ? $plan->durationLabel() : $plan->duration,
@@ -70,6 +78,7 @@ class MembershipPlanController extends Controller
             'data' => [
                 'id' => $plan->id,
                 'name' => $plan->name,
+                'tier' => $plan->tier,
                 'price' => $plan->price,
                 'duration' => $plan->duration,
                 'duration_label' => method_exists($plan, 'durationLabel') ? $plan->durationLabel() : $plan->duration,
@@ -86,8 +95,9 @@ class MembershipPlanController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'tier' => 'required|in:basic,premium',
             'price' => 'required|numeric|min:0',
-            'duration' => 'required|integer|min:1',
+            'duration' => 'required|integer|in:30,90,180',
             'description' => 'nullable|string',
         ]);
 
@@ -105,8 +115,9 @@ class MembershipPlanController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
+            'tier' => 'sometimes|in:basic,premium',
             'price' => 'sometimes|numeric|min:0',
-            'duration' => 'sometimes|integer|min:1',
+            'duration' => 'sometimes|integer|in:30,90,180',
             'description' => 'nullable|string',
         ]);
 

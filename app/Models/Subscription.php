@@ -27,4 +27,9 @@ class Subscription extends Model
     {
         return $this->belongsTo(MembershipPlan::class, 'membership_plan_id');
     }
+
+    public function premiumCoachRequest()
+    {
+        return $this->hasOne(PremiumCoachRequest::class);
+    }
 }

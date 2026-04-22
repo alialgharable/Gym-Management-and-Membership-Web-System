@@ -8,6 +8,7 @@ class MembershipPlan extends Model
 {
     protected $fillable = [
         'name',
+        'tier',
         'price',
         'duration',
         'description',
@@ -29,5 +30,10 @@ class MembershipPlan extends Model
         }
 
         return $this->duration . ' days';
+    }
+
+    public function tierLabel(): string
+    {
+        return strtolower((string) $this->tier) === 'premium' ? 'Premium' : 'Basic';
     }
 }

@@ -48,6 +48,9 @@
                         <input type="hidden" name="plan_id" id="subscribe-plan-id" value="">
                         <button type="submit" class="btn btn-primary">Subscribe</button>
                     </form>
+                    <p id="premium-plan-hint" style="display:none; margin-top:10px; color:#d7d2ad;">
+                        Premium plans require trainer selection. Go to the Membership page, switch to Premium, and choose a trainer.
+                    </p>
                 </div>
             @endif
         @endauth
@@ -98,9 +101,18 @@
                     const subscribeInput = document.getElementById('subscribe-plan-id');
                     if (subscribeInput) subscribeInput.value = p.id;
 
+                    const premiumHint = document.getElementById('premium-plan-hint');
+                    if (premiumHint) {
+                        premiumHint.style.display = p.tier === 'premium' ? 'block' : 'none';
+                    }
+
                     // intercept subscribe form to use fetch and avoid page reload
                     const subscribeForm = document.getElementById('subscribe-form');
                     if (subscribeForm && !subscribeForm.__handled) {
+                        if (p.tier === 'premium') {
+                            subscribeForm.style.display = 'none';
+                        }
+
                         subscribeForm.addEventListener('submit', async function (e) {
                             e.preventDefault();
                             const btn = subscribeForm.querySelector('button[type="submit"]');

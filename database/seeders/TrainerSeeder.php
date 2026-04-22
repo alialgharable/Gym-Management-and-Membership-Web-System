@@ -15,21 +15,28 @@ class TrainerSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::updateOrCreate(
-            ['email' => 'trainer@gmail.com'],
-            [
-                'name' => 'trainer',
-                'password' => Hash::make('trainer123'),
-                'role' => 'trainer',
-            ]
-        );
+        $specialties = ['combat', 'yoga_pilates', 'group_training', 'fitness_machines'];
 
-        // Link user to admins table (avoid duplicates)
-        Trainer::updateOrCreate([
-            'user_id' => $user->id,
-            'specialty' => 'combat',
-        ], [
-            'salary' => fake()->numberBetween(1200, 2600),
-        ]);
+        $trainerUsers = User::where('role', 'trainer')
+            ->whereIn('email', [
+                'trainer1@gymrats.test',
+                'trainer2@gymrats.test',
+                'trainer3@gymrats.test',
+                'trainer4@gymrats.test',
+                'trainer5@gymrats.test',
+            ])
+            ->orderBy('id')
+            ->get();
+
+        foreach ($trainerUsers as $index => $user) {
+            Trainer::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'specialty' => $specialties[$index % count($specialties)],
+                    'bio' => fake()->paragraph(),
+                    'salary' => fake()->numberBetween(1200, 2600),
+                ]
+            );
+        }
     }
 }

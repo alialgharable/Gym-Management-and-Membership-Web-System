@@ -35,23 +35,6 @@
                 });
         }
 
-        function memberSinceText(value) {
-            if (!value) return 'N/A';
-
-            const created = new Date(value);
-            if (Number.isNaN(created.getTime())) return 'N/A';
-
-            const now = new Date();
-            const diffMs = now - created;
-            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-            if (diffDays < 30) {
-                return `${diffDays} days`;
-            }
-
-            return `${Math.floor(diffDays / 30)} months`;
-        }
-
         function statusColor(status) {
             if (status === 'confirmed') return '#5fd68f';
             if (status === 'cancelled') return '#ff5555';
@@ -77,8 +60,10 @@
                 const payload = result.data || {};
                 const member = payload.member || null;
                 const stats = payload.stats || {};
+                const subscriptionAccess = payload.subscription_access || {};
                 const activeSubscription = payload.active_subscription || null;
                 const bookings = payload.bookings || [];
+                const programs = payload.programs || [];
 
                 if (!member) {
                     container.innerHTML = `
@@ -92,6 +77,10 @@
 
                 const memberName = member.user?.name || 'Member';
                 const planName = activeSubscription?.plan?.name || null;
+                const planTier = activeSubscription?.plan?.tier || null;
+                const hasActiveSubscription = !!subscriptionAccess.has_active_subscription;
+                const canBookClasses = !!subscriptionAccess.can_book_classes;
+                const canAccessPrograms = !!subscriptionAccess.can_access_programs;
 
                 container.innerHTML = `
                     <div class="page-header">
@@ -103,13 +92,13 @@
 
                     <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
 
-                        <div class="card" style="background: linear-gradient(135deg, #2e7d32, #1b5e20);">
-                            <h3 style="color:#fff;">Subscription</h3>
+                        <div class="card">
+                            <h3>Subscription</h3>
                             ${
                                 activeSubscription && planName
                                     ? `
-                                        <p style="color:#a8d5a8; margin:6px 0;"><strong>${planName}</strong></p>
-                                        <p style="color:#a8d5a8; font-size:0.9rem;">
+                                        <p style="color:#edf2f7; margin:6px 0;"><strong>${planName}</strong> (${(planTier || 'N/A').toUpperCase()})</p>
+                                        <p style="color:#aeb9c7; font-size:0.9rem;">
                                             Valid until ${formatDate(activeSubscription.end_date)}
                                         </p>
                                     `
@@ -117,25 +106,22 @@
                             }
                         </div>
 
-                        <div class="card" style="background: linear-gradient(135deg, #1976d2, #0d47a1);">
-                            <h3 style="color:#fff;">Bookings</h3>
-                            <p style="font-size:2.5rem; font-weight:700; color:#fff;">${stats.total_bookings ?? 0}</p>
-                            <p style="color:#90caf9; font-size:0.9rem;">Total classes booked</p>
+                        <div class="card">
+                            <h3>Bookings</h3>
+                            <p style="font-size:2.5rem; font-weight:700; color:#f7d34a;">${stats.total_bookings ?? 0}</p>
+                            <p style="color:#aeb9c7; font-size:0.9rem;">Total classes booked</p>
                         </div>
 
-                        <div class="card" style="background: linear-gradient(135deg, #f57c00, #bf360c);">
-                            <h3 style="color:#fff;">Confirmed</h3>
-                            <p style="font-size:2.5rem; font-weight:700; color:#fff;">${stats.confirmed_bookings ?? 0}</p>
-                            <p style="color:#ffb74d; font-size:0.9rem;">Active bookings</p>
+                        <div class="card">
+                            <h3>Confirmed</h3>
+                            <p style="font-size:2.5rem; font-weight:700; color:#f7d34a;">${stats.confirmed_bookings ?? 0}</p>
+                            <p style="color:#aeb9c7; font-size:0.9rem;">Active bookings</p>
                         </div>
 
-                        <div class="card" style="background: linear-gradient(135deg, #c2185b, #880e4f);">
-                            <h3 style="color:#fff;">Member Since</h3>
-                            <p style="color:#f48fb1;">
+                        <div class="card">
+                            <h3>Member Since</h3>
+                            <p style="color:#edf2f7;">
                                 ${formatDate(member.created_at)}
-                            </p>
-                            <p style="color:#f48fb1; font-size:0.9rem;">
-                                (${memberSinceText(member.created_at)})
                             </p>
                         </div>
 
@@ -144,9 +130,11 @@
                     <div class="card" style="margin-top:1.5rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                             <h3 style="margin:0;">My Bookings</h3>
-                            <a href="/bookings/create" class="btn btn-primary">
-                                Book Class
-                            </a>
+                            ${
+                                canBookClasses
+                                    ? `<a href="/bookings/create" class="btn btn-primary">Book Class</a>`
+                                    : `<span style="color:#ff8a80; font-size:0.92rem; font-weight:600;">You need an active subscription to book classes.</span>`
+                            }
                         </div>
 
                         ${
@@ -200,11 +188,58 @@
                                 : `
                                     <p style="color:#aaa; margin-top:1rem;">
                                         No bookings yet.
-                                        <a href="/bookings/create" style="color:#f7d34a; font-weight:bold;">
-                                            Book a class
-                                        </a>
+                                        ${
+                                            canBookClasses
+                                                ? `<a href="/bookings/create" style="color:#f7d34a; font-weight:bold;">Book a class</a>`
+                                                : `<span style="color:#ff8a80; font-weight:bold;">Subscribe first to start booking.</span>`
+                                        }
                                     </p>
                                 `
+                        }
+                    </div>
+
+                    <div class="card" style="margin-top:1.5rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                            <h3 style="margin:0;">My Programs</h3>
+                        </div>
+
+                        ${
+                            !canAccessPrograms
+                                ? `
+                                    <p style="color:#ff8a80; margin-top:1rem; font-weight:600;">
+                                        ${
+                                            !hasActiveSubscription
+                                                ? 'You need an active subscription to access the Programs section.'
+                                                : 'You are on the Basic plan. Upgrade to Premium to access the Programs section.'
+                                        }
+                                    </p>
+                                `
+                                : programs.length
+                                    ? `
+                                        <div style="overflow-x:auto; margin-top:1rem;">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Program</th>
+                                                        <th>Duration</th>
+                                                        <th>Assigned Coach</th>
+                                                        <th>Coach Contact</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    ${programs.map(program => `
+                                                        <tr>
+                                                            <td>${program.title || 'N/A'}</td>
+                                                            <td>${program.duration_weeks || 0} week(s)</td>
+                                                            <td>${program.assigned_coach?.name || 'N/A'}</td>
+                                                            <td>${program.assigned_coach?.email || 'N/A'}</td>
+                                                        </tr>
+                                                    `).join('')}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    `
+                                    : `<p style="color:#aaa; margin-top:1rem;">No programs assigned yet.</p>`
                         }
                     </div>
                 `;

@@ -9,7 +9,11 @@
             ? asset('storage/' . $user->profile_picture)
             : asset('images/default-avatar.png');
 
-        $activeSub = $member->subscription()->where('status', 'active')->first();
+        $activeSub = $member->subscription()
+            ->where('status', 'active')
+            ->whereDate('end_date', '>=', now()->toDateString())
+            ->latest('end_date')
+            ->first();
     @endphp
 
     <div class="card" style="margin-bottom:1.5rem;">
@@ -62,7 +66,11 @@
 
             @if ($activeSub)
                 <div style="margin-top:10px;">
-                    <p><strong>Plan:</strong> {{ $activeSub->plan->name ?? 'N/A' }}</p>
+                    <p><strong>Plan:</strong> {{ $activeSub->plan->name ?? 'N/A' }}
+                        @if(!empty($activeSub->plan?->tier))
+                            ({{ ucfirst($activeSub->plan->tier) }})
+                        @endif
+                    </p>
                     <p><strong>Price:</strong> ${{ $activeSub->plan->price ?? 'N/A' }}</p>
                     <p><strong>Expires:</strong> {{ $activeSub->end_date->format('M d, Y') }}</p>
                 </div>

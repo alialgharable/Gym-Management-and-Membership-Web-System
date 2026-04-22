@@ -36,6 +36,17 @@
             </div>
 
             <div class="field-group">
+                <label class="field-label">Tier</label>
+                <select name="tier" class="field-select" required>
+                    <option value="basic" @selected(old('tier', $plan->tier ?? 'basic') === 'basic')>Basic</option>
+                    <option value="premium" @selected(old('tier', $plan->tier ?? 'basic') === 'premium')>Premium</option>
+                </select>
+                @error('tier')
+                    <span style="color:#ff5555; font-size:0.9rem;">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="field-group">
                 <label class="field-label">Price (USD)</label>
                 <input
                     type="number"
@@ -57,7 +68,6 @@
                     <option value="1" @selected($durationMonths == 1)>1 Month</option>
                     <option value="3" @selected($durationMonths == 3)>3 Months</option>
                     <option value="6" @selected($durationMonths == 6)>6 Months</option>
-                    <option value="12" @selected($durationMonths == 12)>12 Months</option>
                 </select>
                 @error('duration_months')
                     <span style="color:#ff5555; font-size:0.9rem;">{{ $message }}</span>

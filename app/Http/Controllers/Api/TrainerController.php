@@ -36,10 +36,16 @@ class TrainerController extends Controller
             $query->where('specialty', $request->input('specialty'));
         }
 
-        $perPage = 12;
-        $paginator = $query->latest()->paginate($perPage);
-
         $viewer = auth()->user();
+
+        if ($viewer && $viewer->isTrainer() && $viewer->trainer) {
+            $query->orderByRaw('CASE WHEN trainers.id = ? THEN 0 ELSE 1 END', [$viewer->trainer->id]);
+        }
+
+        $query->latest();
+
+        $perPage = 12;
+        $paginator = $query->paginate($perPage);
 
         $items = collect($paginator->items())->map(function ($trainer) use ($viewer) {
             $canSeeSalary = $viewer && ($viewer->isAdmin() || ($viewer->isTrainer() && $viewer->id === $trainer->user_id));
