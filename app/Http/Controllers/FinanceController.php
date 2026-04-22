@@ -105,16 +105,16 @@ class FinanceController extends Controller
             ];
         })->sortByDesc('total_revenue')->values();
 
-        $bookingCountByTrainer = Booking::selectRaw('gym_classes.trainer_id, COUNT(*) as total_bookings')
-            ->join('gym_classes', 'bookings.class_id', '=', 'gym_classes.id')
-            ->groupBy('gym_classes.trainer_id')
-            ->pluck('total_bookings', 'gym_classes.trainer_id');
+        $bookingCountByTrainer = Booking::selectRaw('classes.trainer_id, COUNT(*) as total_bookings')
+            ->join('classes', 'bookings.class_id', '=', 'classes.id')
+            ->groupBy('classes.trainer_id')
+            ->pluck('total_bookings', 'classes.trainer_id');
 
-        $confirmedBookingCountByTrainer = Booking::selectRaw('gym_classes.trainer_id, COUNT(*) as total_confirmed_bookings')
-            ->join('gym_classes', 'bookings.class_id', '=', 'gym_classes.id')
+        $confirmedBookingCountByTrainer = Booking::selectRaw('classes.trainer_id, COUNT(*) as total_confirmed_bookings')
+            ->join('classes', 'bookings.class_id', '=', 'classes.id')
             ->where('bookings.status', 'confirmed')
-            ->groupBy('gym_classes.trainer_id')
-            ->pluck('total_confirmed_bookings', 'gym_classes.trainer_id');
+            ->groupBy('classes.trainer_id')
+            ->pluck('total_confirmed_bookings', 'classes.trainer_id');
 
         $trainerPortfolio = Trainer::with('user')
             ->withCount('gymClasses')
