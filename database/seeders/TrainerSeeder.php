@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use App\Models\Trainer;
 use Illuminate\Support\Facades\Hash;
+use Faker\Factory as Faker;
 
 class TrainerSeeder extends Seeder
 {
@@ -28,13 +29,15 @@ class TrainerSeeder extends Seeder
             ->orderBy('id')
             ->get();
 
+        $faker = Faker::create();
+
         foreach ($trainerUsers as $index => $user) {
             Trainer::updateOrCreate(
                 ['user_id' => $user->id],
                 [
                     'specialty' => $specialties[$index % count($specialties)],
-                    'bio' => fake()->paragraph(),
-                    'salary' => fake()->numberBetween(1200, 2600),
+                    'bio' => $faker->paragraph(),
+                    'salary' => $faker->numberBetween(1200, 2600),
                 ]
             );
         }
