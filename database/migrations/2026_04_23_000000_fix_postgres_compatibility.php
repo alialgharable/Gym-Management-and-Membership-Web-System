@@ -116,10 +116,14 @@ return new class extends Migration
                 $indexes = [];
             }
 
-            if (!in_array('trainer_reviews_member_trainer_unique', $indexes, true)) {
-                Schema::table('trainer_reviews', function (\Illuminate\Database\Schema\Blueprint $table) {
-                    $table->unique(['member_id', 'trainer_id'], 'trainer_reviews_member_trainer_unique');
-                });
+            try {
+                if (!in_array('trainer_reviews_member_trainer_unique', $indexes, true)) {
+                    Schema::table('trainer_reviews', function (\Illuminate\Database\Schema\Blueprint $table) {
+                        $table->unique(['member_id', 'trainer_id'], 'trainer_reviews_member_trainer_unique');
+                    });
+                }
+            } catch (\Throwable $e) {
+                // ignore if constraint/index already exists or creation fails
             }
         }
     }
