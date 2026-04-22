@@ -6,6 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run this migration without wrapping in a transaction.
+     * Prevents a single failing raw SQL statement from aborting the whole transaction
+     * when running multiple DB statements that may be dialect-sensitive.
+     */
+    public bool $withinTransaction = false;
+
     public function up(): void
     {
         $driver = Schema::getConnection()->getDriverName();
@@ -48,19 +55,18 @@ return new class extends Migration
             // nothing
         }
 
-        // Create index if not exists
+        // Create index if not exists (guard Schema introspection in case classes table is missing)
         try {
             $sm = Schema::getConnection()->getDoctrineSchemaManager();
             $indexes = array_map(function ($i) { return $i->getName(); }, $sm->listTableIndexes('classes'));
-        } catch (\Throwable $e) {
-            $sm = null;
-            $indexes = [];
-        }
 
-        if (!in_array('classes_category_index', $indexes, true)) {
-            Schema::table('classes', function (\Illuminate\Database\Schema\Blueprint $table) {
-                $table->index('category', 'classes_category_index');
-            });
+            if (!in_array('classes_category_index', $indexes, true)) {
+                Schema::table('classes', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->index('category', 'classes_category_index');
+                });
+            }
+        } catch (\Throwable $e) {
+            // ignore: if introspection fails, skip index creation
         }
 
         // 3) Populate room_id for classes using PHP regex matching to avoid MySQL REGEXP
