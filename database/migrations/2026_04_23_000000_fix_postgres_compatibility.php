@@ -11,7 +11,7 @@ return new class extends Migration
      * Prevents a single failing raw SQL statement from aborting the whole transaction
      * when running multiple DB statements that may be dialect-sensitive.
      */
-    public bool $withinTransaction = false;
+    public $withinTransaction = false;
 
     public function up(): void
     {
