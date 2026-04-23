@@ -1444,6 +1444,30 @@
             closeGuestMenu();
         });
     </script>
+    <script>
+        (function () {
+            const container = document.getElementById('flashInline');
+            if (!container) return;
+
+            Array.from(container.children).forEach((el) => {
+                // Only auto dismiss real flash boxes (skip empty nodes)
+                if (!el || !(el instanceof HTMLElement)) return;
+
+                // Start timeout to fade then remove the element
+                setTimeout(() => {
+                    el.style.transition = 'opacity 0.4s ease, transform 0.4s ease, height 0.4s ease, margin 0.4s ease, padding 0.4s ease';
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(-8px)';
+                    el.style.height = '0';
+                    el.style.margin = '0';
+                    el.style.padding = '0';
+
+                    // Remove from DOM after transition
+                    setTimeout(() => { if (el.parentNode) el.remove(); }, 420);
+                }, 3000);
+            });
+        })();
+    </script>
     @stack('scripts')
 </body>
 
