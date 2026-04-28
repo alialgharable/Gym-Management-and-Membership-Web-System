@@ -36,6 +36,6 @@ class MembershipPlanController extends Controller
      */
     public function edit(MembershipPlan $plan)
     {
-        return view('plans.edit', ['planId' => $plan->id]);
+        return view('plans.edit', ['plan' => $plan]);
     }
 }

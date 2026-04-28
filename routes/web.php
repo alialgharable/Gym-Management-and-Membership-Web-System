@@ -60,6 +60,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('plans', MembershipPlanController::class)->only(['create', 'edit']);
     // POST route for creating plans is handled by API controller; expose a named web route
     Route::post('plans', [ApiMembershipPlanController::class, 'store'])->name('plans.store');
+    Route::put('plans/{plan}', [ApiMembershipPlanController::class, 'update'])->name('plans.update');
     Route::resource('admins', AdminController::class)->except(['index', 'show']);
     Route::resource('subscriptions', SubscriptionController::class)->except(['store']);
     Route::resource('members', MemberController::class)->except(['index', 'show', 'create']);
