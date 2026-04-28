@@ -140,10 +140,14 @@ class MembershipPlanController extends Controller
 
         $plan->update($validated);
 
-        return response()->json([
-            'message' => 'Plan updated successfully',
-            'data' => ['id' => $plan->id],
-        ], 200);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Plan updated successfully',
+                'data' => ['id' => $plan->id],
+            ], 200);
+        }
+
+        return redirect()->route('plans.show', $plan)->with('success', 'Plan updated successfully!');
     }
 
     public function destroy(MembershipPlan $plan)
